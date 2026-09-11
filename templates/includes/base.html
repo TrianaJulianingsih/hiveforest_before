@@ -1,0 +1,56 @@
+{% load static %}
+
+{% if user.is_authenticated %}
+  <script>
+    window.location.href = "{% url 'admin:index' %}"
+  </script>
+{% endif %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}" />
+
+    <title>
+      {% block title %}
+        Hiveforest
+      {% endblock %}
+    </title>
+
+    <!-- AdminLTE CSS -->
+    <link rel="stylesheet" href="{% static 'adminlte/css/adminlte.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'adminlte/plugins/fontawesome-free/css/all.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'custom/css/custom.css' %}" />
+    <link rel="stylesheet" href="{% static 'custom/css/auth-pages.css' %}" />
+
+    {% block extra_css %}
+    {% endblock %}
+  </head>
+
+  <body class="{% block body_class %}
+
+    {% endblock %}">
+    <div class="login-box">
+      {% include 'includes/beforeL/header.html' %}
+
+      <main>
+        {% block content %}
+
+        {% endblock %}
+      </main>
+
+      {% include 'includes/beforeL/footer.html' %}
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'adminlte/plugins/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'adminlte/js/adminlte.min.js' %}"></script>
+
+    {% block extra_js %}
+
+    {% endblock %}
+  </body>
+</html>

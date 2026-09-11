@@ -1,0 +1,230 @@
+{% extends 'main.html' %}
+{% load i18n static translation_tags %}
+
+{% block content %}
+{{ block.super }}
+{% get_translations 'branch' as t %}
+
+{% if messages %}
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"
+  >
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+  {{ messages|json_script:"django-messages" }}
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const messages = JSON.parse(
+        document.getElementById("django-messages").textContent
+      );
+
+      messages.forEach((msg) => {
+        toastr.success(msg);
+      });
+    });
+  </script>
+{% endif %}
+
+  <div class="card card-primary card-outline hiveforest pb-2">
+    <div class="card-header ui-sortable-handle">
+      <h1 class="card-title">
+        <b>{{ t.page_title|default:'Branch Supply Chain' }}</b>
+      </h1>
+      <div class="card-tools">
+        <ul class="nav nav-pills ml-auto">
+          <li class="nav-item">
+            {% if perms.supplychain.add_branch %}
+              <a href="{% url 'supplychain:branch_add' %}"
+                 class="btn btn-sm btn-success">
+                <i class="fas fa-plus"></i> {{ t.btn_add|default:'Add' }}
+              </a>
+            {% endif %}
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="card-body">
+      <table id="branch_table" class="table table-striped table-bordered">
+        <thead>
+          <tr>
+            <th>{{ t.col_name|default:'Name' }}</th>
+            <th>{{ t.col_slug|default:'Slug' }}</th>
+            <th>{{ t.col_code|default:'Code' }}</th>
+            <th>{{ t.col_initial|default:'Initial' }}</th>
+            <th>{{ t.col_shortname|default:'Shortname' }}</th>
+            <th>{{ t.col_address|default:'Address' }}</th>
+            <th>{{ t.col_has_sales|default:'Has Sales' }}</th>
+            <th>{{ t.col_has_stock|default:'Has Stock' }}</th>
+            <th>{{ t.col_has_order|default:'Has Order' }}</th>
+            <th>{{ t.col_distributor|default:'Distributor' }}</th>
+            <th>{{ t.col_type|default:'Type' }}</th>
+            <th>{{ t.col_shipto|default:'Shipto' }}</th>
+            <th>{{ t.col_action|default:'Aksi' }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in branches %}
+            <tr>
+              <td>{{ p.name }}</td>
+              <td>{{ p.slug }}</td>
+              <td>{{ p.code }}</td>
+              <td>{{ p.initial }}</td>
+              <td>{{ p.shortname }}</td>
+              <td>{{ p.address }}</td>
+              <td>{{ p.has_sales }}</td>
+              <td>{{ p.has_stock }}</td>
+              <td>{{ p.has_order }}</td>
+              <td>{{ p.distributor }}</td>
+              <td>{{ p.type }}</td>
+              <td>{{ p.shipto }}</td>
+              <td>
+                {% if perms.supplychain.change_branch %}
+                  <a href="{% url 'supplychain:branch_edit' p.pk %}"
+                     class="btn btn-sm btn-warning text-dark"><i class="fa fa-edit"></i> {{ t.btn_edit|default:'Edit' }}</a>
+                {% endif %}
+                {% if perms.supplychain.delete_branch %}
+                  {% if not p.deleted %}
+                    <form method="post"
+                          action="{% url 'supplychain:branch_delete' p.pk %}"
+                          style="display:inline"
+                          class="delete-form">
+                      {% csrf_token %}
+                      <button type="button"
+                              class="btn btn-sm btn-danger btn-delete"
+                              data-name="{{ p }}"><i class="fa fa-trash"></i> {{ t.btn_delete|default:'Delete' }}</button>
+                    </form>
+                  {% else %}
+                    {% if can_hard_delete %}
+                      <form method="post"
+                            action="{% url 'supplychain:branch_delete' p.pk %}"
+                            style="display:inline"
+                            class="delete-form">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i> {{ t.btn_deleted|default:'Hard Delete' }}</button>
+                      </form>
+                    {% else %}
+                      <span class="badge badge-secondary"><i class="fa fa-trash"></i> {{ t.btn_delete|default:'Deleted' }}</span>
+                    {% endif %}
+                  {% endif %}
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="13">{{ t.no_data|default:'No data available.' }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}
+{% block datatable_js %}
+  {{ block.super }}
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+$(document).ready(function() {
+  let table = $('#branch_table').DataTable({
+    "paging": true,
+    "searching": true,
+    "info": true,
+    "ordering": true,
+    "responsive": true,
+    "fixedHeader": true,
+    "autoWidth": false,
+    "pageLength": 25,
+    "order": [[0, "asc"]],
+    "lengthMenu": [[10, 25, 50, 100, 250, 500], [10, 25, 50, 100, 250, 500]],
+    "columnDefs": [
+      { "orderable": false, "targets": [6, 7] },
+      { "className": "hv-centered", "targets": [6, 7] }
+    ],
+    "buttons": [
+      { extend: 'csv', className: 'btn btn-sm btn-success', exportOptions: { columns: ':visible' } },
+      { extend: 'spacer', className: 'btn btn-sm btn-primary' },
+      { extend: 'excel', className: 'btn btn-sm btn-success', exportOptions: { columns: ':visible' } },
+      { extend: 'spacer', className: 'btn btn-sm btn-primary' },
+      { extend: 'colvis', className: 'btn btn-sm btn-primary', text: 'Columns' }
+    ],
+    "language": {
+      "paginate": {
+        "first": "First",
+        "last": "Last",
+        "previous": "Previous",
+        "next": "Next"
+      },
+      "buttons": {
+        "colvis": 'Columns'
+      },
+      "lengthMenu": "Show _MENU_ entries",
+      "emptyTable": "{{ t.no_data }}",
+      "zeroRecords": "{{ t.no_data }}"
+    },
+    "layout": {
+      "topStart": ['pageLength'],
+      "topEnd": ['buttons', 'search'],
+      "bottomStart": ['info'],
+      "bottomEnd": ['paging']
+    },
+    "initComplete": function (settings, json) {
+      $('#branch_table thead tr:eq(1) th')
+        .removeClass('dt-orderable dt-ordering-asc dt-ordering-desc')
+        .removeAttr('aria-sort')
+        .find('.dt-column-order').remove();
+      $('#branch_table thead tr:eq(1) th .dt-column-title').each(function () {
+        $(this).contents().unwrap();
+      });
+    }
+  });
+
+  $('.column-filter').on('keyup change', function () {
+    const columnIndex = $(this).data('column');
+    const searchValue = $(this).val();
+    table.column(columnIndex).search(searchValue).draw();
+  });
+  
+  $('#reset-filters').on('click', function () {
+    $('.column-filter').val('');
+    table.columns().every(function () {
+      this.search('');
+    });
+    table.draw();
+  });
+  
+  $('table.dataTable thead').on('click', 'input, select', function (e) {
+    e.stopPropagation();
+  });
+});
+  </script>
+{% endblock %}
+{% block extra_js %}
+  <script>
+$(document).on('click', '.btn-delete', function(e) {
+  e.preventDefault();
+
+  const form = $(this).closest('form');
+  const name = $(this).data('name');
+
+  Swal.fire({
+    title: '{{ t.confirm_title|default:"Confirmation" }}',
+    text: '{{ t.confirm_delete|default:"Are you sure you want to delete" }} ' + name + '?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: '{{ t.confirm_btn_delete|default:"Yes, Delete" }}',
+    cancelButtonText: '{{ t.btn_cancel|default:"Cancel" }}',
+    reverseButtons: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+      form.submit();
+    }
+  });
+});
+  </script>
+{% endblock %}

@@ -1,0 +1,150 @@
+{% extends "main.html" %}
+{% load i18n static %}
+{% block datatable_css %}
+    {{ block.super }}
+{% endblock %}
+{% block datatable_js %}
+    {{ block.super }}
+    <script src="{% static 'custom/js/change_list_datatable.js' %}"></script>
+{% endblock %}
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    <div class="card card-primary card-outline hiveforest">
+        <div class="card-header">
+            <h3><b>Change Order</b></h3>
+            <!-- Display form errors -->
+            {% if order_form.errors %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for field, errors in order_form.errors.items %}
+                        {% for error in errors %}
+                            <li>{{ field|title }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        </div> <!-- Card Header end -->        
+        <div class="card-body hiveforest">
+            <!-- Tabs Navigation -->
+            <ul class="nav nav-tabs" id="formTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#tab1" role="tab">Order Info</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#tab2" role="tab">Products</a>
+                </li>
+            </ul>
+
+            <!-- Tabs Content -->
+            <div class="tab-content hiveforest">
+                <!-- Tab 1 -->
+                <div class="tab-pane fade show active" id="tab1" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="hv-form-group">
+                                {{ order_form.distributor.label_tag }}
+                                {{ order_form.distributor }}
+                            </div>
+                            <div class="hv-form-group">
+                                {{ order_form.branch.label_tag }}
+                                {{ order_form.branch }}
+                            </div>
+                            <div class="hv-form-group">
+                                {{ order_form.ordertype.label_tag }}
+                                {{ order_form.ordertype }}
+                            </div>
+                            <div class="hv-form-group">
+                                {{ order_form.orderno.label_tag }}
+                                {{ order_form.orderno }}
+                            </div>
+                            <div class="hv-form-group">
+                                {{ order_form.orderdate.label_tag }}
+                                {{ order_form.orderdate }}
+                            </div>
+                            <div class="hv-form-group">
+                                {{ order_form.orderdue.label_tag }}
+                                {{ order_form.orderdue }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="hv-form-group">
+                                {{ order_form.description.label_tag }}
+                                {{ order_form.description }}
+                            </div>
+                            <div class="hv-form-group">
+                                {{ order_form.remark.label_tag }}
+                                {{ order_form.remark }}
+                            </div>
+                            <div class="hv-form-group">
+                                {{ order_form.progress.label_tag }}
+                                {{ order_form.progress.as_widget }}
+                            </div>
+                            <div class="hv-form-group">
+                                {{ order_form.status.label_tag }}
+                                {{ order_form.status }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Tab 2 -->
+                <div class="tab-pane fade" id="tab2" role="tabpanel">
+                    {{ detail_formset.management_form }}
+                    {% for form in detail_formset %}
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                <ul>
+                                    {% for field, errors in form.errors.items %}
+                                        {% for error in errors %}
+                                            <li>{{ field|title }}: {{ error }}</li>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Line</th>
+                                <th>Group</th>
+                                <th>Item</th>
+                                <th>Qty</th>
+                                <th>UoM</th>
+                                <th>Price</th>
+                                <th>Amount</th>
+                                <th>Progress</th>
+                                <th>Status</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for form in detail_formset %}
+                            <tr>
+                                <td>{{ form.id }}</td>
+                                <td>{{ form.orderline }}</td>
+                                <td>{{ form.itemgroup }}</td>
+                                <td>{{ form.item }}</td>
+                                <td>{{ form.qty }}</td>
+                                <td>{{ form.uom }}</td>
+                                <td>{{ form.price }}</td>
+                                <td>{{ form.amount }}</td>
+                                <td>{{ form.progress }}</td>
+                                <td>{{ form.status }}</td>
+                                <td>{{ form.DELETE }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>            
+        </div> <!-- Card Body end -->
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a href="{% url 'supplychain:order_list' %}" class="btn btn-secondary">Cancel</a>
+        </div> <!-- Card Footer end -->          
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "main.html" %}
+{% load static widget_tweaks %}
+
+{% block content %} 
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Upload</button>
+</form>
+{% endblock %}
+<script>
+    $(document).ready(function () {
+        bsCustomFileInput.init();
+    });
+</script>

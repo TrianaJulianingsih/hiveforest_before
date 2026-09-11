@@ -1,0 +1,52 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}" />
+    <title>HIVEFOREST | MFA Verification</title>
+    <link rel="stylesheet" href="{% static 'adminlte/css/adminlte.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'adminlte/plugins/fontawesome-free/css/all.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'custom/css/custom.css' %}" />
+    <link rel="stylesheet" href="{% static 'custom/css/auth-pages.css' %}" />
+  </head>
+  <body class="login-page">
+    <div class="login-box">
+      <div class="login-logo">
+        <a href="#">THE <span style="color:#ffc107">HIVE</span>FOREST</a>
+        <div class="subtitle">Authenticator Verification</div>
+      </div>
+      <div class="card">
+        <div class="card-body login-card-body">
+          <p class="login-box-msg">
+            <i class="fas fa-mobile-alt mr-2"></i>
+            Enter the 6-digit code from your authenticator app
+          </p>
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+          {% endif %}
+          <form method="post">
+            {% csrf_token %}
+            <div class="input-group mb-3">
+              {{ form.otp_code }}
+              <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-shield-alt"></span>
+                </div>
+              </div>
+            </div>
+            {% if form.otp_code.errors %}
+              <div class="alert alert-danger py-2">
+                {{ form.otp_code.errors|striptags }}
+              </div>
+            {% endif %}
+            <button type="submit" class="btn btn-primary btn-block">
+              <i class="fas fa-check-circle mr-2"></i> Verify Code
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

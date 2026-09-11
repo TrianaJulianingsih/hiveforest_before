@@ -1,0 +1,752 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>{% block title %}{{ title }}{% endblock %}</title>
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}" />
+
+    <link rel="stylesheet" href="{% static 'adminlte/css/adminlte.min.css' %}">
+    <!--  <link rel="stylesheet" href="{% static 'custom/css/fontawesome672/css/all.css' %}">  -->
+    <link rel="stylesheet" href="{% static 'adminlte/plugins/fontawesome-free/css/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'vendor/sweetalert2/sweetalert2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'vendor/select2/select2.css' %}">
+    <link rel="stylesheet" href="{% static 'vendor/select2/select2-bootstrap4.css' %}"> 
+
+    {% block datatable_css %}
+      <link rel="stylesheet" href="{% static 'datatables/230bs4/datatables.min.css' %}">
+    {% endblock %}
+    <link rel="stylesheet" href="{% static 'custom/css/custom.css' %}">
+
+    {% block extra_head %}{% endblock %}
+
+    <!-- AdminLTE Scripts -->
+    <script src="{% static 'adminlte/plugins/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'adminlte/plugins/bs-custom-file-input/bs-custom-file-input.min.js' %}"></script>
+    <script src="{% static 'adminlte/js/adminlte.min.js' %}"></script>
+    <script src="{% static 'vendor/sweetalert2/sweetalert2.all.min.js' %}"></script>
+    <script src="{% static 'vendor/select2/select2.full.js' %}"></script>
+    
+    <script type="text/javascript">
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        // Cookie may be HttpOnly (JS cannot read it). Template token always works.
+        const csrftoken = '{{ csrf_token }}' || getCookie('csrftoken');
+    </script>
+
+    <style>
+      :root {
+        --hive-primary: #1a472a;
+        --hive-secondary: #8B7355;
+        --hive-accent: #D4A017;
+        --hive-gold: #FFC107;
+        --hive-dark: #0d2818;
+        --hive-light: #f5f5dc;
+        --hive-forest: #2d5a27;
+        --hive-wisdom: #c9a03d;
+        --hive-honey: #FFD700;
+      }
+
+      #loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #ffffff;
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #loading-overlay.active {
+        display: flex;
+      }
+
+      .loading-container {
+        text-align: center;
+        animation: fadeInUp 0.6s ease-out;
+        max-width: 500px;
+        width: 90%;
+        padding: 20px;
+      }
+
+      .hive-logo {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 25px;
+        animation: float 3s ease-in-out infinite;
+      }
+
+      .hive-hexagon {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, var(--hive-gold), var(--hive-accent));
+        clip-path: polygon(25% 0%, 75% 0%, 100% 25%, 100% 75%, 75% 100%, 25% 100%, 0% 75%, 0% 25%);
+        animation: pulse 2s ease-in-out infinite;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      }
+
+      .hive-hexagon i {
+        font-size: 45px;
+        color: var(--hive-primary);
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+      }
+
+      .bee-animation {
+        position: absolute;
+        top: -25px;
+        right: -25px;
+        font-size: 32px;
+        color: var(--hive-gold);
+        animation: flyBee 3s ease-in-out infinite;
+        transform-origin: center;
+        filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.2));
+      }
+
+      .hive-particles {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+
+      .particle {
+        position: absolute;
+        width: 3px;
+        height: 3px;
+        background: var(--hive-gold);
+        border-radius: 50%;
+        animation: floatParticle 4s ease-in-out infinite;
+      }
+
+      .loading-text {
+        font-size: 26px;
+        font-weight: 800;
+        margin: 20px 0 5px;
+        letter-spacing: 2px;
+        color: var(--hive-primary);
+        font-family: 'Segoe UI', 'Arial', sans-serif;
+      }
+
+      .subtitle {
+        color: var(--hive-secondary);
+        font-size: 11px;
+        letter-spacing: 2px;
+        margin-bottom: 30px;
+        text-transform: uppercase;
+        font-weight: 500;
+      }
+
+      .progress-container {
+        width: 100%;
+        margin: 20px 0;
+      }
+
+      .progress-bar-custom {
+        width: 100%;
+        height: 8px;
+        background: #e8e8e8;
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .progress-fill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, 
+          var(--hive-gold) 0%,
+          var(--hive-accent) 50%,
+          var(--hive-gold) 100%);
+        background-size: 200% auto;
+        border-radius: 10px;
+        transition: width 0.3s ease;
+        animation: progressGlow 1.5s ease-in-out infinite;
+      }
+
+      .loading-percentage {
+        font-size: 48px;
+        font-weight: 800;
+        margin-top: 15px;
+        color: var(--hive-primary);
+        font-family: 'Segoe UI', 'Arial', sans-serif;
+        letter-spacing: 2px;
+      }
+
+      .percentage-symbol {
+        font-size: 32px;
+        color: var(--hive-gold);
+      }
+
+      .loading-tips {
+        margin-top: 30px;
+        padding: 15px 20px;
+        background: #f8f9fa;
+        border-radius: 12px;
+        border-left: 4px solid var(--hive-gold);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      }
+
+      .tip-icon {
+        display: inline-block;
+        margin-right: 12px;
+        font-size: 20px;
+        color: var(--hive-gold);
+      }
+
+      .tip-text {
+        display: inline-block;
+        color: var(--hive-dark);
+        font-size: 13px;
+        line-height: 1.5;
+        vertical-align: middle;
+        font-weight: 500;
+      }
+
+      .version-badge {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #f0f0f0;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        color: var(--hive-secondary);
+        font-family: monospace;
+        z-index: 10000;
+        letter-spacing: 1px;
+      }
+
+      .spinner {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 20px;
+      }
+
+      .spinner-ring {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border: 3px solid transparent;
+        border-radius: 50%;
+        animation: spin 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+      }
+
+      .spinner-ring:nth-child(1) {
+        border-top-color: var(--hive-gold);
+        animation-delay: 0s;
+      }
+
+      .spinner-ring:nth-child(2) {
+        border-right-color: var(--hive-accent);
+        animation-delay: 0.2s;
+        width: 75%;
+        height: 75%;
+        top: 12.5%;
+        left: 12.5%;
+      }
+
+      .spinner-ring:nth-child(3) {
+        border-bottom-color: var(--hive-wisdom);
+        animation-delay: 0.4s;
+        width: 50%;
+        height: 50%;
+        top: 25%;
+        left: 25%;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-10px) rotate(3deg); }
+      }
+
+      @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.03); opacity: 0.95; }
+      }
+
+      @keyframes flyBee {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); }
+        25% { transform: translate(-8px, -12px) rotate(-10deg); }
+        50% { transform: translate(-15px, -3px) rotate(0deg); }
+        75% { transform: translate(-8px, 8px) rotate(10deg); }
+      }
+
+      @keyframes floatParticle {
+        0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+        50% { transform: translateY(-40px) translateX(15px); opacity: 0.8; }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes progressGlow {
+        0%, 100% { filter: brightness(1); }
+        50% { filter: brightness(1.1); }
+      }
+
+      @media (max-width: 576px) {
+        .loading-text {
+          font-size: 22px;
+        }
+        
+        .subtitle {
+          font-size: 9px;
+        }
+        
+        .loading-percentage {
+          font-size: 40px;
+        }
+        
+        .percentage-symbol {
+          font-size: 28px;
+        }
+        
+        .loading-tips {
+          padding: 12px 15px;
+        }
+        
+        .tip-text {
+          font-size: 11px;
+        }
+        
+        .hive-logo {
+          width: 80px;
+          height: 80px;
+        }
+        
+        .bee-animation {
+          font-size: 26px;
+          top: -20px;
+          right: -20px;
+        }
+      }
+    </style>
+
+    <script src="{% static 'adminlte/plugins/jszip/jszip.min.js' %}"></script>
+    <script src="{% static 'adminlte/plugins/pdfmake/pdfmake.min.js' %}"></script>
+    <script src="{% static 'adminlte/plugins/pdfmake/vfs_fonts.js' %}"></script>
+    
+    {% block datatable_js %}
+      <script src="{% static 'datatables/230bs4/datatables.min.js' %}"></script>
+      <script>
+        // Show DataTables warnings in the console instead of a blocking alert()
+        // popup - this fires routinely on tables with no rows (e.g. an empty
+        // "no data" placeholder row), which isn't an error worth interrupting for.
+        $.fn.dataTable.ext.errMode = 'none';
+      </script>
+    {% endblock %}
+    
+    {% block extra_js %}{% endblock %}
+    
+  <!--  <script>
+      (function() {
+          let isLoading = false;
+          let progress = 0;
+          let interval = null;
+          let isNavigating = false;
+          let previewNavigationTimeout = null;
+          
+          let isPageLoading = false;
+          let pendingAjaxCount = 0;
+          let exportTimeout = null;
+
+          window.addEventListener('beforeunload', function() {
+              sessionStorage.setItem('reload_detected', 'true');
+          });
+          
+          if (sessionStorage.getItem('reload_detected') === 'true') {
+              sessionStorage.removeItem('reload_detected');
+              console.log('Page reload detected');
+              isPageLoading = true;
+              show();
+          }
+
+          function show() {
+              // Cegah multiple show
+              if (isLoading) return;
+              
+              const overlay = document.getElementById('loading-overlay');
+              if (!overlay) return;
+              
+              if (overlay.classList.contains('active')) return;
+              
+              isLoading = true;
+
+              if (interval) clearInterval(interval);
+
+              progress = 0;
+              updateProgress(0);
+
+              interval = setInterval(() => {
+                  if (progress < 90) {
+                      progress = Math.min(progress + Math.random() * 10, 90);
+                      updateProgress(progress);
+                  }
+              }, 200);
+
+              overlay.classList.add('active');
+          }
+
+          function hide() {
+              if (!isLoading) return;
+              
+              isLoading = false;
+              clearInterval(interval);
+              interval = null;
+
+              updateProgress(100);
+              setTimeout(() => {
+                  const overlay = document.getElementById('loading-overlay');
+                  if (overlay) {
+                      overlay.classList.remove('active');
+                  }
+              }, 300);
+          }
+          
+          function forceHide() {
+              if (previewNavigationTimeout) {
+                clearTimeout(previewNavigationTimeout);
+                previewNavigationTimeout = null;
+              }
+              if (exportTimeout) {
+                  clearTimeout(exportTimeout);
+                  exportTimeout = null;
+              }
+              if (isLoading) {
+                  hide();
+              }
+              isPageLoading = false;
+              isNavigating = false;
+              pendingAjaxCount = 0;
+          }
+
+          function updateProgress(val) {
+              const percent = document.getElementById('loading-percentage');
+              const bar = document.querySelector('.progress-fill');
+
+              if (percent) {
+                  percent.innerHTML = Math.floor(val) + '<span class="percentage-symbol">%</span>';
+              }
+
+              if (bar) {
+                  bar.style.width = val + '%';
+              }
+          }
+          
+          document.addEventListener('DOMContentLoaded', function () {
+              if (performance.navigation && performance.navigation.type === 1) {
+                  show();
+              }
+          });
+
+          window.addEventListener('load', () => {
+              setTimeout(hide, 300);
+          });
+
+          window.addEventListener('pageshow', function(event) {
+            if (event.persisted || isLoading || isNavigating || isPageLoading) {
+              forceHide();
+            }
+          });
+
+          window.addEventListener('popstate', function() {
+            forceHide();
+          });
+
+          document.addEventListener('click', function(e) {
+              const a = e.target.closest('a');
+              if (!a) return;
+
+              if (e.defaultPrevented || e.button !== 0) return;
+
+              const href = a.getAttribute('href');
+              const isModifiedNavigation = e.ctrlKey || e.metaKey || e.shiftKey || e.altKey;
+
+              if (
+                  !href ||
+                  href.startsWith('#') ||
+                  href.startsWith('mailto:') ||
+                  href.startsWith('tel:') ||
+                  href.startsWith('javascript:') ||
+                a.target === '_blank' ||
+                a.hasAttribute('download')
+              ) return;
+
+              if (isModifiedNavigation) {
+                  show();
+                  if (previewNavigationTimeout) clearTimeout(previewNavigationTimeout);
+                  previewNavigationTimeout = setTimeout(function() {
+                      forceHide();
+                  }, 1200);
+                  return;
+              }
+
+              isNavigating = true;
+              show();
+          });
+
+          document.addEventListener('submit', function(e) {
+              const form = e.target;
+              const exportInput = form.querySelector('[name="export"]');
+              
+              if (exportInput && exportInput.value === 'excel') {
+                  console.log('Export detected - will auto hide after 3 seconds');
+                  show();
+                  
+                  if (exportTimeout) clearTimeout(exportTimeout);
+                  exportTimeout = setTimeout(function() {
+                      console.log('Auto hiding loading after export');
+                      forceHide();
+                  }, 3000);
+              } else {
+                  show();
+              }
+          });
+
+          document.addEventListener('click', function(e) {
+              const exportBtn = e.target.closest('#btn-export, .btn-export, [name="export"]');
+              if (exportBtn) {
+                  console.log('Export button clicked');
+                  setTimeout(function() {
+                      if (isLoading) {
+                          console.log('Force hiding loading after export click');
+                          forceHide();
+                      }
+                  }, 4000);
+              }
+          });
+
+          const tips = [
+              '📈 Marketing: Data-driven marketing strategies powered by insights',
+              '🌿 Sustainability: Eco-friendly practices for better future',
+              '📊 Analytics: Real-time business intelligence dashboard',
+              '🤝 Collaboration: Seamless team communication tools',
+              '🚀 Growth: Scalable solutions for business expansion',
+              '💡 Innovation: Cutting-edge technology for modern business',
+              '🎯 Targeting: Precise customer segmentation strategies',
+              '📱 Mobile: Responsive design for all devices',
+              '🔒 Security: Enterprise-grade data protection',
+              '⚡ Performance: Optimized loading speed and efficiency'
+          ];
+          
+          function rotateTips() {
+              const tipElement = document.getElementById('loading-tip');
+              if (tipElement) {
+                  let currentIndex = Math.floor(Math.random() * tips.length);
+                  setInterval(() => {
+                      currentIndex = (currentIndex + 1) % tips.length;
+                      tipElement.style.transition = 'opacity 0.3s';
+                      tipElement.style.opacity = '0';
+                      setTimeout(() => {
+                          tipElement.innerHTML = tips[currentIndex];
+                          tipElement.style.opacity = '1';
+                      }, 300);
+                  }, 3000);
+              }
+          }
+          
+          document.addEventListener('DOMContentLoaded', rotateTips);
+          
+          window.loadingDebug = {
+              isLoading: () => isLoading,
+              forceHide: forceHide
+          };
+          
+      })();
+    </script>  -->
+  </head>
+  <body class="hold-transition sidebar-mini text-sm">
+
+    <div class="wrapper">
+
+      {% if user.is_authenticated %}
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+          {% include 'navbar.html' %}
+        </nav>
+
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+          {% include 'sidebar.html' %}
+        </aside>
+      {% endif %}
+
+      <div class="content-wrapper">
+        <div class="content-header hiveforest">
+          {% block content_header %}
+            {% block nav-breadcrumbs %}
+            <nav aria-label="{% translate 'Breadcrumbs' %}">
+              {% block breadcrumbs %}
+              <div class="breadcrumbs">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="/">Home</a></li>
+                  {% for item in breadcrumbs %}
+                    {% if forloop.last %}
+                      <li class="breadcrumb-item active" aria-current="page">{{ item.name }}</li>
+                    {% else %}
+                      <li class="breadcrumb-item">
+                        <a href="{{ item.url }}/">{{ item.name }}</a>
+                      </li>
+                    {% endif %}
+                  {% endfor %}
+                </ol>
+                {% if title %}
+                    <small class="d-block mt-1">{{ title }}</small>
+                {% endif %}
+              </div>
+              {% endblock %}
+            </nav>
+            {% endblock %}
+            {% comment %} 
+            <div class="row">
+              <div class="col-12 px-0">
+                {% if messages %}
+                  {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-0 rounded-0" role="alert">
+                      {{ message }}
+                      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                  {% endfor %}
+                {% endif %}
+              </div>
+            </div>
+            {% endcomment %}
+
+            <div class="row justify-content-center mt-2">
+              <div class="col-12 col-md-10 col-lg-8">
+                {% if messages %}
+                  {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm mb-3" role="alert">
+                      {% if message.tags == 'success' %}
+                        <i class="fas fa-check-circle mr-2"></i>
+                      {% elif message.tags == 'error' or message.tags == 'danger' %}
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                      {% elif message.tags == 'warning' %}
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                      {% elif message.tags == 'info' %}
+                        <i class="fas fa-info-circle mr-2"></i>
+                      {% endif %}
+                      {{ message }}
+                      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                  {% endfor %}
+                {% endif %}
+              </div>
+            </div>              
+          {% endblock %}
+        </div>
+
+        <section class="content">
+          {% block content %}
+          {% endblock %}
+        </section>
+      </div>
+
+      <footer class="main-footer">
+        {% include 'footer.html' %}
+      </footer>
+
+      <aside class="control-sidebar control-sidebar-dark">
+      </aside>
+
+      <!--  <div id="loading-overlay">
+        <div class="loading-container">
+          <div class="spinner">
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+          </div>
+          
+          <div class="hive-logo">
+            <div class="hive-hexagon">
+              <i class="fas fa-hexagon"></i>
+            </div>
+            <div class="bee-animation">
+              <i class="fas fa-bug"></i>
+            </div>
+            <div class="hive-particles" id="particles"></div>
+          </div>
+          
+          <div class="loading-text">
+            HIVEFOREST
+          </div>
+          <div class="subtitle">
+            A LIVING NETWORK OF INTELLIGENCE, WORK & WISDOM
+          </div>
+          
+          <div class="progress-container">
+            <div class="progress-bar-custom">
+              <div class="progress-fill"></div>
+            </div>
+            <div class="loading-percentage" id="loading-percentage">
+              0<span class="percentage-symbol">%</span>
+            </div>
+          </div>
+          
+          <div class="loading-tips">
+            <div class="tip-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="tip-text" id="loading-tip">
+              📈 Marketing: Data-driven marketing strategies powered by insights
+            </div>
+          </div>
+        </div>
+        
+        <div class="version-badge">
+          {% if app_version %}
+              <i class="fas fa-code-branch"></i> {{ app_version }}
+          {% else %}
+              hiveforest-version-not-set
+          {% endif %}
+        </div>
+      </div>  -->
+
+    </div>
+
+  </body>
+</html>

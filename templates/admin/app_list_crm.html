@@ -1,0 +1,31 @@
+<ul class="list-group striped-list hiveforest">
+  <li class="list-group-item hiveforest">
+    <h6 class="list-group hiveforest">Hospitals</h6>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:crm_hospital_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Hospitals</a> |
+    <a href="{% url 'admin:crm_hospitalbed_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Beds</a> |
+    <a href="{% url 'admin:crm_hospitalservice_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Services</a> |
+    <a href="{% url 'admin:crm_hospitalprofessional_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Professionals</a> |
+    <a href="{% url 'admin:crm_hospitaltype_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Types</a> |
+    <a href="{% url 'admin:crm_hospitalclass_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Class</a> |
+    <a href="{% url 'admin:crm_association_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Associations</a>
+  </li>
+  <li class="list-group-item hiveforest">
+    <h6 class="list-group hiveforest">Doctors Profile</h6>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:crm_doctor_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Doctors</a> |
+    <a href="{% url 'admin:crm_doctoreducation_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Educations</a> |
+    <a href="{% url 'admin:crm_doctorplace_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Places of Practice</a> |
+    <a href="{% url 'admin:crm_doctorspeciality_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Speciality of Doctor</a> |
+    <a href="{% url 'admin:crm_specialization_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Specializations</a>
+  </li>
+  <li class="list-group-item hiveforest">
+    <h6 class="list-group hiveforest">KPDM Profile</h6>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:crm_kpdmcontact_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Contacts</a> |
+    <a href="{% url 'admin:crm_kpdmcustomer_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Customers</a>
+  </li>  
+</ul>

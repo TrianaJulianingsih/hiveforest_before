@@ -1,0 +1,322 @@
+{# ╔════════════════════════════════════════════════════════════════════════════════════════════════╗ #}
+{# ║  Name: employees_form                                                                          ║ #}
+{# ╟────────────────────────────────────────────────────────────────────────────────────────────────╢ #}
+{# ║  Path: apps\humancapital\templates\humancapital\organization\employee_form.html                ║ #}
+{# ║  Created: May/19-2025 by Setiadji                                                              ║ #}
+{# ║  Updated: May/23-2025 by Setiadji                                                              ║ #}
+{# ╚════════════════════════════════════════════════════════════════════════════════════════════════╝ #}
+
+{% extends "main.html" %}
+{% load i18n widget_tweaks static crispy_forms_tags crispy_forms_field %}
+{% block title %}HiveForest | {% if mode == 'add' %}Employee Add{% else %}Employee Edit{% endif %}{% endblock %}
+{% block content %}
+
+<div class="card card-primary card-outline hiveforest">
+    <form method="POST" action="{% if mode == 'add' %}{% url 'humancapital:employee-add' %}{% else %}{% url 'humancapital:employee-edit' employee.id %}{% endif %}">
+    {% csrf_token %}
+    <button type="submit" id="hidden-default-submit" name="action" value="save" style="display:none;"></button>
+        <div class="card-header ui-sortable-handle" style="cursor: move;">
+            <h1 class="card-title">
+                <b>{% if mode == 'add' %}Add Employee{% else %}Edit Employee: {{ employee.name }} | Person: {{ employee.person }}{% endif %}</b>
+            </h1>
+            <div class="card-tools">
+            </div>
+        </div> <!-- Card Header end -->        
+        <div class="card-body hiveforest">
+            <!-- Tabs Navigation -->
+            <ul class="nav nav-tabs" id="formTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#primary" role="tab">Primary</a>
+                </li>
+                {% if mode != 'add' %}
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#address" role="tab">Addresses</a>
+                    </li>
+                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#employement" role="tab">Employements</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#reference" role="tab">References</a>
+                </li>
+                {% if mode != 'add' %}
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#assignment" role="tab">Assignments</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#system" role="tab">Systems</a>
+                    </li>
+                {% endif %}
+            </ul>
+
+            <!-- Tabs Content -->
+            <div class="tab-content hiveforest">
+                <!-- Tab 1: Primary -->
+                <div class="tab-pane fade show active" id="primary" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-6">                       
+                            <div class="hv-form-group">
+                                {{ form.first_name.label_tag }}
+                                {{ form.first_name }}{% if form.first_name.field.required %}<span class="text-danger">*</span>{% endif %}
+                                {{ form.first_name.errors }}
+                                {{ form.middle_name.label_tag }}
+                                {{ form.middle_name }}
+                                {{ form.middle_name.errors }}
+                            </div>
+                            <div class="hv-form-group">
+                                {{ form.last_name.label_tag }}
+                                {{ form.last_name }}{% if form.last_name.field.required %}<span class="text-danger">*</span>{% endif %}
+                                {{ form.last_name.errors }}
+                                {{ form.nickname.label_tag }}
+                                {{ form.nickname }}
+                                {{ form.nickname.errors }}
+                            </div>
+                            <div class="hv-form-group">
+                                {{ form.initial.label_tag }}
+                                {{ form.initial }}
+                                {{ form.initial.errors }}
+                            </div>
+                            <div class="hv-form-group">
+                                {{ form.gender.label_tag }}
+                                {{ form.gender }}
+                                {{ form.gender.errors }}
+                            </div>
+                            <div class="hv-form-group">
+                                {{ form.dob.label_tag }}
+                                {{ form.dob }}
+                                {{ form.dob.errors }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="hv-form-group">
+                                {{ form.description.label_tag }}
+                                {{ form.description }}
+                                {{ form.description.errors }}
+                            </div>
+                            <div class="hv-form-group">
+                                {{ form.remark.label_tag }}
+                                {{ form.remark }}
+                                {{ form.remark.errors }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Address -->
+                <div class="tab-pane fade" id="address" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="hv-form-group">
+                                <label>Street 1:</label>
+                            </div>
+                            <div class="hv-form-group">
+                                <label>Street 2:</label>
+                            </div>
+                            <div class="hv-form-group">
+                                <label>Building:</label>
+                            </div>
+                            <div class="hv-form-group">
+                                <label>Complex:</label>
+                            </div>
+                            <div class="hv-form-group">
+                                <label>Postcode:</label>
+                            </div>
+                            <div class="hv-form-group">
+                                <label>Village:</label>
+                            </div>
+                            <div class="hv-form-group">
+                                <label>District:</label>
+                            </div>
+                            <div class="hv-form-group">
+                                <label>Regency:</label>
+                            </div>
+                            <div class="hv-form-group">
+                                <label>Province:</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Employement -->
+                <div class="tab-pane fade" id="employement" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="hv-form-group">
+                                {{ form.code.label_tag }}
+                                {{ form.code }}
+                                {{ form.code.errors }}
+                            </div>
+                            <div class="hv-form-group">
+                                {{ form.hired.label_tag }}
+                                {{ form.hired }}
+                                {{ form.hired.errors }}
+                            </div>
+                            <div class="hv-form-group">
+                                {{ form.terminated.label_tag }}
+                                {{ form.terminated }}
+                                {{ form.terminated.errors }}
+                            </div>
+                            <div class="hv-form-group">
+                                {{ form.employment_status.label_tag }}
+                                {{ form.employment_status }}
+                                {{ form.employment_status.errors }}
+                            </div>
+                        </div>
+                    </div>
+                </div> 
+
+                <!-- Tab 4: References -->
+                <div class="tab-pane fade" id="reference" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="hv-form-group">
+                                {{ form.national_id.label_tag }}
+                                {{ form.national_id }}
+                                {{ form.national_id.errors }}
+                            </div>
+                            <div class="hv-form-group">
+                                {{ form.tax_id.label_tag }}
+                                {{ form.tax_id }}
+                                {{ form.tax_id.errors }}
+                            </div>
+                        </div>
+                    </div>
+                </div> 
+
+                <!-- Tab 5: Assignments -->
+                <div class="tab-pane fade" id="assignment" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="hv-form-group">
+                                <label>Position:</label>
+                            </div>
+                            <div class="hv-form-group">
+                                <label>Started:</label>
+                            </div>
+                            <div class="hv-form-group">
+                                <label>Terminated:</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 6: Systems -->
+                <div class="tab-pane fade" id="system" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="hv-form-group">
+                                {{ form.status.label_tag }}
+                                {{ form.status }}
+                                {{ form.status.errors }}
+                            </div>
+                            <div class="hv-form-group">
+                                <label>Created at:</label>
+                                {% if employee %}
+                                    <input type="text" class="form-control form-control-sm w-auto" readonly value="{{ employee.cat|date:'M d, Y H:i A'  }}">
+                                {% endif %}
+                            </div>
+                            <div class="hv-form-group">
+                                <label>Created by:</label>
+                                {% if employee %}
+                                    <input type="text" class="form-control form-control-sm w-auto" readonly value="{{ employee.cby.first_name }} {{ employee.cby.last_name }}">
+                                {% endif %}
+                            </div>
+                            <div class="hv-form-group">
+                                <label>Updated at:</label>
+                                {% if employee %}
+                                    <input type="text" class="form-control form-control-sm w-auto" readonly value="{{ employee.uat|date:'M d, Y H:i A'  }}">
+                                {% endif %}
+                            </div>
+                            <div class="hv-form-group">
+                                <label>Updated by:</label>
+                                {% if employee %}
+                                    <input type="text" class="form-control form-control-sm w-auto" readonly value="{{ employee.uby.first_name }} {{ employee.uby.last_name }}">
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer" style="display:flex;flex-direction: row;justify-content: flex-start;">
+            {% if mode != 'view' %}
+            <button type="submit" name="action" value="save" class="btn btn-success">
+                <i class="fas fa-save"></i> Save
+            </button>
+            {% endif %}
+            {% if mode == 'edit' %}
+                <button type="submit" name="action" value="apply" class="btn btn-sm btn-primary" style="margin-left:1px; margin-right:1px;">
+                <i class="fas fa-check"></i> Apply
+                </button>
+                <button type="submit" name="action" value="clone" class="btn btn-warning" style="margin-left:1px; margin-right:1px;">
+                    <i class="fas fa-clone"></i> Clone
+                </button>
+            {% endif %}
+            <a href="{% url 'humancapital:employee-list' %}" class="btn btn-sm btn-secondary">
+                <i class="fas fa-arrow-alt-circle-left"></i> Back
+            </a>
+        </div>
+    </form>
+        <div class="card-footer" style="display:flex;flex-direction: row;justify-content: flex-end;" >
+            {% if mode == 'edit' %}
+                <form id="toggle-status-form" method="POST" action="{% url 'humancapital:employee-change-status' employee.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="button"
+                            class="btn btn-sm {% if employee.status == 1 %}btn-secondary{% else %}btn-success{% endif %}"
+                            data-action="{% if employee.status == 1 %}deactivate{% else %}activate{% endif %}"
+                            onclick="confirmToggleStatus(this)">
+                        <i class="fas {% if employee.status == 1 %}fa-user-slash{% else %}fa-user-check{% endif %}"></i>
+                        {% if employee.status == 1 %}Deactivate{% else %}Activate{% endif %}
+                    </button>
+                </form>
+                <form id="delete-form" method="POST" action="{% url 'humancapital:employee-soft-delete' employee.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="button"
+                            class="btn btn-sm btn-danger"
+                            onclick="confirmDelete(this)"
+                            style="margin-left:1px; margin-right:1px;">
+                        <i class="fas fa-trash-alt"></i> Delete
+                    </button>
+                </form>
+            {% endif %}   
+        </div>
+</div>
+{% endblock %}
+{% block datatable_js %}
+    {{ block.super }}
+    <script src="{% static 'custom/js/select2.min.js' %}"></script>
+    <script>
+        function confirmToggleStatus(button) {
+            const action = button.getAttribute('data-action');
+            const form = document.getElementById('toggle-status-form');
+        
+            Swal.fire({
+                title: `Are you sure you want to ${action} this employee?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#aaa',
+                confirmButtonText: `Yes, ${action}!`
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        }
+        function confirmDelete(button) {        
+            Swal.fire({
+                title: `Are you sure you want to delete this employee?`,
+                text: "You will need superuser role to restore it",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#aaa',
+                confirmButtonText: `Yes, Delete it!`
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-form').submit();
+                }
+            });
+        }
+    </script>
+{% endblock %}

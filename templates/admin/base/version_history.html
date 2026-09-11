@@ -1,0 +1,143 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Version History" %} - HiveForest Admin{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'adminlte/plugins/summernote/summernote-bs4.min.css' %}">
+{% endblock %}
+
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+        &rsaquo; <a href="{{ app.app_url }}">{% trans 'Base' %}</a>
+        &rsaquo; {% trans "Version History" %}
+    </div>
+{% endblock %}
+
+{% block content %}
+<section class="content">
+    <div class="container-fluid">
+        <div class="row mb-3">
+            <div class="col-12">
+                <br>
+                <h1><i class="fas fa-code-branch"></i> {% trans "Application Version History" %}</h1>
+            </div>
+        </div>
+
+        {% if current_version %}
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <h5><i class="icon fas fa-info-circle"></i> {% trans "Current Version" %}</h5>
+                        <strong>{{ current_version.version_number }}-{{ current_version.title }}</strong>
+                        <br>
+                        <small>{% trans "Released on" %}: {{ current_version.release_date|date:"d F Y" }}</small>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-12">
+                <div class="timeline">
+                    {% if versions %}
+                        {% for version in versions %}
+                            <!-- Time Label -->
+                            <div class="time-label">
+                                <span class="{% if version.is_current %}bg-success{% elif version.is_major_release %}bg-primary{% else %}bg-secondary{% endif %}">
+                                    {{ version.release_date|date:"d M Y" }}
+                                </span>
+                            </div>
+                            <!-- End Time Label -->
+
+                            <!-- Timeline Item -->
+                            <div>
+                                <i class="fas fa-code-branch {% if version.is_current %}bg-success{% elif version.is_major_release %}bg-primary{% else %}bg-secondary{% endif %}"></i>
+                                <div class="timeline-item">
+                                    <span class="time">
+                                        <i class="fas fa-calendar"></i> 
+                                        {{ version.release_date|date:"d M Y" }}
+                                    </span>
+                                    
+                                    <h3 class="timeline-header">
+                                        <strong>{{ version.version_number }}-{{ version.title }}</strong>
+                                        {% if version.is_current %}
+                                            <span class="badge badge-success ml-2">{% trans "Current" %}</span>
+                                        {% endif %}
+                                        {% if version.is_major_release %}
+                                            <span class="badge badge-primary ml-2">{% trans "Major Release" %}</span>
+                                        {% endif %}
+                                    </h3>
+
+                                    <div class="timeline-body">
+                                        {% if version.description %}
+                                            <div>{{ version.description|safe }}</div>
+                                        {% endif %}
+
+                                        {% if version.features.all %}
+                                            <div style="margin-top: 15px;">
+                                                <h4><span class="badge badge-info">{% trans "Features & Changes" %}:</span></h4>
+                                                <ul style="list-style: none; padding-left: 0;">
+                                                    {% for feature in version.features.all %}
+                                                        {% comment %} <li style="margin-bottom: 10px;"> {% endcomment %}
+                                                            <!-- Feature Type Badge -->
+                                                            {% if feature.feature_type == 'new' %}
+                                                                <span class="badge badge-success">
+                                                                    <i class="fas fa-plus"></i> {% trans "New" %}
+                                                                </span>
+                                                            {% elif feature.feature_type == 'improvement' %}
+                                                                <span class="badge badge-info">
+                                                                    <i class="fas fa-arrow-up"></i> {% trans "Improvement" %}
+                                                                </span>
+                                                            {% elif feature.feature_type == 'bugfix' %}
+                                                                <span class="badge badge-warning text-dark">
+                                                                    <i class="fas fa-bug"></i> {% trans "Bug Fix" %}
+                                                                </span>
+                                                            {% elif feature.feature_type == 'security' %}
+                                                                <span class="badge badge-danger">
+                                                                    <i class="fas fa-shield-alt"></i> {% trans "Security" %}
+                                                                </span>
+                                                            {% elif feature.feature_type == 'deprecation' %}
+                                                                <span class="badge badge-secondary">
+                                                                    <i class="fas fa-times"></i> {% trans "Deprecation" %}
+                                                                </span>
+                                                            {% endif %}
+                                                            <strong>&nbsp; {{ feature.title }}</strong>
+                                                            
+                                                            {% if feature.description %}
+                                                                <br>
+                                                                <div style="color: #6c757d; margin-left: 20px;">
+                                                                    {{ feature.description|safe }}
+                                                                </div>
+                                                            {% endif %}
+                                                        {% comment %} </li> {% endcomment %}
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <!-- End Timeline Items Loop -->
+                        
+                        <!-- Timeline End (Hanya satu kali di luar loop) -->
+                        <div>
+                            <i class="fas fa-clock bg-gray"></i>
+                        </div>
+                    {% else %}
+                        <!-- No Versions Available -->
+                        <div class="alert alert-warning">
+                            <i class="icon fas fa-exclamation-triangle"></i>
+                            {% trans "No version history available yet." %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

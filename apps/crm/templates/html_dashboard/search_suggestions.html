@@ -1,0 +1,179 @@
+<div id="search-suggestions" data-suggest-url="{% url suggest_url_name %}" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-[#E1E4EA] rounded-md dropdown-shadow z-30 max-h-64 overflow-y-auto"></div>
+
+<script>
+(function () {
+  var input = document.getElementById('search-input');
+  var box = document.getElementById('search-suggestions');
+  var form = input.closest('form');
+  var suggestUrl = box.dataset.suggestUrl;
+  var debounceTimer = null;
+  var activeController = null;
+  var RECENTS_KEY = '{{ recents_key }}';
+  var MAX_RECENTS = 6;
+
+  function getRecents() {
+    try {
+      var raw = localStorage.getItem(RECENTS_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveRecents(list) {
+    try {
+      localStorage.setItem(RECENTS_KEY, JSON.stringify(list));
+    } catch (e) {
+      // ignore storage errors (private mode, quota, etc.)
+    }
+  }
+
+  function addRecent(term) {
+    term = (term || '').trim();
+    if (!term) {
+      return;
+    }
+    var list = getRecents().filter(function (t) { return t.toLowerCase() !== term.toLowerCase(); });
+    list.unshift(term);
+    saveRecents(list.slice(0, MAX_RECENTS));
+  }
+
+  function removeRecent(term) {
+    saveRecents(getRecents().filter(function (t) { return t !== term; }));
+  }
+
+  function hide() {
+    box.classList.add('hidden');
+    box.innerHTML = '';
+  }
+
+  function renderSuggestions(names) {
+    if (!names.length) {
+      hide();
+      return;
+    }
+    box.innerHTML = '';
+    names.forEach(function (name) {
+      var item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'block w-full text-left px-4 py-2 text-sm text-[#323743] hover:bg-[#f2f2fd] hover:text-[#636AE8]';
+      item.textContent = name;
+      item.addEventListener('click', function () {
+        input.value = name;
+        addRecent(name);
+        hide();
+        form.submit();
+      });
+      box.appendChild(item);
+    });
+    box.classList.remove('hidden');
+  }
+
+  function renderRecents() {
+    var recents = getRecents();
+    if (!recents.length) {
+      hide();
+      return;
+    }
+    box.innerHTML = '';
+
+    var header = document.createElement('div');
+    header.className = 'px-4 pt-2 pb-1 text-[11px] font-semibold text-[#878D96] tracking-wider uppercase';
+    header.textContent = 'Recent Searches';
+    box.appendChild(header);
+
+    recents.forEach(function (term) {
+      var row = document.createElement('div');
+      row.className = 'flex items-center justify-between px-1 hover:bg-[#f2f2fd] rounded-md mx-1';
+
+      var termBtn = document.createElement('button');
+      termBtn.type = 'button';
+      termBtn.className = 'flex-1 text-left px-3 py-2 text-sm text-[#323743] hover:text-[#636AE8] truncate';
+      termBtn.textContent = term;
+      termBtn.addEventListener('click', function () {
+        input.value = term;
+        addRecent(term);
+        hide();
+        form.submit();
+      });
+
+      var removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'shrink-0 w-6 h-6 flex items-center justify-center rounded-full text-[#9095a1] hover:bg-[#fdf1f5] hover:text-[#E8618C] text-sm leading-none';
+      removeBtn.textContent = '×';
+      removeBtn.setAttribute('aria-label', 'Remove "' + term + '" from recent searches');
+      removeBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        removeRecent(term);
+        renderRecents();
+      });
+
+      row.appendChild(termBtn);
+      row.appendChild(removeBtn);
+      box.appendChild(row);
+    });
+
+    box.classList.remove('hidden');
+  }
+
+  function fetchSuggestions(term) {
+    if (activeController) {
+      activeController.abort();
+    }
+    activeController = new AbortController();
+    var params = new URLSearchParams(new FormData(form));
+    params.set('q', term);
+    fetch(suggestUrl + '?' + params.toString(), { signal: activeController.signal })
+      .then(function (res) { return res.json(); })
+      .then(function (data) { renderSuggestions(data.suggestions || []); })
+      .catch(function (err) {
+        if (err.name !== 'AbortError') {
+          hide();
+        }
+      });
+  }
+
+  function showForCurrentValue() {
+    var term = input.value.trim();
+    if (!term) {
+      renderRecents();
+      return;
+    }
+    fetchSuggestions(term);
+  }
+
+  // Bound to both "focus" and "click" (not just "focus") so the dropdown
+  // reliably reappears on a single click even when the input was already
+  // focused (e.g. right after picking a suggestion) - a plain focus-only
+  // listener doesn't refire in that case, which read as "not click sensitive".
+  input.addEventListener('focus', showForCurrentValue);
+  input.addEventListener('click', showForCurrentValue);
+
+  input.addEventListener('input', function () {
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+    }
+    debounceTimer = setTimeout(showForCurrentValue, 300);
+  });
+
+  form.addEventListener('submit', function () {
+    addRecent(input.value);
+  });
+
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      hide();
+    }
+  });
+
+  input.addEventListener('blur', function () {
+    setTimeout(hide, 150);
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!box.contains(e.target) && e.target !== input) {
+      hide();
+    }
+  });
+})();
+</script>

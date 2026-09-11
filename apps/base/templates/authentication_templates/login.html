@@ -1,0 +1,136 @@
+{% load i18n static %}
+{% if user.is_authenticated %}
+  <script>
+    window.location.href = "{% url 'admin:index' %}"
+  </script>
+{% endif %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}" />
+    <title>HIVEFOREST | Login</title>
+    <link rel="stylesheet" href="{% static 'adminlte/css/adminlte.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'adminlte/plugins/fontawesome-free/css/all.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'custom/css/custom.css' %}" />
+    <link rel="stylesheet" href="{% static 'custom/css/auth-pages.css' %}" />
+  </head>
+  <body class="login-page">
+    <div class="login-box">
+      <div class="login-logo">
+        <a href="#">THE <span style="color:#ffc107">HIVE</span>FOREST</a>
+        <div class="subtitle">Enterprise System</div>
+      </div>
+      <div class="card">
+        <div class="card-body login-card-body">
+          <p class="login-box-msg">
+            <i class="fas fa-shield-alt mr-2"></i>
+            {{ auth_setting.login_message|default:"Sign in to start your session" }}
+          </p>
+
+          {% if form.errors %}
+            <div class="alert alert-danger">
+              <i class="fas fa-exclamation-triangle mr-2"></i>
+              <strong>Access Denied!</strong>
+              {{ form.non_field_errors|striptags|default:"Invalid username or password." }}
+            </div>
+          {% endif %}
+
+          {% if next and not form.errors %}
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle mr-2"></i>
+              Please login to continue.
+            </div>
+          {% endif %}
+
+          {% if show_local_login %}
+            <form action="{% url 'login' %}" method="post" id="loginForm">
+              {% csrf_token %}
+              <div class="input-group mb-3">
+                <input type="text"
+                       name="username"
+                       id="username"
+                       class="form-control"
+                       placeholder="Username"
+                       autocomplete="off"
+                       required />
+                <div class="input-group-append">
+                  <div class="input-group-text">
+                    <span class="fas fa-user"></span>
+                  </div>
+                </div>
+              </div>
+              <div class="input-group mb-3">
+                <div class="password-wrapper">
+                  <input type="password"
+                         name="password"
+                         id="password"
+                         class="form-control"
+                         placeholder="Password"
+                         required />
+                  <span class="toggle-password" id="togglePassword">
+                    <i class="fas fa-eye-slash"></i>
+                  </span>
+                </div>
+                <div class="input-group-append">
+                  <div class="input-group-text">
+                    <span class="fas fa-lock"></span>
+                  </div>
+                </div>
+              </div>
+              <div class="row align-items-center">
+                <div class="col-12">
+                  <input type="hidden" name="next" value="{{ request.GET.next }}" />
+                  <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                  </button>
+                </div>
+              </div>
+            </form>
+          {% endif %}
+
+          {% if show_microsoft_login %}
+            <div class="{% if show_local_login %}mt-3{% endif %}">
+              {% if microsoft_login_available and microsoft_login_url %}
+                <a href="{{ microsoft_login_url }}" class="btn btn-outline-primary btn-block">
+                  <i class="fab fa-microsoft mr-2"></i>
+                  {{ auth_setting.login_button_text|default:"Sign in with Microsoft" }}
+                </a>
+              {% else %}
+                <button type="button" class="btn btn-outline-secondary btn-block" disabled>
+                  <i class="fab fa-microsoft mr-2"></i>
+                  Microsoft sign-in unavailable
+                </button>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          {% if show_local_login %}
+            <div class="forgot-link">
+              <a href="{% url 'password_reset' %}">
+                <i class="fas fa-key"></i>
+                Forgot your password?
+              </a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <script src="{% static 'adminlte/plugins/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'adminlte/js/adminlte.min.js' %}"></script>
+    <script>
+      $(document).ready(function() {
+        $('#username').focus();
+        const togglePassword = $('#togglePassword');
+        const passwordField = $('#password');
+        togglePassword.on('click', function() {
+          const type = passwordField.attr('type') === 'password' ? 'text' : 'password';
+          passwordField.attr('type', type);
+          $(this).find('i').toggleClass('fa-eye-slash fa-eye');
+        });
+      });
+    </script>
+  </body>
+</html>

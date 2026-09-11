@@ -1,0 +1,21 @@
+<ul class="list-group striped-list hiveforest">
+  <li class="list-group-item hiveforest">
+    <h6 class="list-group hiveforest">Organizations</h6>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:humancapital_organizationtype_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Types</a> |
+    <a href="{% url 'admin:humancapital_organization_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Organizations</a> |
+    <a href="{% url 'admin:humancapital_business_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Businesses</a>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:humancapital_position_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Positions</a> |
+    <a href="{% url 'admin:humancapital_assignment_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Assignments</a>
+  </li>
+  <li class="list-group-item hiveforest">
+    <h6 class="list-group hiveforest">Employees</h6>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:humancapital_employee_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Employees</a> |
+    <a href="{% url 'admin:humancapital_employeetitle_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Titles</a>
+  </li>
+</ul>

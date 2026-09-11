@@ -1,0 +1,10 @@
+<ul class="list-group striped-list hiveforest">
+  <li class="list-group-item hiveforest">
+    <h6 class="list-group hiveforest">Users</h6>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:auth_user_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Users</a> |
+    <a href="{% url 'admin:auth_group_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Groups</a> |
+    <a href="{% url 'admin:auth_permission_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Model Permissions</a> |
+  </li>
+</ul>

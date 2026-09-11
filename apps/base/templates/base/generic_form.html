@@ -1,0 +1,94 @@
+{# ╔════════════════════════════════════════════════════════════╗ #}
+{# ║  Name: EmployeeForm                                        ║ #}
+{# ╟────────────────────────────────────────────────────────────╢ #}
+{# ║  Path: apps\base\templates\base\generic_form.html          ║ #}
+{# ║  Created: May/09-2025                                      ║ #}
+{# ║  Updated: May/10-2025                                      ║ #}
+{# ╚════════════════════════════════════════════════════════════╝ #}
+
+{% extends "main.html" %}
+{% load i18n static %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ page_title|default:"HiveForest | Form Page" }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card card-primary card-outline hiveforest">
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <button type="submit" id="hidden-default-submit" style="display:none;"></button>
+            <div class="card-header ui-sortable-handle">
+                <h2>{{ card_title }}</h2>
+                <div class="card-tools">
+                    {% block card_tools %}{% endblock %}
+                </div>
+            </div>
+            <div class="card-body hiveforest">
+                    {% crispy form %}
+            </div>
+            <div class="card-footer" style="display:flex;flex-direction: row;justify-content: flex-start;">
+                {% block form_footer %}
+                    {% block form_actions %}
+                        {% if mode != 'view' %}
+                            <button type="submit" name="action" value="save" class="btn btn-success">
+                                <i class="fas fa-save"></i> Save
+                            </button>
+                        {% endif %}
+                        <button type="submit" name="action" value="apply" class="btn btn-sm btn-primary" style="margin-left:1px; margin-right:1px;">
+                            <i class="fas fa-check"></i> Apply
+                            </button>
+                            <button type="submit" name="action" value="save_as" class="btn btn-warning" style="margin-left:1px; margin-right:1px;">
+                                <i class="fas fa-clone"></i> Clone
+                            </button>
+                        {% endif %}
+                        <a href="{{ back_url|default:'#' }}" class="btn btn-sm btn-secondary">
+                            <i class="fas fa-arrow-alt-circle-left"></i> Back
+                        </a>
+                    {% endblock %}
+                {% endblock %}
+            </div>
+        </form>
+        <div class="card-footer" style="display:flex;flex-direction: row;justify-content: flex-start;">
+            {% block form_footer %}
+                {% block record_actions %}
+                    {% if mode != 'add' %}
+                        {% if employee.status == 1 %}
+                        <form method="POST" action="{{ toggle_status_action_url|default:'#' }}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" name="action" value="deactivate"
+                                class="btn btn-sm btn-secondary"
+                                style="margin-left:1px; margin-right:1px;"
+                                onclick="return confirm('Deactivate this employee?')">
+                            <i class="fas fa-user-slash"></i> Deactivate
+                        </button>
+                        </form>
+                        {% else %}
+                        <form method="POST" action="{{ toggle_status_action_url|default:'#' }}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" name="action" value="activate"
+                                class="btn btn-sm btn-success"
+                                style="margin-left:1px; margin-right:1px;"
+                                onclick="return confirm('Activate this employee?')">
+                            <i class="fas fa-user-check"></i> Activate
+                        </button>
+                        </form>
+                        {% endif %}
+                        <form method="POST" action="{{ soft_delete_action_url|default:'#' }}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                style="margin-left:1px; margin-right:1px;"
+                                onclick="return confirm('Are you sure you want to delete this employee?')">
+                                <i class="far fa-trash-alt"></i> Delete
+                            </button>
+                        </form>
+                    {% endif %}   
+                {% endblock %}
+            {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block datatable_js %}
+    {{ block.super }}
+    <script src="{% static 'custom/js/select2.min.js' %}"></script>
+{% endblock %}

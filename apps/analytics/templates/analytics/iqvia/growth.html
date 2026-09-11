@@ -1,0 +1,1043 @@
+{% extends "main.html" %}
+{% load i18n static translation_tags %}
+
+{% block extra_head %}
+<style>
+  /* HIVEFOREST IQVIA GROWTH */
+  .hf-wrap { padding: 16px 18px; }
+  .hf-panel { border: 1px solid #dee2e6; border-radius: 3px; background: #fff;
+              padding: 18px 20px; margin-bottom: 14px; }
+  .hf-section { font-size: 1rem; font-weight: 700; color: #212529; margin-bottom: 14px; }
+  .hf-label { font-size: .8rem; font-weight: 600; color: #495057;
+              margin-bottom: 5px; display: block; }
+  .hf-hint { font-size: .78rem; color: #6c757d; margin: 6px 0 0; }
+
+  .hf-chip { display: inline-block; background: #e7f1ff; border: 1px solid #007bff;
+             color: #0056b3; border-radius: 12px; padding: 2px 11px;
+             font-size: 11px; margin: 4px 5px 0 0; }
+  .hf-chip-x { cursor: pointer; margin-left: 7px; font-weight: 700; }
+  .hf-chip-x:hover { color: #b02a37; }
+
+  .hf-dim-item { cursor: pointer; padding: 6px 11px; border-radius: 3px;
+                 font-size: 13px; color: #212529; }
+  .hf-dim-item:hover { background: #e9ecef; }
+  .hf-dim-item.active { background: #007bff; color: #fff; }
+  .hf-dim-item.active:hover { background: #0056b3; }
+  .hf-dim-item-locked { opacity: .38; pointer-events: none; }
+  .hf-dim-group { font-size: 11px; letter-spacing: .5px; color: #adb5bd;
+                  margin: 12px 0 4px; font-weight: 600; }
+  .hf-dim-tag { font-size: 9px; color: #ced4da; margin-left: 6px; font-weight: 500; }
+  .hf-dim-list { max-height: 390px; overflow-y: auto; padding-right: 4px; }
+  .hf-dim-locked { opacity: .42; pointer-events: none; }
+  #hf-filter-modal.hf-pick-mode .hf-dim-side { display: none; }
+  #hf-filter-modal.hf-pick-mode .hf-opt-side { flex: 0 0 100%; max-width: 100%; }
+
+  .hf-opt-list { max-height: 300px; overflow-y: auto; border: 1px solid #dee2e6;
+                 border-radius: 3px; padding: 8px; }
+  .hf-opt-row { padding: 4px 4px 4px 1.75rem; font-size: 13px; border-radius: 3px; }
+  .hf-opt-row:hover { background: #e9ecef; }
+
+  .hf-period-divider { display: inline-block; width: 1px; height: 26px;
+                       background: #eef0f2; margin: 0 6px; }
+  .hf-field-error { box-shadow: 0 0 0 3px rgba(220,53,69,.35) !important;
+                    border-color: #dc3545 !important; }
+
+  .hf-cascade { position: relative; }
+  .hf-cascade-toggle { text-align: left; display: flex; justify-content: space-between;
+                       align-items: center; background: #fff; cursor: pointer; }
+  .hf-cascade-toggle:hover { border-color: #adb5bd; }
+  .hf-cascade-toggle:focus { outline: none; box-shadow: none; }
+  .hf-cascade-toggle i { font-size: .7rem; color: #6c757d; flex-shrink: 0; }
+  .hf-cascade-toggle span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+                            min-width: 0; margin-right: 6px; }
+  .hf-cascade-menu { display: none; position: absolute; z-index: 1200; top: 100%; left: 0;
+                     background: #fff; border: 1px solid #dee2e6; border-radius: 3px;
+                     box-shadow: 0 4px 14px rgba(0,0,0,.10); min-width: 420px; margin-top: 2px; }
+  .hf-cascade.is-open .hf-cascade-menu { display: flex; }
+  .hf-cascade-col { padding: 5px 0; min-width: 190px; max-height: 320px; overflow-y: auto; }
+  .hf-cascade-child { border-left: 1px solid #eef0f2; flex: 1; }
+  .hf-cascade-item { padding: 7px 14px; font-size: 13px; cursor: pointer; color: #212529;
+                     display: flex; justify-content: space-between; align-items: center; }
+  .hf-cascade-item:hover { background: #e9ecef; }
+  .hf-cascade-item.active { background: #007bff; color: #fff; }
+  .hf-cascade-item.active:hover { background: #0056b3; }
+  .hf-cascade-item.is-current { font-weight: 700; color: #0056b3; }
+  .hf-cascade-item.active.is-current { color: #fff; }
+
+  .hf-collapse-head { cursor: pointer; display: flex; justify-content: space-between;
+                      align-items: center; user-select: none; }
+  .hf-collapse-head:hover { color: #0056b3; }
+  .hf-collapse-head i { font-size: .78rem; color: #6c757d; transition: transform .18s; }
+  .hf-collapse-head.is-closed { margin-bottom: 0; }
+  .hf-collapse-head.is-closed i { transform: rotate(-90deg); }
+
+  .hf-tool-btn { padding: 4px 11px !important; font-size: .78rem !important;
+                 font-weight: 600; border-radius: 3px; }
+  .hf-tool-btn + .hf-tool-btn { margin-left: 6px; }
+  #hf-pick-btn { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .hf-chart-box:fullscreen { background: #fff; padding: 26px; overflow: auto;
+                             display: flex; align-items: center; justify-content: center; }
+  .hf-chart-box:fullscreen img { max-width: 100%; max-height: 100%; }
+
+  .hf-export-bar { border-top: 1px solid #dee2e6; margin-top: 16px; padding-top: 14px; }
+  .hf-export-bar .btn { padding: 5px 14px !important; font-size: .8rem !important;
+                        font-weight: 600; border-radius: 3px; }
+  .hf-export-menu { min-width: 190px; padding: 6px 0; }
+  .hf-export-bar .dropup .dropdown-menu { margin-bottom: 0; }
+  .hf-export-bar .dropup:hover .dropdown-menu { display: block; }
+  .hf-export-menu .dropdown-item { padding: 8px 18px; font-size: .875rem; color: #212529; }
+  .hf-export-menu .dropdown-item:hover { background: #e9ecef; }
+  .hf-export-menu .dropdown-item i { width: 20px; }
+
+  #hf-filter-modal { z-index: 2100; }
+  #hf-filter-modal .modal-dialog { max-width: 900px; }
+  #hf-filter-modal .modal-body { overflow: visible; }
+  #hf-filter-modal.hf-pick-mode .hf-opt-list { max-height: calc(100vh - 340px); }
+  #hf-filter-modal.hf-pick-mode .hf-dim-list { max-height: calc(100vh - 340px); }
+  .modal-backdrop { z-index: 2050; }
+
+  /* Fixed layout keeps the header widths when the body is hidden */
+  .hf-growth-table { font-size: .82rem; table-layout: fixed; }
+  .hf-growth-table th { background: #f1f3f5; font-weight: 700; }
+  .hf-growth-table td, .hf-growth-table th { padding: 6px 10px !important; }
+  .hf-growth-table td:nth-child(2) { overflow: hidden; text-overflow: ellipsis;
+                                     white-space: nowrap; }
+  .hf-swatch { display: inline-block; width: 11px; height: 11px;
+               border-radius: 2px; margin-right: 7px; }
+  .hf-up { color: #1a472a; font-weight: 700; }
+  .hf-down { color: #b02a37; font-weight: 700; }
+  .hf-flat { color: #6c757d; font-weight: 700; }
+  .hf-new { color: #0056b3; font-weight: 700; }
+  .hf-table-toggle { background: none; border: 0; padding: 0 2px; line-height: 1;
+                     color: #6c757d; outline: none; cursor: pointer; }
+  .hf-table-toggle:hover { color: #0056b3; }
+  .hf-table-toggle:focus { outline: none; box-shadow: none; }
+  .hf-table-toggle i { font-size: .78rem; transition: transform .18s; }
+  .hf-table-toggle.is-closed i { transform: rotate(-90deg); }
+  .hf-table-body-fade { transition: opacity .18s ease; }
+</style>
+{% endblock %}
+
+{% block content %}
+{% get_translations 'analytics_growth' as t %}
+{{ dimension_groups|json_script:"hf-dimension-data" }}
+
+<div class="card card-primary card-outline hiveforest">
+  <div class="card-header">
+    <h3 class="card-title"><i class="fas fa-chart-bar mr-2"></i>{{ t.page_title }}</h3>
+  </div>
+  <div class="card-body hiveforest">
+    <div class="hf-wrap">
+      <div id="hf-result" class="mb-3"></div>
+      <div id="hf-settings">
+
+        <div class="hf-panel">
+          <div class="hf-section hf-collapse-head" data-target="#hf-xaxis-body">
+            <span>{{ t.x_axis }}</span><i class="fas fa-chevron-down"></i>
+          </div>
+          <div id="hf-xaxis-body">
+            <div class="row">
+              <div class="col-md-3 mb-2">
+                <label class="hf-label">{{ t.dimension }}</label>
+                <div class="hf-cascade" id="hf-dim-cascade">
+                  <button type="button" class="form-control form-control-sm hf-cascade-toggle"
+                          id="hf-dim-toggle">
+                    <span id="hf-dim-label">-</span>
+                    <i class="fas fa-chevron-down"></i>
+                  </button>
+                  <div class="hf-cascade-menu">
+                    <div class="hf-cascade-col" id="hf-cascade-family"></div>
+                    <div class="hf-cascade-col hf-cascade-child" id="hf-cascade-level"></div>
+                  </div>
+                </div>
+                <input type="hidden" id="hf-dimension" value="">
+              </div>
+              
+              <div class="col-md-3 mb-2">
+                <label class="hf-label">{{ t.max_bars }}</label>
+                <select id="hf-limit" class="form-control form-control-sm">
+                  <option value="all">{{ t.opt_all }}</option>
+                  {% for n in top_limits %}
+                    <option value="{{ n }}" {% if n == 10 %}selected{% endif %}>{{ t.opt_top }} {{ n }}</option>
+                  {% endfor %}
+                  <option value="0">{{ t.opt_combined_total }}</option>
+                  <option value="pick">{{ t.opt_selected_items }}</option>
+                </select>
+              </div>
+              
+              <div class="col-md-3 mb-2">
+                <label class="hf-label invisible">&nbsp;</label>
+                <button type="button" id="hf-pick-btn" class="btn btn-sm btn-primary btn-block invisible">
+                  <i class="fas fa-list-ul mr-1"></i><span id="hf-pick-text">{{ t.btn_choose }}</span>
+                  <span id="hf-pick-count" class="badge badge-light ml-1">0</span>
+                </button>
+              </div>
+              
+              <div class="col-12">
+                <p class="hf-hint mt-0">{{ t.hint_measure_others }}</p>
+                <div id="hf-pick-chips" class="mt-2"></div>
+              </div>
+              
+            </div>
+          </div>
+        </div>
+
+        <div class="hf-panel">
+          <div class="hf-section hf-collapse-head" data-target="#hf-period-body">
+            <span>{{ t.period }}</span><i class="fas fa-chevron-down"></i>
+          </div>
+          <div id="hf-period-body">
+            <div class="row">
+              <div class="col-12">
+                <label class="hf-label">{{ t.year }}</label>
+                <div class="d-flex align-items-center flex-wrap">
+                  <span class="small text-muted mr-2">{{ t.lbl_from }}</span>
+                  <select id="hf-year-from" class="form-control form-control-sm mr-1" style="width:85px;">
+                    {% for y in years %}<option value="{{ y }}">{{ y }}</option>{% endfor %}
+                  </select>
+                  <select id="hf-q-from" class="form-control form-control-sm mr-3" style="width:65px;">
+                    <option value="" class="hf-q-blank">-</option>
+                    <option value="1">Q1</option>
+                    <option value="2">Q2</option>
+                    <option value="3">Q3</option>
+                    <option value="4">Q4</option>
+                  </select>
+                  <span class="small text-muted mr-2">{{ t.lbl_to }}</span>
+                  <select id="hf-year-to" class="form-control form-control-sm mr-1" style="width:85px;">
+                    {% for y in years %}
+                      <option value="{{ y }}" {% if forloop.last %}selected{% endif %}>{{ y }}</option>
+                    {% endfor %}
+                  </select>
+                  <select id="hf-q-to" class="form-control form-control-sm mr-3" style="width:65px;">
+                    <option value="" class="hf-q-blank">-</option>
+                    <option value="1">Q1</option>
+                    <option value="2">Q2</option>
+                    <option value="3">Q3</option>
+                    <option value="4">Q4</option>
+                  </select>
+                  <span class="hf-period-divider"></span>
+                  <div class="custom-control custom-checkbox ml-3">
+                    <input type="checkbox" class="custom-control-input" id="hf-mat-check">
+                    <label class="custom-control-label" for="hf-mat-check">{{ t.opt_mat }}</label>
+                  </div>
+                </div>
+                <p id="hf-period-hint" class="hf-hint mt-2">
+                  {{ t.hint_period }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="hf-filter-panel" class="hf-panel">
+          <button type="button" class="btn btn-sm btn-primary"
+                  data-toggle="modal" data-target="#hf-filter-modal">
+            <i class="fas fa-filter mr-1"></i> {{ t.btn_open_filter }}
+            <span id="hf-filter-count" class="badge badge-light ml-1">0</span>
+          </button>
+          <p class="hf-hint">{{ t.hint_filter }}</p>
+          <div id="hf-chip-area"></div>
+        </div>
+
+        <div class="text-right">
+          <button type="button" id="hf-reset" class="btn btn-sm btn-secondary">
+            <i class="fas fa-sync-alt mr-1"></i> {{ t.btn_reset }}
+          </button>
+          <button type="button" id="hf-apply" class="btn btn-sm btn-primary">
+            <i class="fas fa-table mr-1"></i> {{ t.btn_display_report }}
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="hf-filter-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-primary">
+        <h5 class="modal-title text-white"><i class="fas fa-filter mr-2"></i>{{ t.modal_filter_title }}</h5>
+        <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-5 border-right hf-dim-side">
+            <label class="hf-label">{{ t.dimension }}</label>
+            <div id="hf-dim-list" class="hf-dim-list"></div>
+          </div>
+          <div class="col-md-7 hf-opt-side">
+            <label class="hf-label" id="hf-panel-title">{{ t.lbl_select_dimension }}</label>
+            <div id="hf-panel">
+              <p class="text-muted small">{{ t.msg_pick_dimension }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-primary" data-dismiss="modal">{{ t.btn_done }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(function () {
+  {% get_translations 'analytics_growth' as t %}
+  var T = {
+    notRelated: "{{ t.js_not_related|escapejs }}",
+    notRelatedTo: "{{ t.js_not_related_to|escapejs }}",
+    loading: "{{ t.js_loading|escapejs }}",
+    searchPlaceholder: "{{ t.js_search_placeholder|escapejs }}",
+    items: "{{ t.js_items|escapejs }}",
+    typeAtLeast: "{{ t.js_type_at_least|escapejs }}",
+    charsToList: "{{ t.js_chars_to_list|escapejs }}",
+    showingFirst: "{{ t.js_showing_first|escapejs }}",
+    selectAll: "{{ t.js_select_all|escapejs }}",
+    none: "{{ t.js_none|escapejs }}",
+    noMatching: "{{ t.js_no_matching|escapejs }}",
+    errNoResp: "{{ t.js_err_no_resp|escapejs }}",
+    errServer: "{{ t.js_err_server|escapejs }}",
+    errDenied: "{{ t.js_err_denied|escapejs }}",
+    errNotFound: "{{ t.js_err_not_found|escapejs }}",
+    errSession: "{{ t.js_err_session|escapejs }}",
+    hintMatReq: "{{ t.js_hint_mat_req|escapejs }}",
+    hintLeaveQuarter: "{{ t.js_hint_leave_quarter|escapejs }}",
+    errPickOne: "{{ t.js_err_pick_one|escapejs }}",
+    errChooseYears: "{{ t.js_err_choose_years|escapejs }}",
+    buildingChart: "{{ t.js_building_chart|escapejs }}",
+    bars: "{{ t.js_bars|escapejs }}",
+    fullscreen: "{{ t.js_fullscreen|escapejs }}",
+    growth: "{{ t.js_growth|escapejs }}",
+    hideRows: "{{ t.js_hide_rows|escapejs }}",
+    showRows: "{{ t.js_show_rows|escapejs }}",
+    export: "{{ t.js_export|escapejs }}",
+    btnChoose: "{{ t.btn_choose|escapejs }}"
+  };
+
+  var OPTIONS_URL = "{% url 'analytics:iqvia_options' %}";
+  var GROWTH_URL = "{% url 'analytics:iqvia_growth_data' %}";
+  var EXPORT_URL = "{% url 'analytics:iqvia_growth_export' %}";
+  var GROUPS = JSON.parse(document.getElementById('hf-dimension-data').textContent);
+
+  var EXCLUSIVE_FAMILIES = ['atc', 'otc', 'nfc'];
+
+  var DIM = {};
+  GROUPS.forEach(function (g) {
+    g.items.forEach(function (it) {
+      DIM[it.key] = { key: it.key, label: it.label, family: g.family, searchMin: it.search_min };
+    });
+  });
+
+  var SELECTED = {};
+  var LABELS = {};
+  var PICKED = {};
+  var PICK_LABELS = {};
+  var activeDim = null;
+  var pickDim = null;
+  var currentDim = null;
+  var searchTimer = null;
+
+  function esc(text) { return $('<div>').text(text == null ? '' : text).html(); }
+
+  function selectionParams() {
+    var parts = [];
+    Object.keys(SELECTED).forEach(function (k) {
+      if (SELECTED[k] && SELECTED[k].length) {
+        parts.push('sel_' + k + '=' + SELECTED[k].join(','));
+      }
+    });
+    return parts.join('&');
+  }
+
+  function failMessage(xhr) {
+    if (xhr.status === 0) { return T.errNoResp; }
+    if (xhr.status === 500) { return T.errServer; }
+    if (xhr.status === 403) { return T.errDenied; }
+    if (xhr.status === 404) { return T.errNotFound; }
+    return T.errSession;
+  }
+
+  // ---------- Dimension cascade ----------
+
+  function buildCascade() {
+    var $fam = $('#hf-cascade-family').empty();
+    GROUPS.forEach(function (g) {
+      $fam.append(
+        $('<div class="hf-cascade-item">').attr('data-family', g.family)
+          .append($('<span>').text(g.label))
+          .append($('<i class="fas fa-chevron-right">'))
+      );
+    });
+    setDimension(GROUPS[0].items[0].key);
+  }
+
+  function topLevelOf(family) {
+    var found = null;
+    GROUPS.forEach(function (g) {
+      if (g.family === family && !found) { found = g.items[0].key; }
+    });
+    return found;
+  }
+
+  function showFamily(family) {
+    $('#hf-cascade-family .hf-cascade-item').each(function () {
+      $(this).toggleClass('active', $(this).data('family') === family);
+    });
+    var $level = $('#hf-cascade-level').empty();
+    GROUPS.forEach(function (g) {
+      if (g.family !== family) { return; }
+      g.items.forEach(function (it) {
+        $level.append(
+          $('<div class="hf-cascade-item">').attr('data-dim', it.key).text(it.label)
+            .toggleClass('is-current', it.key === currentDim)
+        );
+      });
+    });
+  }
+
+  function setDimension(key) {
+    currentDim = key;
+    $('#hf-dimension').val(key);
+    $('#hf-dim-label').text(DIM[key].label);
+    $('#hf-dim-cascade').removeClass('is-open');
+    $('#hf-dimension').trigger('change');
+  }
+
+  $('#hf-dim-toggle').on('click', function (event) {
+    event.stopPropagation();
+    var $box = $('#hf-dim-cascade').toggleClass('is-open');
+    if ($box.hasClass('is-open')) { showFamily(DIM[currentDim].family); }
+  });
+
+  $('#hf-cascade-family').on('mouseenter', '.hf-cascade-item', function () {
+    showFamily($(this).data('family'));
+  });
+
+  $('#hf-cascade-family').on('click', '.hf-cascade-item', function () {
+    var family = $(this).data('family');
+    showFamily(family);
+    setDimension(topLevelOf(family));
+  });
+
+  $('#hf-cascade-level').on('click', '.hf-cascade-item', function () {
+    setDimension($(this).data('dim'));
+  });
+
+  $(document).on('click', function (event) {
+    if (!$(event.target).closest('#hf-dim-cascade').length) {
+      $('#hf-dim-cascade').removeClass('is-open');
+    }
+  });
+
+  // ---------- ATC / OTC / NFC mutual lock ----------
+
+  function lockedFamily() {
+    var family = DIM[currentDim] ? DIM[currentDim].family : null;
+    return EXCLUSIVE_FAMILIES.indexOf(family) !== -1 ? family : null;
+  }
+
+  function enforceFamilyLock() {
+    var locked = lockedFamily();
+    if (locked) {
+      var changed = false;
+      Object.keys(SELECTED).forEach(function (key) {
+        if (DIM[key] && DIM[key].family === locked) {
+          delete SELECTED[key];
+          delete LABELS[key];
+          changed = true;
+        }
+      });
+      if (changed) { refreshSummary(); }
+      if (activeDim && DIM[activeDim] && DIM[activeDim].family === locked &&
+          !$('#hf-filter-modal').hasClass('hf-pick-mode')) {
+        activeDim = null;
+        $('#hf-panel').html('<p class="text-muted small">{{ t.msg_pick_dimension|escapejs }}</p>');
+        $('#hf-panel-title').text('{{ t.lbl_select_dimension|escapejs }}');
+      }
+    }
+    buildDimensionList();
+  }
+
+  function buildDimensionList() {
+    var $list = $('#hf-dim-list').empty();
+    var locked = lockedFamily();
+    GROUPS.forEach(function (g) {
+      var groupLocked = locked && EXCLUSIVE_FAMILIES.indexOf(g.family) !== -1 && g.family !== locked;
+      var $head = $('<div class="hf-dim-group">').text(g.label.toUpperCase());
+      if (groupLocked) { $head.append($('<span class="hf-dim-tag">').text(T.notRelated)); }
+      $list.append($head);
+      g.items.forEach(function (it) {
+        var count = (SELECTED[it.key] || []).length;
+        var $row = $('<div class="hf-dim-item">').attr('data-dim', it.key).text(it.label);
+        if (count) { $row.append($('<span class="badge badge-light ml-1">').text(count)); }
+        if (activeDim === it.key) { $row.addClass('active'); }
+        if (groupLocked) {
+          $row.addClass('hf-dim-item-locked')
+              .attr('title', T.notRelatedTo + ' ' + DIM[currentDim].label);
+        }
+        $list.append($row);
+      });
+    });
+  }
+
+  // ---------- Filter / picker option loading ----------
+
+  function loadOptions(dimKey, keyword) {
+    activeDim = dimKey;
+    buildDimensionList();
+    $('#hf-panel-title').text(DIM[dimKey].label);
+    var spinner = '<p class="text-muted small"><i class="fas fa-spinner fa-spin mr-1"></i>' + T.loading + '</p>';
+    if ($('#hf-search').data('dim') === dimKey) {
+      $('#hf-opt-area').html(spinner);
+    } else {
+      $('#hf-panel').html(spinner);
+    }
+
+    var url = OPTIONS_URL + '?dim=' + encodeURIComponent(dimKey);
+    if (keyword) { url += '&q=' + encodeURIComponent(keyword); }
+    var sel = selectionParams();
+    if (sel) { url += '&' + sel; }
+
+    $.getJSON(url)
+      .done(function (data) { renderPanel(data, keyword); })
+      .fail(function (xhr) {
+        var box = $('#hf-opt-area').length ? '#hf-opt-area' : '#hf-panel';
+        $(box).html('<div class="alert alert-warning py-2 small mb-0">' +
+                    '<i class="fas fa-exclamation-triangle mr-1"></i>' +
+                    esc(failMessage(xhr)) + '</div>');
+      });
+  }
+
+  function renderPanel(data, keyword) {
+    var picking = $('#hf-filter-modal').hasClass('hf-pick-mode');
+    var chosen = (picking ? PICKED[data.dim] : SELECTED[data.dim]) || [];
+    var html = '';
+    var $box = $('#hf-search');
+    var keepBox = $box.length && $box.data('dim') === data.dim;
+
+    if (!keepBox) {
+      var searchHtml = '<input type="text" id="hf-search" class="form-control form-control-sm mb-2" ';
+      searchHtml += 'placeholder="' + T.searchPlaceholder + '" value="' + esc(keyword || '') + '">';
+      searchHtml += '<div id="hf-opt-area"></div>';
+      $('#hf-panel').html(searchHtml);
+      $('#hf-search').data('dim', data.dim);
+      bindSearch(data.dim);
+    }
+
+    if (data.need_search) {
+      html += '<div class="alert alert-info py-2 small mb-0"><i class="fas fa-keyboard mr-1"></i>';
+      html += data.total + ' ' + T.items + '. ' + T.typeAtLeast + ' ' + data.search_min + ' ' + T.charsToList;
+      html += '</div>';
+      $('#hf-opt-area').html(html);
+      return;
+    }
+
+    html += '<div class="d-flex justify-content-between align-items-center mb-1">';
+    html += '<small class="text-muted">' + data.total + ' ' + T.items;
+    if (data.truncated) { html += ' (' + T.showingFirst + ' ' + data.items.length + ')'; }
+    html += '</small><div><a href="#" id="hf-sel-all" class="small mr-2">' + T.selectAll + '</a>';
+    html += '<a href="#" id="hf-sel-none" class="small">' + T.none + '</a></div></div>';
+
+    html += '<div class="hf-opt-list">';
+    if (!data.items.length) { html += '<p class="text-muted small mb-0">' + T.noMatching + '</p>'; }
+    data.items.forEach(function (item) {
+      var checked = chosen.indexOf(item.id) !== -1 ? 'checked' : '';
+      var eid = 'hf-opt-' + data.dim + '-' + item.id;
+      html += '<div class="custom-control custom-checkbox hf-opt-row">';
+      html += '<input type="checkbox" class="custom-control-input hf-opt" id="' + eid + '" ';
+      html += 'value="' + item.id + '" data-text="' + esc(item.text) + '" ' + checked + '>';
+      html += '<label class="custom-control-label" for="' + eid + '">' + esc(item.text) + '</label>';
+      html += '</div>';
+    });
+    html += '</div>';
+
+    $('#hf-opt-area').html(html);
+
+    $('#hf-panel').off('change', '.hf-opt').on('change', '.hf-opt', function () {
+      var id = parseInt($(this).val(), 10);
+      var text = $(this).data('text');
+      if ($('#hf-filter-modal').hasClass('hf-pick-mode')) {
+        togglePick(data.dim, id, text, this.checked);
+      } else {
+        toggleItem(data.dim, id, text, this.checked);
+      }
+    });
+
+    $('#hf-sel-all').on('click', function (e) {
+      e.preventDefault();
+      $('#hf-panel .hf-opt').each(function () {
+        if (!this.checked) { this.checked = true; $(this).trigger('change'); }
+      });
+    });
+
+    $('#hf-sel-none').on('click', function (e) {
+      e.preventDefault();
+      $('#hf-panel .hf-opt').each(function () {
+        if (this.checked) { this.checked = false; $(this).trigger('change'); }
+      });
+    });
+  }
+
+  function bindSearch(dimKey) {
+    var $box = $('#hf-search');
+    var minChars = DIM[dimKey].searchMin || 0;
+
+    $box.on('keyup', function (event) {
+      if (event.ctrlKey || event.metaKey || event.altKey) { return; }
+      if (event.key && event.key.length > 1 &&
+          event.key !== 'Backspace' && event.key !== 'Delete') { return; }
+
+      var keyword = $(this).val().trim();
+      if (minChars && keyword.length > 0 && keyword.length < minChars) { return; }
+
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(function () { loadOptions(dimKey, keyword); }, 350);
+    });
+
+    var node = $box.get(0);
+    if (node) {
+      node.focus();
+      var end = node.value.length;
+      try { node.setSelectionRange(end, end); } catch (err) { }
+    }
+  }
+
+  function togglePick(dimKey, id, text, checked) {
+    PICKED[dimKey] = PICKED[dimKey] || [];
+    PICK_LABELS[dimKey] = PICK_LABELS[dimKey] || {};
+    var pos = PICKED[dimKey].indexOf(id);
+    if (checked && pos === -1) { PICKED[dimKey].push(id); PICK_LABELS[dimKey][id] = text; }
+    if (!checked && pos !== -1) { PICKED[dimKey].splice(pos, 1); delete PICK_LABELS[dimKey][id]; }
+    syncMode();
+  }
+
+  function toggleItem(dimKey, id, text, checked) {
+    SELECTED[dimKey] = SELECTED[dimKey] || [];
+    LABELS[dimKey] = LABELS[dimKey] || {};
+    var pos = SELECTED[dimKey].indexOf(id);
+    if (checked && pos === -1) { SELECTED[dimKey].push(id); LABELS[dimKey][id] = text; }
+    if (!checked && pos !== -1) { SELECTED[dimKey].splice(pos, 1); delete LABELS[dimKey][id]; }
+    if (!SELECTED[dimKey].length) { delete SELECTED[dimKey]; }
+    refreshSummary();
+    buildDimensionList();
+  }
+
+  function refreshSummary() {
+    var $area = $('#hf-chip-area').empty();
+    var total = 0;
+    Object.keys(SELECTED).forEach(function (k) {
+      total += SELECTED[k].length;
+      SELECTED[k].forEach(function (id) {
+        var text = (LABELS[k] || {})[id] || id;
+        $area.append(
+          $('<span class="hf-chip">').text(DIM[k].label + ': ' + text)
+            .append($('<span class="hf-chip-x">&times;</span>')
+              .attr('data-dim', k).attr('data-id', id))
+        );
+      });
+    });
+    $('#hf-filter-count').text(total);
+  }
+
+  function renderPickChips() {
+    var $area = $('#hf-pick-chips').empty();
+    if (currentMode() !== 'pick') { return; }
+    var dimKey = $('#hf-dimension').val();
+    var ids = PICKED[dimKey] || [];
+    var texts = PICK_LABELS[dimKey] || {};
+    ids.forEach(function (id) {
+      $area.append(
+        $('<span class="hf-chip">').text(texts[id] || id)
+          .append($('<span class="hf-chip-x">&times;</span>').attr('data-id', id))
+      );
+    });
+  }
+
+  $('#hf-dim-list').on('click', '.hf-dim-item', function () {
+    if ($('#hf-filter-modal').hasClass('hf-pick-mode')) { return; }
+    loadOptions($(this).data('dim'), '');
+  });
+
+  $('#hf-filter-modal').on('hidden.bs.modal', function () {
+    $(this).removeClass('hf-pick-mode');
+    $('#hf-dim-list').removeClass('hf-dim-locked');
+  });
+
+  $('#hf-filter-modal').on('shown.bs.modal', function () {
+    var picking = $(this).hasClass('hf-pick-mode');
+    $('#hf-dim-list').toggleClass('hf-dim-locked', picking);
+    $(this).find('.modal-title').html(
+      picking
+        ? '<i class="fas fa-list-ul mr-2"></i>' + T.btnChoose + ' ' + DIM[pickDim].label
+        : '<i class="fas fa-filter mr-2"></i>{{ t.modal_filter_title|escapejs }}'
+    );
+  });
+
+  $('#hf-chip-area').on('click', '.hf-chip-x', function () {
+    toggleItem($(this).data('dim'), parseInt($(this).data('id'), 10), '', false);
+    if (activeDim) { loadOptions(activeDim, ''); }
+  });
+
+  $('#hf-pick-chips').on('click', '.hf-chip-x', function () {
+    var dimKey = $('#hf-dimension').val();
+    var id = parseInt($(this).data('id'), 10);
+    var pos = (PICKED[dimKey] || []).indexOf(id);
+    if (pos !== -1) { PICKED[dimKey].splice(pos, 1); }
+    syncMode();
+  });
+
+  $('#hf-pick-btn').on('click', function () {
+    pickDim = $('#hf-dimension').val();
+    $('#hf-filter-modal').addClass('hf-pick-mode');
+    $('#hf-filter-modal').modal('show');
+    loadOptions(pickDim, '');
+  });
+
+  // Table collapse, bound through the container since it is rebuilt each run
+  $('#hf-result').on('click', '#hf-table-toggle', function () {
+    var $body = $('#hf-table-body').addClass('hf-table-body-fade');
+    var $btn = $(this);
+    var hidden = $body.is(':hidden');
+
+    $btn.toggleClass('is-closed', !hidden)
+        .attr('title', hidden ? T.hideRows : T.showRows);
+
+    // tbody height cannot be animated, fade it instead
+    if (hidden) {
+      $body.css('opacity', 0).show();
+      setTimeout(function () { $body.css('opacity', 1); }, 10);
+    } else {
+      $body.css('opacity', 0);
+      setTimeout(function () { $body.hide(); }, 180);
+    }
+  });
+
+  // ---------- Max Bars mode ----------
+
+  function currentMode() {
+    return $('#hf-limit').val() || '10';
+  }
+
+  function syncMode() {
+    var pick = currentMode() === 'pick';
+    var dimKey = $('#hf-dimension').val();
+    if (!dimKey) { return; }
+    $('#hf-pick-btn').toggleClass('invisible', !pick);
+    var count = (PICKED[dimKey] || []).length;
+    $('#hf-pick-text').text(T.btnChoose);
+    $('#hf-pick-btn').attr('title', T.btnChoose + ' ' + DIM[dimKey].label);
+    $('#hf-pick-count').text(count);
+    renderPickChips();
+  }
+
+  $('#hf-limit').on('change', syncMode);
+  $('#hf-dimension').on('change', function () {
+    syncMode();
+    enforceFamilyLock();
+  });
+
+  // ---------- Smart period dropdowns ----------
+
+  function intVal(id) {
+    var raw = $(id).val();
+    return raw ? parseInt(raw, 10) : 0;
+  }
+
+  var YEARS = $('#hf-year-from option').map(function () {
+    return parseInt(this.value, 10);
+  }).get();
+
+  function syncPeriodBounds() {
+    var mat = $('#hf-mat-check').prop('checked');
+    var firstYear = YEARS[0];
+    var lastYear = YEARS[YEARS.length - 1];
+
+    var yFrom = intVal('#hf-year-from');
+    var qFrom = intVal('#hf-q-from');
+    var hasQ = mat || qFrom > 0;
+
+    if (!hasQ && yFrom >= lastYear) {
+      yFrom = Math.max(firstYear, lastYear - 1);
+      $('#hf-year-from').val(String(yFrom));
+    }
+    if (hasQ && yFrom >= lastYear && qFrom === 4) {
+      qFrom = 3;
+      $('#hf-q-from').val('3');
+    }
+
+    var minY, minQ;
+    if (!hasQ) { minY = yFrom + 1; minQ = 0; }
+    else if (qFrom === 4) { minY = yFrom + 1; minQ = 1; }
+    else { minY = yFrom; minQ = qFrom + 1; }
+
+    var yTo = intVal('#hf-year-to');
+    $('#hf-year-to option').each(function () {
+      var bad = parseInt(this.value, 10) < minY;
+      $(this).prop('disabled', bad).toggle(!bad);
+    });
+    if (yTo < minY) { yTo = minY; $('#hf-year-to').val(String(minY)); }
+
+    if (hasQ) {
+      var qTo = intVal('#hf-q-to');
+      $('#hf-q-to option').each(function () {
+        if (!this.value) { return; }
+        var bad = (yTo === minY) && parseInt(this.value, 10) < minQ;
+        $(this).prop('disabled', bad).toggle(!bad);
+      });
+      if (yTo === minY && qTo < minQ) { $('#hf-q-to').val(String(minQ)); }
+    } else {
+      $('#hf-q-to option').prop('disabled', false).show();
+      $('.hf-q-blank').prop('disabled', false).show();
+    }
+  }
+
+  function syncQuarterPair(source) {
+    if ($('#hf-mat-check').prop('checked')) { return; }
+    var from = $('#hf-q-from').val();
+    var to = $('#hf-q-to').val();
+
+    if (source === 'from') {
+      if (from && !to) { $('#hf-q-to').val(from); }
+      if (!from && to) { $('#hf-q-to').val(''); }
+    } else {
+      if (to && !from) { $('#hf-q-from').val(to); }
+      if (!to && from) { $('#hf-q-from').val(''); }
+    }
+  }
+
+  function syncMatMode() {
+    var mat = $('#hf-mat-check').prop('checked');
+    $('.hf-q-blank').prop('disabled', mat).toggle(!mat);
+    if (mat) {
+      if (!$('#hf-q-from').val()) { $('#hf-q-from').val('4'); }
+      if (!$('#hf-q-to').val()) { $('#hf-q-to').val('4'); }
+    }
+    $('#hf-period-hint').text(
+      mat
+        ? T.hintMatReq
+        : T.hintLeaveQuarter
+    );
+    $('#hf-q-from, #hf-q-to').removeClass('hf-field-error');
+    syncPeriodBounds();
+  }
+
+  $('#hf-mat-check').on('change', syncMatMode);
+  $('#hf-year-from').on('change', syncPeriodBounds);
+  $('#hf-year-to').on('change', syncPeriodBounds);
+  $('#hf-q-from').on('change', function () { syncQuarterPair('from'); syncPeriodBounds(); });
+  $('#hf-q-to').on('change', function () { syncQuarterPair('to'); syncPeriodBounds(); });
+
+  // ---------- Query string ----------
+
+  function money(value) {
+    return Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  function buildQueryString() {
+    var yFrom = intVal('#hf-year-from');
+    var yTo = intVal('#hf-year-to');
+    if (!yFrom || !yTo) { return null; }
+
+    var qFrom = intVal('#hf-q-from');
+    var qTo = intVal('#hf-q-to');
+    var mat = $('#hf-mat-check').prop('checked') ? '1' : '0';
+
+    var qs = 'dim=' + encodeURIComponent($('#hf-dimension').val()) +
+      '&limit=' + encodeURIComponent(currentMode() === 'pick' ? 'all' : currentMode()) +
+      '&year_from=' + yFrom + '&q_from=' + qFrom +
+      '&year_to=' + yTo + '&q_to=' + qTo + '&mat=' + mat;
+
+    var dimKey = $('#hf-dimension').val();
+    var picked = PICKED[dimKey] || [];
+    if (currentMode() === 'pick') {
+      if (!picked.length) { return 'NOPICK'; }
+      qs += '&sel_' + dimKey + '=' + picked.join(',');
+    }
+
+    var sel = selectionParams();
+    if (sel) { qs += '&' + sel; }
+    return qs;
+  }
+
+  // ---------- Reset ----------
+
+  $('#hf-reset').on('click', function () {
+    SELECTED = {}; LABELS = {};
+    PICKED = {}; PICK_LABELS = {};
+    $('#hf-mat-check').prop('checked', false);
+    $('#hf-q-from').val('');
+    $('#hf-q-to').val('');
+    $('#hf-year-from').prop('selectedIndex', 0);
+    $('#hf-year-to').val($('#hf-year-to option:last').val());
+    $('#hf-limit').val('10');
+    $('#hf-year-from, #hf-year-to, #hf-q-from, #hf-q-to').removeClass('hf-field-error');
+    syncMatMode();
+    setDimension(GROUPS[0].items[0].key);
+    syncMode();
+    refreshSummary();
+    $('#hf-result').empty();
+  });
+
+  // ---------- Display Report ----------
+
+  function scrollToResult() {
+    $('html, body').animate({ scrollTop: $('#hf-result').offset().top - 80 }, 250);
+  }
+
+  function growthCell(row) {
+    if (row.growth_tag) { return '<span class="hf-new">' + esc(row.growth_tag) + '</span>'; }
+    if (row.growth > 0) { return '<span class="hf-up">+' + row.growth.toFixed(2) + '%</span>'; }
+    if (row.growth < 0) { return '<span class="hf-down">' + row.growth.toFixed(2) + '%</span>'; }
+    return '<span class="hf-flat">0.00%</span>';
+  }
+
+  $('#hf-apply').on('click', function () {
+    $('#hf-year-from, #hf-year-to, #hf-q-from, #hf-q-to, #hf-pick-btn')
+      .removeClass('hf-field-error');
+    var qs = buildQueryString();
+
+    if (qs === 'NOPICK') {
+      $('#hf-pick-btn').addClass('hf-field-error');
+      $('#hf-result').html('<div class="alert alert-warning py-2 small mb-0">' +
+                           '<i class="fas fa-exclamation-circle mr-1"></i>' +
+                           T.errPickOne + '</div>');
+      scrollToResult();
+      return;
+    }
+    if (!qs) {
+      $('#hf-year-from, #hf-year-to').addClass('hf-field-error');
+      $('#hf-result').html('<div class="alert alert-warning py-2 small mb-0">' +
+                           '<i class="fas fa-exclamation-circle mr-1"></i>' +
+                           T.errChooseYears + '</div>');
+      scrollToResult();
+      return;
+    }
+
+    $('#hf-result').html('<div class="hf-panel mb-0 text-center text-muted small py-4">' +
+                         '<i class="fas fa-spinner fa-spin mr-1"></i>' + T.buildingChart + '</div>');
+
+    $.getJSON(GROWTH_URL + '?' + qs)
+      .done(function (data) {
+        if (data.error) {
+          $('#hf-result').html('<div class="alert alert-warning py-2 small mb-0">' +
+                               esc(data.error) + '</div>');
+          scrollToResult();
+          return;
+        }
+        var html = '<div class="hf-panel mb-0">';
+        html += '<div class="d-flex justify-content-between align-items-center mb-2">';
+        html += '<div class="hf-label mb-0">' + data.rows.length + ' ' + T.bars + '</div>';
+        html += '<button type="button" id="hf-fullscreen" class="btn btn-secondary hf-tool-btn">';
+        html += '<i class="fas fa-expand mr-1"></i>' + T.fullscreen + '</button></div>';
+        html += '<div id="hf-chart-box" class="hf-chart-box">';
+        html += '<img src="data:image/png;base64,' + data.chart + '" class="img-fluid"></div>';
+
+        html += '<table class="table table-sm table-bordered hf-growth-table mt-3 mb-0">';
+        html += '<thead><tr><th style="width:42px">#</th>';
+        html += '<th style="width:auto">' + esc(data.dim_label) + '</th>';
+        html += '<th class="text-right" style="width:190px">' + esc(data.label_a) + '</th>';
+        html += '<th class="text-right" style="width:190px">' + esc(data.label_b) + '</th>';
+        html += '<th class="text-right" style="width:156px">' + T.growth;
+        html += '<button type="button" id="hf-table-toggle" class="hf-table-toggle ml-2" ';
+        html += 'title="' + T.hideRows + '"><i class="fas fa-chevron-down"></i></button>';
+        html += '</th></tr></thead><tbody id="hf-table-body">';
+
+        data.rows.forEach(function (row, index) {
+          html += '<tr><td class="text-muted">' + (index + 1) + '</td>';
+          html += '<td>' + esc(row.label) + '</td>';
+          html += '<td class="text-right">' + money(row.before) + '</td>';
+          html += '<td class="text-right">' + money(row.after) + '</td>';
+          html += '<td class="text-right">' + growthCell(row) + '</td></tr>';
+        });
+        html += '</tbody></table>';
+
+        html += '<div class="hf-export-bar text-right"><div class="dropup d-inline-block">';
+        html += '<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">';
+        html += '<i class="fas fa-download mr-2"></i>' + T.export + '</button>';
+        html += '<div class="dropdown-menu dropdown-menu-right hf-export-menu">';
+        html += '<a class="dropdown-item" href="' + EXPORT_URL + '?format=xlsx&' + qs + '">';
+        html += '<i class="fas fa-file-excel text-success mr-2"></i>Excel (.xlsx)</a>';
+        html += '<a class="dropdown-item" href="' + EXPORT_URL + '?format=csv&' + qs + '">';
+        html += '<i class="fas fa-file-csv text-info mr-2"></i>CSV (.csv)</a>';
+        html += '<div class="dropdown-divider"></div>';
+        html += '<a class="dropdown-item" download="' + esc(data.filename) + '" ';
+        html += 'href="data:image/png;base64,' + data.chart + '">';
+        html += '<i class="fas fa-image text-secondary mr-2"></i>Image (.png)</a>';
+        html += '</div></div></div></div>';
+
+        $('#hf-result').html(html);
+        scrollToResult();
+      })
+      .fail(function (xhr) {
+        var msg = failMessage(xhr);
+        if (xhr.status === 400 && xhr.responseJSON && xhr.responseJSON.error) {
+          msg = xhr.responseJSON.error;
+        }
+        $('#hf-result').html('<div class="alert alert-warning py-2 small mb-0">' +
+                             '<i class="fas fa-exclamation-triangle mr-1"></i>' + esc(msg) + '</div>');
+        scrollToResult();
+      });
+  });
+
+  // ---------- Start ----------
+
+  $('#hf-filter-modal').appendTo('body');
+  buildCascade();
+  syncMatMode();
+  refreshSummary();
+
+});
+</script>
+
+<script>
+// Standalone panel toolbar, independent from the main script above
+(function () {
+  {% get_translations 'analytics_growth' as t %}
+  var errDisplayFirst = "{{ t.js_err_display_first|escapejs }}";
+  var errNoFullscreen = "{{ t.js_err_no_fullscreen|escapejs }}";
+
+  function ready(fn) {
+    if (document.readyState !== 'loading') { fn(); }
+    else { document.addEventListener('DOMContentLoaded', fn); }
+  }
+
+  ready(function () {
+    if (window.jQuery) { jQuery('.hf-collapse-head').off('click'); }
+
+    function isOpen(box) {
+      return window.getComputedStyle(box).display !== 'none';
+    }
+
+    function bodyOf(head) {
+      var target = head.getAttribute('data-target');
+      var box = target ? document.querySelector(target) : null;
+      return box || head.nextElementSibling;
+    }
+
+    document.querySelectorAll('.hf-collapse-head').forEach(function (head) {
+      head.addEventListener('click', function () {
+        var box = bodyOf(head);
+        if (!box) { return; }
+        var visible = isOpen(box);
+        box.style.display = visible ? 'none' : '';
+        head.classList.toggle('is-closed', visible);
+      });
+    });
+
+    document.addEventListener('click', function (event) {
+      if (event.target.closest('#hf-fullscreen')) {
+        var chart = document.getElementById('hf-chart-box');
+        if (!chart) { alert(errDisplayFirst); return; }
+        if (document.fullscreenElement) { document.exitFullscreen(); }
+        else if (chart.requestFullscreen) { chart.requestFullscreen(); }
+        else { alert(errNoFullscreen); }
+      }
+    });
+  });
+})();
+</script>
+{% endblock %}

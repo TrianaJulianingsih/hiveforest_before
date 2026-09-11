@@ -1,0 +1,11 @@
+{% load static i18n admin_urls %}
+{% block object-tools-items %}
+  {% if has_add_permission %}
+  <li>
+    {% url cl.opts|admin_urlname:'add' as add_url %}
+    <a href="{% add_preserved_filters add_url is_popup to_field %}" class="addlink">
+      <i class="fas fa-plus btn btn-sm btn-primary hiveforest" style="margin-right: 5px;" title="{% blocktranslate with cl.opts.verbose_name as name %} Add {{ name }}{% endblocktranslate %}"></i>Add
+    </a>
+  </li>
+  {% endif %}
+{% endblock %}

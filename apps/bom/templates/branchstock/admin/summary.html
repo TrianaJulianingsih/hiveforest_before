@@ -1,0 +1,551 @@
+{% extends "admin/base_site.html" %}
+{% load static custom_filters %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/bootstrap-multiselect/bootstrap-multiselect.css' %}">
+<style>
+  #branchStockFilters .multiselect-container>li>a>label,
+  #branchStockFilters .multiselect-container>li.multiselect-group label {
+    padding: .25rem .75rem;
+  }
+
+  #branchStockFilters .multiselect button.multiselect,
+  #branchStockFilters .multiselect-control {
+    color: #212529;
+    background-color: #ffffff;
+    border-color: #adb5bd;
+  }
+
+  #branchStockFilters .multiselect button.multiselect:hover,
+  #branchStockFilters .multiselect-control:hover {
+    background-color: #f8f9fa;
+    color: #212529;
+  }
+
+  #branchStockFilters .multiselect-selected-text {
+    color: inherit;
+  }
+
+  #branchStockFilters .multiselect {
+    min-width: 220px;
+  }
+
+  #branchStockFilters .btn-branch-action + .btn-branch-action {
+    margin-left: 0.75rem;
+  }
+
+  .hf-table-wrap {
+    position: relative;
+  }
+
+  .hf-table-wrap table {
+    border-collapse: separate !important;
+    border-spacing: 0;
+    position: relative;
+  }
+
+  .hf-scrollbar-top,
+  .hf-scrollbar-body {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .hf-scrollbar-top {
+    margin-bottom: 0.5rem;
+  }
+
+  .hf-scrollbar-inner {
+    height: 1px;
+  }
+
+  .hf-freeze {
+    position: sticky;
+    background-color: #ffffff;
+    z-index: 5;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.08);
+  }
+
+  thead .hf-freeze {
+    z-index: 6;
+    background-color: #0d6efd;
+    color: #ffffff;
+    box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.12);
+  }
+
+  .hf-table-head th {
+    background-color: #0d6efd;
+    color: #ffffff;
+    border-color: #0b5ed7;
+  }
+
+  .hf-freeze-col-1,
+  .hf-freeze-col-2,
+  .hf-freeze-col-3 {
+    min-width: max-content;
+    width: auto;
+    max-width: none;
+    white-space: nowrap;
+  }
+
+  .hf-freeze-col-1 {
+    left: 0;
+  }
+
+  .hf-freeze-col-2 {
+    left: var(--hf-freeze-col-1-width, 0px);
+  }
+
+  .hf-freeze-col-3 {
+    left: calc(var(--hf-freeze-col-1-width, 0px) + var(--hf-freeze-col-2-width, 0px));
+  }
+
+  .hf-capacity-standard {
+    background-color: #ffffffff !important;
+  }
+
+  .hf-capacity-low {
+    background-color: #e6f3ff !important;
+  }
+
+  .hf-capacity-medium {
+    background-color: #fff7d6 !important;
+  }
+
+  .hf-capacity-high {
+    background-color: #ffe5ec !important;
+  }
+
+  @media (max-width: 768px) {
+    .hf-freeze {
+      position: static;
+      left: auto !important;
+      z-index: 1;
+    }
+
+    .hf-freeze-col-1,
+    .hf-freeze-col-2,
+    .hf-freeze-col-3 {
+      min-width: auto;
+      width: auto;
+      max-width: 100%;
+      white-space: normal;
+    }
+  }
+
+  @media print {
+    .hf-scrollbar-top {
+      display: none !important;
+    }
+
+    .hf-table-wrap,
+    .hf-scrollbar-body {
+      overflow: visible !important;
+    }
+
+    .hf-table-wrap table {
+      width: 100% !important;
+    }
+
+    .hf-freeze,
+    thead .hf-freeze {
+      position: static !important;
+      left: 0 !important;
+      box-shadow: none !important;
+      background-color: #f8f9fa !important;
+      color: #000000 !important;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content_title %}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Home</a> &rsaquo; {% if breadcrumbs_url %}<a href="{{ breadcrumbs_url }}">{{ breadcrumbs }}</a>{% else %}<span>{{ breadcrumbs }}</span>{% endif %} &gt; <span>{{ title }}</span>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="card hiveforest">
+  <div class="card-header d-flex flex-column flex-md-row align-items-md-center justify-content-md-between gap-3">
+    <form method="post" class="row g-2 align-items-end" id="branchStockFilters">
+      {% csrf_token %}
+      <div class="col-auto">
+        <label for="branch_id" class="form-label mb-1">Branch</label>
+        <select id="branch_id" name="branch_id[]" class="form-select form-select-sm" multiple>
+          {% for option in branch_options %}
+          <option value="{{ option.value }}" data-branch-ids="{{ option.ids|join:',' }}" {% if option.selected %}selected{% endif %}>{{ option.label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <label for="start_date" class="form-label mb-1">Start</label>
+        <input id="start_date" name="start_date" type="date" class="form-control form-control-sm" value="{{ start_date|date:'Y-m-d' }}">
+      </div>
+      <div class="col-auto">
+        <label for="end_date" class="form-label mb-1">End</label>
+        <input id="end_date" name="end_date" type="date" class="form-control form-control-sm" value="{{ end_date|date:'Y-m-d' }}">
+      </div>
+      <div class="col-auto mt-1 mt-md-0 d-flex align-items-center gap-2">
+        <button type="submit" class="btn btn-primary btn-sm btn-branch-action">Apply</button>
+        <button type="submit" class="btn btn-success btn-sm buttons-csv buttons-html5 btn-branch-action" name="export" value="excel">Export Excel</button>
+      </div>
+    </form>
+  </div>
+  <div class="card-body">
+    {% if filters_applied and summary_rows %}
+    {% if percentage_rows %}
+    <div>
+      <div class="hf-table-wrap">
+        <div class="hf-scrollbar-top"><div class="hf-scrollbar-inner"></div></div>
+        <div class="table-responsive hf-scrollbar-body">
+        <table class="table table-bordered table-striped table-sm align-middle">
+          <thead class="hf-table-head">
+            {% if date_groups %}
+            <tr>
+              <th scope="col" class="hf-freeze hf-freeze-col-1 text-center" colspan="2">Branch</th>
+              <th scope="col" class="hf-freeze hf-freeze-col-3 text-center">Warehouse Capacity</th>
+              {% for group in date_groups %}
+              <th scope="col" class="text-center" colspan="{{ group.dates|length }}">{{ group.label }}</th>
+              {% endfor %}
+            </tr>
+            <tr>
+              <th scope="col" class="hf-freeze hf-freeze-col-1 text-center">Code</th>
+              <th scope="col" class="hf-freeze hf-freeze-col-2 text-center">Description</th>
+              <th scope="col" class="hf-freeze hf-freeze-col-3 text-center">Pallet</th>
+              {% for group in date_groups %}
+              {% for day in group.dates %}
+              <th scope="col" class="text-center">{{ day|date:"j" }}</th>
+              {% endfor %}
+              {% endfor %}
+            </tr>
+            {% else %}
+            <tr>
+              <th scope="col" class="hf-freeze hf-freeze-col-1 text-center" rowspan="2">Code</th>
+              <th scope="col" class="hf-freeze hf-freeze-col-2 text-center" rowspan="2">Description</th>
+              <th scope="col" class="hf-freeze hf-freeze-col-3 text-center" rowspan="2">Pallet</th>
+              {% for day in date_columns %}
+              <th scope="col" class="text-center">{{ day|date:"d M Y" }}</th>
+              {% endfor %}
+            </tr>
+            <tr></tr>
+            {% endif %}
+          </thead>
+          <tbody>
+            {% for row in percentage_rows %}
+            <tr>
+              <td class="hf-freeze hf-freeze-col-1">{{ row.branch_code }}</td>
+              <td class="hf-freeze hf-freeze-col-2">{{ row.branch_description }}</td>
+              <td class="hf-freeze hf-freeze-col-3 text-end">{{ row.warehouse_capacity|default:0 }}</td>
+              {% for item in row.values %}
+              {% with percent=item.percent value=item.value %}
+              {% if percent < 30 %}
+              <td class="hf-capacity-low" align="right">{{ value }} | {{ percent|floatformat:1 }} %</td>
+              {% elif percent >= 70 and percent < 100 %}
+              <td class="hf-capacity-medium" align="right">{{ value }} | {{ percent|floatformat:1 }} %</td>
+              {% elif percent >= 100 %}
+              <td class="hf-capacity-high" align="right">{{ value }} | {{ percent|floatformat:1 }} %</td>
+              {% else %}
+              <td class="hf-capacity-standard" align="right">{{ value }} | {{ percent|floatformat:1 }} %</td>
+              {% endif %}
+              {% endwith %}
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+          </table>
+        </div>
+      </div>
+      {% if omitted_zero_dates %}
+      <div class="alert alert-warning mt-3 mb-0">
+        Tanggal berikut tidak ditampilkan karena semua branch bernilai 0 / 0%:
+        {% for day in omitted_zero_dates %}
+        {% if not forloop.first %}, {% endif %}{{ day|date:"d M Y" }}
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+    {% elif filters_applied %}
+    <div class="alert alert-info mb-0">Tidak ada ringkasan Branch Stock pada rentang dan filter yang dipilih.</div>
+    {% else %}
+    <div class="alert alert-secondary mb-0">Silakan pilih Branch dan rentang tanggal lalu tekan Apply untuk melihat ringkasan.</div>
+    {% endif %}
+  </div>
+</div>
+
+<script src="{% static 'vendor/bootstrap-multiselect/bootstrap-multiselect.min.js' %}"></script>
+<script>
+  (function () {
+    const $ = window.jQuery || (window.django && window.django.jQuery) || null
+    if (!$) {
+      return
+    }
+
+    const pluginReady = $.fn && typeof $.fn.multiselect === 'function'
+    if (!pluginReady) {
+      return
+    }
+
+    const buildButtonSummary = (options, select, placeholder, allText) => {
+      if (!options || options.length === 0) {
+        return placeholder
+      }
+
+      const totalOptions = select.find('option').length
+      if (options.length === totalOptions) {
+        return allText
+      }
+
+      const labels = []
+      options.each(function () {
+        const label = $(this).text().trim()
+        if (label) {
+          labels.push(label)
+        }
+      })
+
+      if (labels.length <= 2) {
+        return labels.join(', ') || placeholder
+      }
+
+      const shown = labels.slice(0, 2).join(', ')
+      return `${shown} +${labels.length - 2}`
+    }
+
+    const buildButtonTitle = (options, placeholder) => {
+      if (!options || options.length === 0) {
+        return placeholder
+      }
+
+      const labels = []
+      options.each(function () {
+        const label = $(this).text().trim()
+        if (label) {
+          labels.push(label)
+        }
+      })
+      return labels.join('\n') || placeholder
+    }
+
+    const attachManualFilter = ($el) => {
+      if (!pluginReady) {
+        return
+      }
+
+      const instance = $el.data('multiselect') || $el.data('bs.multiselect')
+      if (!instance || !instance.$filter || !instance.$ul) {
+        return
+      }
+
+      const $filterInput = instance.$filter.find('input')
+      if (!$filterInput.length) {
+        return
+      }
+
+      const applyFilter = () => {
+        const term = ($filterInput.val() || '').toString().toLowerCase().trim()
+        console.debug('[branchstock-summary] filter term:', term)
+        const $items = instance.$ul.find('li').filter(function () {
+          const $li = $(this)
+          return !$li.hasClass('multiselect-item') && !$li.hasClass('multiselect-group')
+        })
+
+        if (!term) {
+          $items.show()
+          instance.$ul.find('li.multiselect-none').remove()
+          instance.$ul.find('li.multiselect-group').show()
+          instance.$ul.find('li.multiselect-all').show()
+          return
+        }
+
+        let visibleCount = 0
+        $items.each(function () {
+          const $li = $(this)
+          const text = $li.text().toLowerCase()
+          const match = text.indexOf(term) !== -1
+          $li.toggle(match)
+          if (match) {
+            visibleCount += 1
+          }
+        })
+
+        instance.$ul.find('li.multiselect-group').each(function () {
+          const $group = $(this)
+          const groupVisible = $group.nextUntil('.multiselect-group, .multiselect-all').filter(':visible').length > 0
+          $group.toggle(groupVisible)
+        })
+
+        const selectAllVisible = instance.$ul.find('li.multiselect-all').nextAll('li:visible').length > 0
+        instance.$ul.find('li.multiselect-all').toggle(selectAllVisible)
+
+        instance.$ul.find('li.multiselect-none').remove()
+        if (visibleCount === 0) {
+          instance.$ul.append('<li class="multiselect-none text-muted px-3 py-1">Tidak ada hasil</li>')
+        }
+      }
+
+      $filterInput.off('input.hfMultiselectFilter keyup.hfMultiselectFilter')
+      $filterInput.on('input.hfMultiselectFilter keyup.hfMultiselectFilter', applyFilter)
+    }
+
+    const initMultiselect = ($el, placeholder, allText, width) => {
+      if (!pluginReady) {
+        return
+      }
+
+      $el.multiselect({
+        includeSelectAllOption: true,
+        enableFiltering: false,
+        buttonClass: 'btn btn-sm text-start multiselect-control',
+        buttonWidth: width,
+        numberDisplayed: 1,
+        maxHeight: 320,
+        nonSelectedText: placeholder,
+        allSelectedText: allText,
+        buttonText: function (options, select) {
+          return buildButtonSummary(options, select, placeholder, allText)
+        },
+        buttonTitle: function (options) {
+          return buildButtonTitle(options, placeholder)
+        },
+      })
+
+      // Filtering dimatikan sesuai permintaan
+    }
+
+    const $branch = $('#branch_id')
+    if ($branch.length) {
+      initMultiselect($branch, 'Pilih Branch', 'Semua Branch', '220px')
+    }
+
+    const updateFrozenColumnWidths = () => {
+      const isMobileView = window.matchMedia('(max-width: 768px)').matches
+
+      const definitions = [
+        { selector: '.hf-freeze-col-1', variable: '--hf-freeze-col-1-width' },
+        { selector: '.hf-freeze-col-2', variable: '--hf-freeze-col-2-width' },
+        { selector: '.hf-freeze-col-3', variable: '--hf-freeze-col-3-width' },
+      ]
+
+      document.querySelectorAll('.hf-table-wrap table').forEach((table) => {
+        if (isMobileView) {
+          definitions.forEach(({ variable }) => table.style.removeProperty(variable))
+          table
+            .querySelectorAll('.hf-freeze-col-1, .hf-freeze-col-2, .hf-freeze-col-3')
+            .forEach((cell) => {
+              cell.style.removeProperty('min-width')
+              cell.style.removeProperty('width')
+              cell.style.removeProperty('max-width')
+            })
+          return
+        }
+
+        definitions.forEach(({ selector, variable }) => {
+          const allCells = Array.from(table.querySelectorAll(selector))
+          if (!allCells.length) {
+            table.style.removeProperty(variable)
+            return
+          }
+
+          const measureCells = allCells.filter((cell) => cell.colSpan === 1)
+          const targetCells = measureCells.length ? measureCells : allCells
+
+          targetCells.forEach((cell) => {
+            cell.style.minWidth = ''
+            cell.style.width = ''
+            cell.style.maxWidth = ''
+          })
+
+          let width = 0
+          targetCells.forEach((cell) => {
+            const rect = cell.getBoundingClientRect()
+            width = Math.max(width, rect.width)
+          })
+
+          const size = `${Math.ceil(width)}px`
+          table.style.setProperty(variable, size)
+          targetCells.forEach((cell) => {
+            cell.style.minWidth = size
+            cell.style.width = size
+            cell.style.maxWidth = size
+          })
+
+          allCells
+            .filter((cell) => cell.colSpan && cell.colSpan > 1)
+            .forEach((cell) => {
+              cell.style.removeProperty('min-width')
+              cell.style.removeProperty('width')
+              cell.style.removeProperty('max-width')
+            })
+        })
+      })
+    }
+
+    const initHorizontalScrollSync = () => {
+      const containers = Array.from(document.querySelectorAll('.hf-table-wrap'))
+      if (!containers.length) {
+        return
+      }
+
+      const contexts = containers.reduce((acc, container) => {
+        const top = container.querySelector('.hf-scrollbar-top')
+        const body = container.querySelector('.hf-scrollbar-body')
+        const table = body ? body.querySelector('table') : null
+        const inner = top ? top.querySelector('.hf-scrollbar-inner') : null
+        if (!top || !body || !table || !inner) {
+          return acc
+        }
+        acc.push({ top, body, table, inner })
+        return acc
+      }, [])
+
+      if (!contexts.length) {
+        return
+      }
+
+      const refreshMetrics = () => {
+        updateFrozenColumnWidths()
+        contexts.forEach(({ table, inner }) => {
+          inner.style.width = `${table.getBoundingClientRect().width}px`
+        })
+      }
+
+      refreshMetrics()
+
+      let resizeScheduled = false
+      window.addEventListener('resize', () => {
+        if (resizeScheduled) {
+          return
+        }
+        resizeScheduled = true
+        window.requestAnimationFrame(() => {
+          resizeScheduled = false
+          refreshMetrics()
+        })
+      })
+
+      contexts.forEach(({ top, body }) => {
+        let syncing = false
+        const syncScroll = (source, target) => {
+          if (syncing) {
+            return
+          }
+          syncing = true
+          target.scrollLeft = source.scrollLeft
+          window.requestAnimationFrame(() => {
+            syncing = false
+          })
+        }
+
+        top.addEventListener('scroll', () => syncScroll(top, body))
+        body.addEventListener('scroll', () => syncScroll(body, top))
+      })
+    }
+
+    initHorizontalScrollSync()
+  })()
+</script>
+{% endblock %}

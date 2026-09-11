@@ -1,0 +1,12 @@
+<!-- templates/footer.html -->
+{% load static %}
+<strong>Copyright &copy; 2025 <a href=""><b>HIVEFOREST</b> | Enterprise</a>.</strong>
+All rights reserved.
+<div class="float-right d-none d-sm-inline-block">
+    <b>Version</b> 
+    {% if app_version %}
+        <a href="{% url 'version_history' %}" title="View version history"> {{ app_version }}</a>
+    {% else %}
+        hiveforest-version-not-set
+    {% endif %}
+</div>

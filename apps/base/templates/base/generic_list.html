@@ -1,0 +1,69 @@
+{% extends "main.html" %}
+{% load i18n static %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block datatable_css %}
+    {{ block.super }}
+    <!-- CSS -->
+    <link href="{% static 'custom/css/select2.min.css' %}" rel="stylesheet" />
+{% endblock %}
+{% block content %}
+{{ block.super }}
+<div class="card card-primary card-outline hiveforest pb-2">
+    <div class="card-header ui-sortable-handle">
+        <h1 class="card-title"><b>{{ card_title }}</b></h1>
+        <div class="card-tools">
+            <ul class="nav nav-pills ml-auto">
+                <li class="nav-item">
+                    <a href="{{ add_url }}" class="btn btn-sm btn-success">
+                        <i class="fas fa-plus"></i> Add
+                    </a>
+                    <button id="apply-filters" class="btn btn-sm btn-primary">Filter</button>
+                    <button id="reset-filters" class="btn btn-sm btn-secondary">Reset</button>
+                </li>
+            </ul>
+        </div>
+    </div> <!-- Card Header end -->
+    <div class="row mt-2">
+        <div class="col-auto">
+            {% csrf_token %}
+            <meta name="csrf-token" content="{{ csrf_token }}">
+            <label class="fw-bold me-1">Batch Process:</label>
+            <select id="batch-field" class="form-control form-control-sm d-inline-block" style="width: auto;">
+                <option value="">-- Select Field --</option>
+                {% for field in batch_fields %}
+                    <option value="{{ field.name }}">{{ field.label }}</option>
+                {% endfor %}
+            </select>
+            <select id="batch-action" class="form-control form-control-sm d-inline-block" style="width: auto;">
+                <option value="change">Change</option>
+            </select>  
+            <select id="batch-value" class="form-control form-control-sm d-inline-block" style="width: auto;">
+                <option value="">-- Select Value --</option>
+            </select>            
+            <button id="batch-go" class="btn btn-sm btn-success ms-3">Go</button>
+        </div>
+    </div>
+    <table id="{{ table_id }}" class="table table-striped table-bordered">
+    <thead>
+        {% include "base/table_header.html" with columns=columns %}
+        {% include "base/table_filter.html" with columns=columns %}
+    </thead>
+    <tbody id="{{ tbody_id }}">
+        <!-- You'll use JavaScript (DataTables) to load data -->
+    </tbody>
+    </table>
+</div>
+{% endblock %}
+{% block datatable_js %}
+    {{ block.super }}
+    <script src="{% static custom_js %}"></script>
+    <!-- JS (after jQuery) -->
+    <!-- Safe JSON Data Injection -->
+    {{ vis_col|json_script:"vis-col-data" }}
+    {{ batch_fields|json_script:"batch-fields-data" }}
+    <script>
+        window.vis_col = JSON.parse(document.getElementById("vis-col-data").textContent);
+        console.log("Visible columns:", window.vis_col);
+    </script>
+    <script src="{% static 'custom/js/select2.min.js' %}"></script>
+{% endblock %}

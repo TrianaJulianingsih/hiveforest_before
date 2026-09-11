@@ -1,0 +1,82 @@
+<ul class="list-group striped-list hiveforest">
+  <li class="list-group-item hiveforest">
+    <h6 class="list-group hiveforest">Products</h6>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:finance_itemprice_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Item Prices</a>
+  </li>
+  <li class="list-group-item hiveforest">
+    <h6 class="list-group hiveforest">Receivables</h6>
+  </li>
+    <li class="list-group-item hiveforest">
+        <div class="d-inline">
+            <form id="sync-form" action="{% url 'finance:sync_arbalance' %}" method="post" class="d-inline swal-ajax-form">
+                {% csrf_token %}
+                <button class="btn btn-primary btn-sm">Sync</button>
+            </form>
+            <a href="{% url 'admin:finance_arbalance_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>MUP AR Balance</a> |
+        </div>
+        <div class="d-inline">
+            <form id="sync-form" action="{% url 'finance:sync_arcollection' %}" method="post" class="d-inline swal-ajax-form">
+                {% csrf_token %}
+                <button class="btn btn-primary btn-sm">Sync</button>
+            </form>
+            <a href="{% url 'admin:finance_arcollection_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>MUP AR Collection</a>
+        </div>
+    </li>
+</ul>
+
+<!-- <script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.swal-ajax-form').forEach(form => {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      // 🔒 Disable submit button to prevent double click
+      const submitBtn = this.querySelector('button[type="submit"], input[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+
+      const csrfToken = this.querySelector('[name=csrfmiddlewaretoken]').value;
+      const formAction = this.action;
+
+      Swal.fire({
+        title: 'Processing...',
+        text: 'Please wait while we process your request.',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      fetch(formAction, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'Accept': 'application/json'
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        Swal.close();
+        Swal.fire({
+          icon: data.status === 'success' ? 'success' : 'error',
+          title: data.status === 'success' ? 'Success' : 'Failed',
+          text: data.message || 'Something happened.'
+        });
+      })
+      .catch(err => {
+        Swal.close();
+        Swal.fire({
+          icon: 'error',
+          title: 'Network Error',
+          text: 'Please try again.'
+        });
+      })
+      .finally(() => {
+        // ✅ Re-enable button after response (or error)
+        if (submitBtn) submitBtn.disabled = false;
+      });
+    });
+  });
+});
+</script> -->

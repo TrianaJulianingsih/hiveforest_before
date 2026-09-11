@@ -1,0 +1,7 @@
+<li class="list-group-item hiveforest">
+    {% if model.admin_url %}
+      <a href="{{ model.admin_url }}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>{{ model.name }}</a>
+    {% else %}
+      {{ model.name }}
+    {% endif %}
+</li>

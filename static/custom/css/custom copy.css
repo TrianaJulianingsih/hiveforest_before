@@ -1,0 +1,598 @@
+/* LOGIN */
+.login-logo.hiveforest {
+    font-weight: 600 !important;
+}
+
+/* Heading */
+.h1, h1 {
+    font-size: 2rem;
+}
+
+.h2, h2 {
+    font-size: 1.67rem;
+}
+
+.h3, h3 {
+    font-size: 1.33rem;
+}
+
+.h4, h4 {
+    font-size: 1rem;
+}
+.h5, h5 {
+    font-size: 0.67rem;
+}
+
+#content {
+    padding-left: 5px;
+}
+
+.row {
+    margin-right: 0px;
+    margin-left: 0px;
+}
+
+/* Content Header */
+.content-header.hiveforest {
+    padding: 0px;
+}
+
+/* Breadcrumbs */
+div.breadcrumbs {
+    background: mediumblue;
+    padding: 10px 40px;
+    border: none;
+    color: var(--breadcrumbs-fg);
+    text-align: left;
+}
+div.breadcrumbs a {
+    color: #ffffff;
+}
+.breadcrumb-item.active {
+    color: #bcfff9;
+}
+.breadcrumb-item+.breadcrumb-item::before {
+    float: left;
+    padding-right: .5rem;
+    color: #ffffff;
+    content: ">";
+}
+
+/* Sidebar logo */
+.brand-link {
+    line-height: 2;
+}
+
+.brand-link.text-sm .brand-image, .text-sm .brand-link .brand-image {
+    height: 60px;
+    margin-bottom: -0.25rem;
+    margin-left: 0rem;
+    margin-top: -0.7rem;
+}
+
+.brand-link .brand-image {
+    max-height: 60px;
+}
+
+span.brand-text.font-weight-bold {
+    font-size: 1.25rem;
+}
+
+
+.main-sidebar::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0px;
+    width: 100%; /* fill the full width of the sidebar */
+    height: 200px; /* increase height if needed */
+    background-image: url("/static/media/ui/hive-corner.png");
+    background-size: cover; /* scale image to fill */
+    background-repeat: no-repeat;
+    background-position: bottom left;
+    opacity: 1;
+    pointer-events: none;
+    z-index: 0;
+
+    /* Extended diagonal fade (top-right to bottom-left) */
+    -webkit-mask-image: linear-gradient(
+        to bottom left,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0.1) 30%,
+        rgba(0, 0, 0, 0.4) 60%,
+        rgba(0, 0, 0, 0.8) 85%,
+        rgba(0, 0, 0, 1) 100%
+    );
+    -webkit-mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+
+    mask-image: linear-gradient(
+        to bottom left,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0.1) 30%,
+        rgba(0, 0, 0, 0.4) 60%,
+        rgba(0, 0, 0, 0.8) 85%,
+        rgba(0, 0, 0, 1) 100%
+    );
+    mask-size: 100% 100%;
+    mask-repeat: no-repeat;
+}
+
+.main-sidebar {
+    position: relative; /* ensure relative context for absolutely positioned image */
+    z-index: 1;
+}
+
+/* Navbar items */
+li.nav-item {
+    list-style-type: none;
+}
+.nav-icon {
+    margin-right: 0.5rem !important;
+    width: 18px !important;
+    font-size: 1rem !important;
+}
+
+.sidebar-mini .main-sidebar .nav-link, .sidebar-mini-md .main-sidebar .nav-link, .sidebar-mini-xs .main-sidebar .nav-link {
+    width: calc(250px - .1rem * 2);
+    transition: width ease-in-out .3s;
+}
+.sidebar-mini.sidebar-collapse .main-sidebar:hover .nav-sidebar .nav-link {
+    width: calc(250px - 0.1rem * 2);
+}
+
+/* Icon */
+i.hiveforest {
+    width: 2rem;
+    margin-right: 5px;
+}
+
+/* Admin Index Page */
+/* Override django-admin base.css */
+.dashboard #content {
+    width: 1200px;
+}
+div#content-main.row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-right: 15px !important;
+    margin-left: 15px !important;
+}
+caption.hiveforest {
+    caption-side: top !important;
+    background-color: mediumblue;
+}
+.module {
+    background: none;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+/* Object Tools */
+ul.object-tools {
+    display: contents;
+    list-style: none;
+    margin-left: 0px;
+    padding-left: 0.5rem;
+}
+
+ul.object-tools li {
+    margin-right: 5px;
+    margin-top: 8px;
+}
+
+.object-tools a:link, .object-tools a:visited {
+    display: block;
+    float: left;
+    padding: 3px 3px;
+    text-transform: none;
+}
+
+.object-tools a.addlink,
+.object-tools a.import_link,
+.object-tools a.export_link {
+    background-image: none;
+    background: transparent;
+    color: #333;
+}
+
+/* Searchbar */
+#toolbar #searchbar {
+    height: 2.5em;
+}
+
+/* Small Quiet */
+span.small.quiet {
+    display: inline-block;
+}
+
+/* Changelist */
+#changelist {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+/* Changeform */
+.change-form ul.object-tools li {
+    float: right;
+}
+.change-form .submit-row a.deletelink {
+    height: 2rem;
+}
+input[type="submit"].btn {
+    background-color: #007bff !important; /* AdminLTE primary color */
+    color: #fff !important;
+    border-color: #007bff !important;
+    padding: 5px 10px !important;
+    border-radius: 4px !important;
+}
+
+/* Filters */
+#changelist-filter {
+    margin: 0 0 0 5px;
+}
+#changelist-filter a {
+    display: block;
+    color: var(--body-quiet-color);
+    word-break: break-word;
+    font-size: 0.825rem;
+}
+#changelist-filter h3, #changelist-filter details summary {
+    font-size: 0.825rem;
+    font-weight: 600;
+    padding: 0 15px;
+    margin-bottom: 10px;
+}
+
+/* SELECT 2 */
+.select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
+    /* This is the input where the placeholder appears */
+    color: #6c757d; /* Bootstrap placeholder color */
+    font-style: italic;
+}
+
+
+.select2-container--default .select2-selection--single {
+    height: calc(1.5em + .5rem + 2px);  /* Bootstrap input-sm height */
+    font-size: 0.875rem;                /* Bootstrap sm text */
+    padding: 0.25rem 0.5rem;
+    width: 50% !important;
+}
+
+span.select2-search.select2-search--inline {
+    display: inline-flex;
+    padding-top: 0px;
+    line-height: 15px;
+}
+.select2-container--default .select2-dropdown .select2-search__field:focus, .select2-container--default .select2-search--inline .select2-search__field:focus {
+    outline: 0;
+    border: none;
+}
+.select2-container--default .select2-selection--multiple .select2-selection__choice__display {
+    cursor: default;
+    padding-left: 5px !important;
+    padding-right: 5px;
+}
+.select2-container .select2-selection--multiple {
+    height: 20px;  /* Adjust the height */
+    line-height: 20px;  /* Adjust the line height */
+}
+/* Adjust height of the select2 container */
+.select2-container {
+    width: 100% !important;
+}
+/* Adjust height of the dropdown items */
+.select2-results__option {
+    padding: 5px 10px;  /* Smaller padding for compactness */
+}
+.select2-container .select2-selection--multiple {
+    min-height: 40px !important;  /* Decrease height */
+    padding: 4px 10px;  /* Less padding for a tighter appearance */
+}
+/* Limit the height of the dropdown */
+.select2-dropdown {
+    max-height: 200px;
+    overflow-y: auto;  /* Add scroll to dropdown if necessary */
+}
+.select2-search__field {
+    height: 30px;  /* Reduce the height of the search box */
+}
+.select2-dropdown-compact .select2-results__option {
+    padding: 6px 10px;  /* Further reduce item height in dropdown */
+}
+/* Optional: adjust dropdown width if needed */
+.select2-dropdown.select2-dropdown-compact {
+    min-width: 200px;
+    max-width: 300px;
+}
+/* More specific selector, ensures it overrides Select2 classic */
+.select2-container .select2-selection--multiple .select2-selection__choice {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: #fff !important;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    padding: 2px 8px;
+    margin: 2px 5px 2px 0 !important;
+    font-size: 0.75rem;
+}
+.select2-container .select2-selection--multiple .select2-selection__choice:hover {
+    background-color: #0d6efd !important;
+    border-color: #0a58ca;
+}
+.select2-selection__choice__remove {
+    font-size: 12px;
+    margin: 0px 1px !important;
+    color: #fff !important;
+}
+.select2-selection__choice__remove:hover {
+    background-color: #183258 !important;
+}
+.select2-selection__clear {
+    color: #dc3545 !important;  /* Bootstrap danger/red */
+    font-weight: bold;
+    margin-right: 10px;
+}
+/* Fix double scrollbar by limiting inner list height only */
+.select2-container--default .select2-results > .select2-results__options {
+    max-height: 300px !important;
+    overflow-y: auto !important;
+}
+
+/* DataTable Override */
+span.dt-column-title {
+    text-transform: none;
+    font-weight: bold;
+    margin-left: 2px !important;
+}
+span.dt-column-order {
+    right: 0px !important;
+}
+li.dt-paging-button {
+    list-style: none;
+}
+.headertext {
+    padding-left: 5px;
+    padding-right: 10px;
+    color:#007bff;
+}
+table#result_list {
+    display: inline-table;
+}
+table#header_table {
+    display: inline-table;
+}
+
+div.dt-button-collection {
+    background-color: #ffffff !important;
+    color: #212529 !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 4px;
+}
+
+div.dt-button-collection .dt-button {
+    color: #212529 !important;
+    background: none;
+    padding: 6px 12px;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+/* Table */
+.table td, .table th {
+    padding: 0.25rem !important;
+}
+button.btn.btn-sm.dropdown-toggle.dropdown-icon {
+    color: blue;
+}
+
+/* Import data */
+table.import-preview tr.new, html[data-theme="light"] table.import-preview tr.new {
+    background-color: #bdd8b2 !important;
+}
+table.import-preview td ins {
+    background-color: #bdd8b2 !important;
+}
+
+/* Button */
+.delete-confirmation form input[type="submit"] {
+    background: var(--delete-button-bg);
+    border-radius: 4px;
+    padding: 10px 15px;
+    color: var(--button-fg);
+}
+.btn-group-sm>.btn, .btn-sm {
+    padding: 0.25rem;
+    padding-top: 0.5rem;
+    font-size: .875rem;
+    line-height: 1.5;
+    border-radius: .2rem;
+}
+.text-sm .btn {
+    font-size: .875rem!important;
+    color: white;
+    padding: 0.25rem;
+    padding-top: 0.5rem;
+
+}
+.d-flex {
+    display: flex;
+    align-items: center; /* Vertically align items */
+}
+.d-flex a.btn.btn-sm {
+    height: 2.5rem;
+}
+.d-flex input.btn.btn-sm {
+    margin: 5px;
+    height: 2.5rem;
+}
+
+ul.list-group.hiveforest{
+    margin-left: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+h6.list-group.hiveforest {
+    padding-left: 0px;
+    color: darkblue;
+}
+
+.list-group-item.hiveforest {
+    position: relative;
+    display: block;
+    padding: 0.2rem 1rem;
+    background-color: #fff;
+}
+
+ul.striped-list li:nth-child(odd) {
+    background-color: #ffffff;
+}  
+ul.striped-list li:nth-child(even) {
+    background-color: #f8f8f8;
+}
+
+/* Fieldset */
+fieldset.collapse:not(.show) {
+    display: block; /* Ensure the fieldset is always visible */
+}
+
+fieldset.collapse:not(.show) > div {
+    display: none; /* Only hide the collapsible content */
+}
+fieldset .fieldset-heading, fieldset .inline-heading, :not(.inline-related) .collapse summary {
+    border: 1px solid var(--header-bg);
+    margin: 0;
+    padding: 8px;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    background: #ffffff;
+    color: inherit;
+}
+
+
+/* HIVEFOREST SPESIFIC */
+.hv-righted {
+    text-align: right;
+}
+.hv-lefted {
+    text-align: left;
+}
+.hv-centered {
+    text-align: center;
+}
+.hv-btn-mini {
+    font-size: 10px; /* Adjust as needed */
+    padding: 2px 5px; /* Smaller padding */
+    line-height: 1; /* Adjust line height */
+}
+.hv-action-btn {
+    border-radius: 0px;
+    height:30px;
+    width: 30px;
+}
+
+table.dataTable th.dt-type-numeric.hv-lefted,
+table.dataTable th.dt-type-date.hv-lefted,
+table.dataTable td.dt-type-numeric.hv-lefted,
+table.dataTable td.dt-type-date.hv-lefted {
+    text-align: left;
+}
+table.dataTable thead th.hv-lefted,
+table.dataTable thead td.hv-lefted,
+table.dataTable tfoot th.hv-lefted,
+table.dataTable tfoot td.hv-lefted {
+    text-align: left;
+}
+table.dataTable thead th.hv-centered,
+table.dataTable thead td.hv-centered,
+table.dataTable tfoot th.hv-centered,
+table.dataTable tfoot td.hv-centered {
+    text-align: center;
+}
+
+table.dataTable thead input.column-filter {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0 !important;
+    display: inline-block !important;
+    box-sizing: border-box;
+  }
+
+.form-control[readonly] {
+    background-color: #ffffff !important;
+    padding-left: 7px;
+    border: 1px solid #ced4da;
+}
+
+/* HIVEFOREST CARDS */
+.card.hiveforest {
+    margin-top: 0.5rem;
+}
+
+.card-header.hiveforest {
+    background-color: darkblue;
+    border-bottom: 1px solid rgba(0,0,0,.125);
+    padding: .2rem 0.2rem;
+    position: relative;
+    border-top-left-radius: .25rem;
+    border-top-right-radius: .25rem;
+}
+
+.card-title.hiveforest {
+    float: left;
+    font-size: 0.8rem;
+    font-weight: 400;
+    margin: 0;
+}
+
+.card-toolbar.hiveforest {
+    margin: 5px 10px;
+    /* margin-bottom: 5px; */
+}
+
+.card-body.hiveforest{
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+    min-height: 1px;
+    padding: 0.1rem;
+}
+
+/* HIVEFOREST TAB */
+.tab-content.hiveforest {
+    border: 1px solid #dee2e6;
+    padding: 1rem;
+}
+.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
+    color: blue;
+    background-color: #fff;
+    border-color: #dee2e6 #dee2e6 #fff;
+    font-weight: 600;
+}
+
+.hv-form-group{
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+.hv-form-group label {
+    min-width: 100px;
+    max-width: 100px; /* Prevents overflow */
+    margin-right: 10px; /* Space between label and field */
+    text-align: right;
+    line-height: 1;
+}
+
+@media (max-width: 576px) {
+    .hv-form-group {
+        flex-direction: column; /* Stack label and field */
+        align-items: stretch; /* Full-width stacking */
+    }
+    .hv-form-group label {
+        text-align: left; /* Align label to the left */
+        margin-right: 0; /* Remove horizontal spacing */
+        margin-bottom: 5px; /* Add spacing below label */
+    }
+}

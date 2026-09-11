@@ -1,0 +1,144 @@
+{% extends 'main.html' %}
+{% load i18n static translation_tags %}
+
+{% block content %}
+{{ block.super }}
+
+{% if translation_key %}
+    {% get_translations translation_key as t %}
+{% endif %}
+
+<div class="card card-primary card-outline hiveforest pb-2">
+  <div class="card-header ui-sortable-handle">
+    <h1 class="card-title"><b>{{ t.page_title }}</b></h1>
+    <div class="card-tools">
+      <ul class="nav nav-pills ml-auto">
+        <li class="nav-item text-muted">
+            Sync latest data:
+            {% if last_sync %}
+              <b>{{ last_sync|date:"d M Y H:i:s" }} WIB</b>
+            {% else %}
+              <span class="text-danger">Never synced</span>
+            {% endif %}
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card-body">
+      <table id="{{ table_id }}" class="table table-striped table-bordered">
+        <thead>
+            <tr>
+              {% block table_columns %}{% endblock %}
+            </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block datatable_js %}
+{{ block.super }}
+
+<!-- Toastr -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<!-- SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+$(document).ready(function() {
+
+    console.log("Generic DataTable Init...");
+
+    const table = $('#{{ table_id }}').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: "{{ ajax_url }}",
+            type: "GET",
+            error: function(xhr) {
+                console.log("AJAX ERROR:", xhr.status);
+                console.log(xhr.responseText);
+            }
+        },
+        columns: {{ columns_json|safe }},
+        paging: true,
+        searching: true,
+        info: true,
+        ordering: true,
+        responsive: true,
+        fixedHeader: true,
+        autoWidth: false,
+        order: [[0, "asc"]],
+        pageLength: 25,
+        lengthMenu: [[25,50,100,250,500,1000],[25,50,100,250,500,1000]],
+        buttons: [
+            { extend: 'csv', className: 'btn btn-sm btn-success', exportOptions: { columns: ':visible' } },
+            { extend: 'excel', className: 'btn btn-sm btn-success', exportOptions: { columns: ':visible' } },
+            { extend: 'colvis', className: 'btn btn-sm btn-primary', text: 'Columns' }
+        ],
+        language: {
+            lengthMenu: "Show _MENU_ entries",
+            emptyTable: "{{ t.no_data|default:'No data available' }}",
+            zeroRecords: "{{ t.no_data|default:'No data found' }}"
+        },
+        layout: {
+            topStart: ['pageLength'],
+            topEnd: ['buttons', 'search'],
+            bottomStart: ['info'],
+            bottomEnd: ['paging']
+        },
+    });
+
+    // Column filter
+    $('.column-filter').on('keyup change', function () {
+        const columnIndex = $(this).data('column');
+        table.column(columnIndex).search($(this).val()).draw();
+    });
+
+    $('#reset-filters').on('click', function () {
+        $('.column-filter').val('');
+        table.columns().search('').draw();
+    });
+
+});
+
+// // SweetAlert delete confirm (GLOBAL)
+// $(document).on('click', '.btn-delete', function(e) {
+//     e.preventDefault();
+
+//     const form = $(this).closest('form');
+//     const name = $(this).data('name');
+
+//     Swal.fire({
+//         title: '{{ t.confirm_title|default:"Confirmation" }}',
+//         text: '{{ t.confirm_delete|default:"Are you sure you want to delete" }} ' + name + '?',
+//         icon: 'warning',
+//         showCancelButton: true,
+//         confirmButtonColor: '#d33',
+//         cancelButtonColor: '#6c757d',
+//         confirmButtonText: '{{ t.confirm_btn_delete|default:"Yes, Delete" }}',
+//         cancelButtonText: '{{ t.btn_cancel|default:"Cancel" }}',
+//         reverseButtons: true
+//     }).then((result) => {
+//         if (result.isConfirmed) {
+//             form.submit();
+//         }
+//     });
+// });
+
+// Toastr messages (GLOBAL)
+{% if messages %}
+$(document).ready(function() {
+    {% for message in messages %}
+        toastr.success("{{ message|escapejs }}");
+    {% endfor %}
+});
+{% endif %}
+
+</script>
+
+{% endblock %}

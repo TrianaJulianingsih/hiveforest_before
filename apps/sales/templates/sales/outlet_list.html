@@ -1,0 +1,78 @@
+{% extends "main.html" %}
+{% load i18n static %}
+{% block datatable_css %}
+    {{ block.super }}
+    <!-- CSS -->
+    <link href="{% static 'custom/css/select2.min.css' %}" rel="stylesheet" />
+{% endblock %}
+{% block content %}
+<h1>Outlet List</h1>
+<div class="row mb-2">
+    <div class="col-auto">
+      <button id="apply-filters" class="btn btn-sm btn-primary">Filter</button>
+      <button id="reset-filters" class="btn btn-sm btn-secondary">Reset</button>
+    </div>
+  </div>
+<table id="outlet_table" class="table table-striped table-bordered">
+  <thead>
+    <tr>
+        <th class="hv-lefted"><input type="checkbox" id="action-toggle"></th>
+        <th class="hv-lefted">ID</th>
+        <th class="hv-lefted">Code</th>
+        <th class="hv-lefted">Name</th>
+        <th class="hv-lefted">Distributor</th>
+        <th class="hv-lefted">Branch</th>
+        <th class="hv-lefted">Type</th>
+        <th class="hv-lefted">Customer</th>
+        <th class="hv-lefted">Group</th>
+        <th class="hv-lefted">Code1</th>
+        <th class="hv-lefted">Code2</th>
+        <th class="hv-lefted">Address</th>
+        <th class="hv-lefted">Actions</th>
+    </tr>
+    <tr>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th><input type="text" class="form-control form-control-sm column-filter" data-column="3" placeholder="e.g. apotek | apotik | apt" /></th>
+        <th><input type="text" class="form-control form-control-sm column-filter" data-column="4" placeholder="e.g. MUP | APL | APP" /></th>
+        <th><input type="text" class="form-control form-control-sm column-filter" data-column="5" placeholder="e.g. Medan | Jambi" /></th>
+        <th><input type="text" class="form-control form-control-sm column-filter" data-column="6" placeholder="e.g. RS | DK" /></th>
+        <th><input type="text" class="form-control form-control-sm column-filter" data-column="7" placeholder="Use | for split-filter" /></th>
+        <th><input type="text" class="form-control form-control-sm column-filter" data-column="8" placeholder="Use | for split-filter" /></th>
+        <th></th>
+        <th></th>
+        <th><input type="text" class="form-control form-control-sm column-filter" data-column="11" placeholder="Use | for split-filter" /></th>
+        <th></th>
+    </tr>
+</thead>
+  <tbody id="outlet-list-body">
+    <!-- You'll use JavaScript (DataTables) to load data -->
+    {% for outlet in outlet_list %}
+    <tr>
+        <td class="hv-centered">
+            <input type="checkbox" name="_selected_action" value="9" class="action-select" aria-label="Select this object for an action">
+        </td>
+        <td class="hv-lefted">{{ outlet.id }}</td>
+        <td class="hv-lefted">{{ outlet.code }}</td>
+        <td class="hv-lefted">{{ outlet.name }}</td>
+        <td class="hv-lefted">{{ outlet.distributor.initial }}</td>
+        <td class="hv-lefted">{{ outlet.branch }}</td>
+        <td class="hv-lefted">{{ outlet.custtype.code }}</td>
+        <td class="hv-lefted">{{ outlet.customer.name }}</td>
+        <td class="hv-lefted">{{ outlet.outletgroup.name }}</td>
+        <td class="hv-lefted">{{ outlet.code1 }}</td>
+        <td class="hv-lefted">{{ outlet.code2 }}</td>
+        <td class="hv-lefted">{{ outlet.address }}</td>
+        <td><a href="#">Edit</a></td>
+    </tr>
+    {% endfor %}
+</tbody>
+</table>
+{% endblock %}
+{% block datatable_js %}
+    {{ block.super }}
+    <script src="{% static 'custom/js/outlet_list_datatable.js' %}"></script>
+    <!-- JS (after jQuery) -->
+    <script src="{% static 'custom/js/select2.min.js' %}"></script>
+{% endblock %}

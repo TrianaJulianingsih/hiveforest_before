@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+    "settings": {
+        "window.density.editorTabHeight": "compact",
+        "editor.detectIndentation": false
+    }
+}

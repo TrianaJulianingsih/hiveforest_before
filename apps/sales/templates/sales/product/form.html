@@ -1,0 +1,69 @@
+{% extends 'main.html' %}
+{% load i18n static translation_tags %}
+
+{% block content %}
+{{ block.super }}
+{% get_translations 'products' as t %}
+
+<div class="card card-primary card-outline hiveforest pb-2">
+  <div class="card-header">
+    <h2 class="card-title">{% if form.instance.pk %}{{ t.page_edit|default:'Edit Product' }}{% else %}{{ t.page_add|default:'Add Product' }}{% endif %}</h2>
+  </div>
+    <form method="post">{% csrf_token %}
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                {{ form.errors }}
+            </div>
+        {% endif %}
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        {{ form.as_p }}
+                    </div>
+                </div>
+            </div>
+        </div>
+            
+        <div class="card-footer">
+            <a href="{% url 'sales:product_list' %}"
+                class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> {{ t.btn_back|default:'Back' }}
+            </a>
+            <button type="submit" class="btn btn-success">
+                {{ t.btn_save|default:'Save' }}
+            </button>
+        </div>
+    </form>
+</div>
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('.select2').select2({
+            theme: 'bootstrap4',
+            width: '100%'
+        });
+
+        function slugify(text) {
+            return text.toString().toLowerCase()
+                .replace(/\s+/g, '-')
+                .replace(/[^\w\-]+/g, '')
+                .replace(/\-\-+/g, '-')
+                .replace(/^-+/, '')
+                .replace(/-+$/, '');
+        }
+        function updateSlug() {
+            var name = $('#id_name').val();
+            var code = $('#id_code').val();
+            var slug = name ? slugify(name) : slugify(code);
+            $('#id_slug').val(slug);
+        }
+        $('#id_name, #id_code').on('input change', updateSlug);
+        updateSlug();
+    });
+</script>
+{% endblock %}
+
+{% endblock %}

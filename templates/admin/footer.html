@@ -1,0 +1,12 @@
+<!-- templates/admin/footer.html -->
+{% load static %}
+<strong>Copyright &copy; 2025 <a href="http://hiveforest.otsuka.co.id"><b>THE HIVEFOREST</b> | House of Bees</a>.</strong>
+All rights reserved.
+<div class="float-right d-none d-sm-inline-block">
+    <b>Version</b> 
+    {% if app_version %}
+        <a href="{% url 'admin_version_history' %}" title="View version history (Admin)">{{ app_version }}</a>
+    {% else %}
+        hiveforest-version-not-set
+    {% endif %}
+</div>

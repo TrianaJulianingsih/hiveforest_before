@@ -1,0 +1,989 @@
+{% load static %}
+{% load custom_filters %}
+
+{% if user.is_authenticated %}
+  <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    
+    <a href="/" class="brand-link">
+      <img src="{% static 'adminlte/img/HiveForest.png' %}" alt="THE HIVEFOREST" class="brand-image" style="opacity:1" />
+      <span class="brand-text font-weight-bold">HIVEFOREST</span>
+    </a>
+
+    
+    <div class="sidebar">
+      
+      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+        <div class="image">
+          <a href="{% url 'profile' %}">
+            {% if user.userprofile.profile_picture %}
+              <img src="{{ user.userprofile.profile_picture.url }}" class="img-circle elevation-2" alt="User Image" />
+            {% else %}
+              <img src="media/profile_pictures/default-user.png" alt="Default Profile Picture" class="img-thumbnail" />
+            {% endif %}
+          </a>
+        </div>
+        <div class="info">
+          <a href="{% url 'profile' %}" class="d-block">{{ user.get_full_name }}</a>
+        </div>
+      </div>
+
+      
+      <div class="form-inline">
+        <div class="input-group" data-widget="sidebar-search">
+          <input id="sidebarSearch" class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search" />
+          <div class="input-group-append">
+            <button class="btn btn-sidebar"><i class="fas fa-search fa-fw"></i></button>
+          </div>
+        </div>
+      </div>
+
+      
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column text-sm" data-widget="treeview" role="menu" data-accordion="false">
+
+          <li class="nav-header">
+            <a><i class="nav-icon fas fa-laptop-house"></i><b>ADMINISTRATION</b></a>
+          </li>
+          <li class="nav-item {% menu_open_admin 'auth' %}">
+            <a href="#" class="nav-link {% active_admin 'auth' %}">
+              <i class="nav-icon fas fa-users-cog"></i>
+              <p>
+                User Management<i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="{% url 'admin:auth_user_changelist' %}" class="nav-link {% active_admin 'auth/user' %}"><i class="fas fa-caret-right nav-icon"></i><p>Users</p></a>
+              </li>
+
+              <li class="nav-item">
+                <a href="{% url 'admin:auth_group_changelist' %}" class="nav-link {% active_admin 'auth/group' %}"><i class="fas fa-caret-right nav-icon"></i><p>Groups</p></a>
+              </li>
+
+              <li class="nav-item">
+                <a href="{% url 'admin:auth_permission_changelist' %}" class="nav-link {% active_admin 'auth/permission' %}"><i class="fas fa-caret-right nav-icon"></i><p>Permissions</p></a>
+              </li>
+            </ul>
+          </li>
+
+          <li class="nav-header">
+            <a><i class="nav-icon fas fa-cogs"></i><b>APPLICATIONS</b></a>
+          </li>
+          <li class="nav-item {% menu_open_admin 'base' %}">
+            <a href="#" class="nav-link {% active_admin 'base' %}">
+              <i class="nav-icon fas fa-layer-group"></i><p>
+                BASE<i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item {% menu_open_admin 'base/role' 'base/userprofile' 'base/passwordpolicy' %}">
+                <a href="#" class="nav-link {% active_admin 'base/role' %}">
+                  <i class="nav-icon fas fa-users-cog"></i><p>
+                    User<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:base_role_changelist' %}" class="nav-link {% active_admin 'base/role' %}"><i class="fas fa-caret-right nav-icon"></i><p>User/Group Roles</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:base_userprofile_changelist' %}" class="nav-link {% active_admin 'base/userprofile' %}"><i class="fas fa-caret-right nav-icon"></i><p>User Profiles</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:base_forcepasswordstatus_changelist' %}" class="nav-link {% active_admin 'base/forcepasswordstatus' %}"><i class="fas fa-caret-right nav-icon"></i><p>Force Change Password</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:base_passwordhistory_changelist' %}" class="nav-link {% active_admin 'base/passwordhistory' %}"><i class="fas fa-caret-right nav-icon"></i><p>Password History</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:base_passwordpolicy_changelist' %}" class="nav-link {% active_admin 'base/passwordpolicy' %}"><i class="fas fa-caret-right nav-icon"></i><p>Master Password Policy</p></a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item {% menu_open_admin 'base/cmspermission' 'base/scmpermission' %}">
+                <a href="#" class="nav-link {% active_admin 'base/cmspermission' %}">
+                  <i class="nav-icon fas fa-users-cog"></i><p>
+                    Permissions<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:base_cmspermission_changelist' %}" class="nav-link {% active_admin 'base/cmspermission' %}"><i class="fas fa-caret-right nav-icon"></i><p>CMS Permissions</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:base_scmpermission_changelist' %}" class="nav-link {% active_admin 'base/scmpermission' %}"><i class="fas fa-caret-right nav-icon"></i><p>SCM Permissions</p></a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+            <ul class="nav nav-treeview">
+              <li class="nav-item {% menu_open_admin 'base/island' 'base/province' 'base/regencytype' 'base/regency' 'base/district' 'base/village' %}">
+                <a href="#" class="nav-link {% active_admin 'base/island' %}">
+                  <i class="fas fa-address-card nav-icon"></i><p>
+                    Contacts<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item {% menu_open_admin 'base/island' 'base/province' 'base/regencytype' 'base/regency' 'base/district' 'base/village' %}">
+                    <a href="#" class="nav-link {% active_admin 'base/island' %}">
+                      <i class="nav-icon fas fa-map-marker-alt"></i><p>
+                        Locations<i class="right fas fa-angle-left"></i>
+                      </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                      <li class="nav-item">
+                        <a href="{% url 'admin:base_island_changelist' %}" class="nav-link {% active_admin 'base/island' %}"><i class="nav-icon fas fa-caret-right"></i><p>Islands</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:base_province_changelist' %}" class="nav-link {% active_admin 'base/province' %}"><i class="nav-icon fas fa-caret-right"></i><p>Provinces</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:base_regencytype_changelist' %}" class="nav-link {% active_admin 'base/regencytype' %}"><i class="nav-icon fas fa-caret-right"></i><p>Regency Types</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:base_regency_changelist' %}" class="nav-link {% active_admin 'base/regency' %}"><i class="nav-icon fas fa-caret-right"></i><p>Regencies</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:base_district_changelist' %}" class="nav-link {% active_admin 'base/district' %}"><i class="nav-icon fas fa-caret-right"></i><p>Ditricts</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:base_village_changelist' %}" class="nav-link {% active_admin 'base/village' %}"><i class="nav-icon fas fa-caret-right"></i><p>Villages</p></a>
+                      </li>
+                    </ul>
+                  </li>
+
+                  <li class="nav-item {% menu_open_admin 'base/person' 'base/gender' 'base/salutation' %}">
+                    <a href="#" class="nav-link {% active_admin 'base/person' %}">
+                      <i class="nav-icon fas fa-map-marker-alt"></i><p>
+                        People<i class="right fas fa-angle-left"></i>
+                      </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                      <li class="nav-item">
+                        <a href="{% url 'admin:base_person_changelist' %}" class="nav-link {% active_admin 'base/person' %}"><i class="nav-icon fas fa-caret-right"></i><p>People</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:base_gender_changelist' %}" class="nav-link {% active_admin 'base/gender' %}"><i class="nav-icon fas fa-caret-right"></i><p>Genders</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:base_salutation_changelist' %}" class="nav-link {% active_admin 'base/salutation' %}"><i class="nav-icon fas fa-caret-right"></i><p>Salutations</p></a>
+                      </li>
+                    </ul>
+                  </li>
+                  <li class="nav-item {% menu_open_admin 'base/contact' 'base/phonecontact' 'base/emailcontact' 'base/socialcontact' 'base/socialplatform' 'base/contactmedia' 'base/contactcontext' 'base/rolecategory' 'base/contactrole' %}">
+                    <a href="#" class="nav-link {% active_admin 'base/contact' %}">
+                      <i class="nav-icon fas fa-map-marker-alt"></i><p>
+                        Contacts<i class="right fas fa-angle-left"></i>
+                      </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                      <li class="nav-item">
+                        <a href="{% url 'admin:base_contact_changelist' %}" class="nav-link {% active_admin 'base/contact' %}"><i class="nav-icon fas fa-caret-right"></i><p>Contacts</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:base_phonecontact_changelist' %}" class="nav-link {% active_admin 'base/phonecontact' %}"><i class="nav-icon fas fa-caret-right"></i><p>Phones</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:base_emailcontact_changelist' %}" class="nav-link {% active_admin 'base/emailcontact' %}"><i class="nav-icon fas fa-caret-right"></i><p>Emails</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:base_socialcontact_changelist' %}" class="nav-link {% active_admin 'base/socialcontact' %}"><i class="nav-icon fas fa-caret-right"></i><p>Social</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:base_socialplatform_changelist' %}" class="nav-link {% active_admin 'base/socialplatform' %}"><i class="nav-icon fas fa-caret-right"></i><p>Platforms</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:base_contactmedia_changelist' %}" class="nav-link {% active_admin 'base/contactmedia' %}"><i class="nav-icon fas fa-caret-right"></i><p>Media</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:base_contactcontext_changelist' %}" class="nav-link {% active_admin 'base/contactcontext' %}"><i class="nav-icon fas fa-caret-right"></i><p>Context</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:base_rolecategory_changelist' %}" class="nav-link {% active_admin 'base/rolecategory' %}"><i class="nav-icon fas fa-caret-right"></i><p>Categories</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:base_contactrole_changelist' %}" class="nav-link {% active_admin 'base/contactrole' %}"><i class="nav-icon fas fa-caret-right"></i><p>Roles</p></a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+
+            <ul class="nav nav-treeview">
+              <li class="nav-item {% menu_open_admin 'base/companyownership' 'base/companyowner' 'base/company' %}">
+                <a href="#" class="nav-link {% active_admin 'base/company' %}">
+                  <i class="fas fa-address-card nav-icon"></i><p>
+                    Entities<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:base_companyownership_changelist' %}" class="nav-link {% active_admin 'base/companyownership' %}"><i class="nav-icon fas fa-caret-right"></i><p>Company Ownerships</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:base_companyowner_changelist' %}" class="nav-link {% active_admin 'base/companyowner' %}"><i class="nav-icon fas fa-caret-right"></i><p>Company Owners</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:base_company_changelist' %}" class="nav-link {% active_admin 'base/company' %}"><i class="nav-icon fas fa-caret-right"></i><p>Companies</p></a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+            <ul class="nav nav-treeview">
+              <li class="nav-item {% menu_open_admin 'base/periodtemplate' %}">
+                <a href="#" class="nav-link {% active_admin 'base/periodtemplate' %}">
+                  <i class="fas fa-address-card nav-icon"></i><p>
+                    Reports<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:base_periodtemplate_changelist' %}" class="nav-link {% active_admin 'base/periodtemplate' %}"><i class="nav-icon fas fa-caret-right"></i><p>Period Templates</p></a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+            <ul class="nav nav-treeview">
+              <li class="nav-item {% menu_open_admin 'base/uom' %}">
+                <a href="#" class="nav-link {% active_admin 'base/uom' %}">
+                  <i class="fas fa-address-card nav-icon"></i><p>
+                    Items<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:base_uom_changelist' %}" class="nav-link {% active_admin 'base/uom' %}"><i class="nav-icon fas fa-caret-right"></i><p>Unit of Measurements</p></a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+            <ul class="nav nav-treeview">
+              <li class="nav-item {% menu_open_admin 'base/translationmodule' 'base/translationkey' 'base/translation' %}">
+                <a href="#" class="nav-link {% active_admin 'base/translationmodule' %}">
+                  <i class="fas fa-language nav-icon"></i><p>
+                    Translations<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:base_translationmodule_changelist' %}" class="nav-link {% active_admin 'base/translationmodule' %}"><i class="nav-icon fas fa-caret-right"></i><p>Translation Modules</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:base_translationkey_changelist' %}" class="nav-link {% active_admin 'base/translationkey' %}"><i class="nav-icon fas fa-caret-right"></i><p>Translation Keys</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:base_translation_changelist' %}" class="nav-link {% active_admin 'base/translation' %}"><i class="nav-icon fas fa-caret-right"></i><p>Translations</p></a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+            <ul class="nav nav-treeview">
+              <li class="nav-item {% menu_open_admin 'base/warehousepalette' %}">
+                <a href="#" class="nav-link {% active_admin 'base/warehousepalette' %}">
+                  <i class="fas fa-language nav-icon"></i><p>
+                    Warehouse & Formulas<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:base_warehousepalette_changelist' %}" class="nav-link {% active_admin 'base/warehousepalette' %}"><i class="nav-icon fas fa-warehouse"></i><p>Warehouse Palettes</p></a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+            <ul class="nav nav-treeview">
+              <li class="nav-item {% menu_open_admin 'base/appversion' 'base/versionfeature' 'base/version-history' %}">
+                <a href="#" class="nav-link {% active_admin 'base/appversion' 'base/versionfeature' 'base/version-history' %}">
+                  <i class="fas fa-code-branch nav-icon"></i><p>
+                    Version History<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:base_appversion_changelist' %}" class="nav-link {% active_admin 'base/appversion' %}"><i class="nav-icon fas fa-caret-right"></i><p>App Versions</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:base_versionfeature_changelist' %}" class="nav-link {% active_admin 'base/versionfeature' %}"><i class="nav-icon fas fa-caret-right"></i><p>Version Features</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin_version_history' %}" class="nav-link  {% active_admin 'base/version-history' %}"><i class="nav-icon fas fa-external-link-alt"></i><p>View Version History</p></a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+            <ul class="nav nav-treeview">
+              <li class="nav-item {% menu_open_admin 'base/authenticationsetting' 'base/userauthentication' 'base/authenticationlog' %}">
+                <a href="#" class="nav-link {% active_admin 'base/appversion' 'base/versionfeature' 'base/version-history' %}">
+                  <i class="fas fa-user-secret nav-icon"></i><p>
+                    Authentication<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:base_authenticationsetting_changelist' %}" class="nav-link {% active_admin 'base/authenticationsetting' %}"><i class="fas fa-caret-right nav-icon"></i><p>Authentication Management</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:base_userauthentication_changelist' %}" class="nav-link {% active_admin 'base/userauthentication' %}"><i class="fas fa-caret-right nav-icon"></i><p>User Authentication Setup</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:base_authenticationlog_changelist' %}" class="nav-link {% active_admin 'base/authenticationlog' %}"><i class="fas fa-caret-right nav-icon"></i><p>Authentication Logs</p></a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+
+          <li class="nav-item {% menu_open_admin 'bom' %}">
+            <a href="#" class="nav-link {% active_admin 'bom' %}">
+              <i class="nav-icon fas fa-laptop-house"></i><p>
+                BOM<i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item {% menu_open_admin 'bom/freightcost' 'bom/freightcostdetail' %}">
+                <a href="#" class="nav-link {% active_admin 'bom/freightcost' %}">
+                  <i class="nav-icon fas fa-truck"></i><p>
+                    Freight Cost<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:bom_freightcost_changelist' %}" class="nav-link {% active_admin 'bom/freightcost' %}"><i class="fas fa-caret-right nav-icon"></i><p>Freight Cost</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:bom_freightcostdetail_changelist' %}" class="nav-link {% active_admin 'bom/freightcostdetail' %}"><i class="fas fa-caret-right nav-icon"></i><p>Freight Cost Detail</p></a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+
+          <li class="nav-item {% menu_open_admin 'sales' %}">
+            <a href="#" class="nav-link {% active_admin 'sales' %}">
+              <i class="nav-icon fas fa-cart-plus"></i><p>
+                SALES<i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item {% menu_open_admin 'sales/productgroup' 'sales/productsubgroup' 'sales/productcategory' 'sales/productpackage' 'sales/product' %}">
+                <a href="#" class="nav-link {% active_admin 'sales/product' %}">
+                  <i class="fas fa-address-card nav-icon"></i><p>
+                    Products<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_productgroup_changelist' %}" class="nav-link {% active_admin 'sales/productgroup' %}"><i class="nav-icon fas fa-caret-right"></i><p>Product Groups</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_productsubgroup_changelist' %}" class="nav-link {% active_admin 'sales/productsubgroup' %}"><i class="nav-icon fas fa-caret-right"></i><p>Product Subgroups</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_productcategory_changelist' %}" class="nav-link {% active_admin 'sales/productcategory' %}"><i class="nav-icon fas fa-caret-right"></i><p>Product Categories</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_productpackage_changelist' %}" class="nav-link {% active_admin 'sales/productpackage' %}"><i class="nav-icon fas fa-caret-right"></i><p>Product Packages</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_product_changelist' %}" class="nav-link {% active_admin 'sales/product' %}"><i class="nav-icon fas fa-caret-right"></i><p>Products</p></a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item {% menu_open_admin 'sales/customer' 'sales/customertype' 'sales/customergroup' 'sales/outlet' 'sales/outletgroup' %}">
+                <a href="#" class="nav-link {% active_admin 'sales/customer' %}">
+                  <i class="fas fa-address-card nav-icon"></i><p>
+                    Customers<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_customer_changelist' %}" class="nav-link {% active_admin 'sales/customer' %}"><i class="nav-icon fas fa-caret-right"></i><p>Customers</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_customertype_changelist' %}" class="nav-link {% active_admin 'sales/customertype' %}"><i class="nav-icon fas fa-caret-right"></i><p>Customer Types</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_customergroup_changelist' %}" class="nav-link {% active_admin 'sales/customergroup' %}"><i class="nav-icon fas fa-caret-right"></i><p>Customer Groups</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_outlet_changelist' %}" class="nav-link {% active_admin 'sales/outlet' %}"><i class="nav-icon fas fa-caret-right"></i><p>Outlets</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_outletgroup_changelist' %}" class="nav-link {% active_admin 'sales/outletgroup' %}"><i class="nav-icon fas fa-caret-right"></i><p>Outlet Groups</p></a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item {% menu_open_admin 'sales/rawmuso' 'sales/rawrnso' 'sales/rawlmsso' 'sales/rawkfso' 'sales/rawigso' 'sales/rawppso' 'sales/rawaplso' 'sales/rawappso' 'sales/sellingout' 'sales/salestype' 'sales/repoffice' %}">
+                <a href="#" class="nav-link {% active_admin 'sales/sellingout' %}">
+                  <i class="fas fa-address-card nav-icon"></i><p>
+                    Sales<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_rawmuso_changelist' %}" class="nav-link {% active_admin 'sales/rawmuso' %}"><i class="nav-icon fas fa-caret-right"></i><p>Raw MUP-SO</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_rawrnso_changelist' %}" class="nav-link {% active_admin 'sales/rawrnso' %}"><i class="nav-icon fas fa-caret-right"></i><p>Raw RN-SO</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_rawlmsso_changelist' %}" class="nav-link {% active_admin 'sales/rawlmsso' %}"><i class="nav-icon fas fa-caret-right"></i><p>Raw LMS-SO</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_rawkfso_changelist' %}" class="nav-link {% active_admin 'sales/rawkfso' %}"><i class="nav-icon fas fa-caret-right"></i><p>Raw KFTD-SO</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_rawigso_changelist' %}" class="nav-link {% active_admin 'sales/rawigso' %}"><i class="nav-icon fas fa-caret-right"></i><p>Raw IGM-SO</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_rawppso_changelist' %}" class="nav-link {% active_admin 'sales/rawppso' %}"><i class="nav-icon fas fa-caret-right"></i><p>Raw PPI-SO</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_rawaplso_changelist' %}" class="nav-link {% active_admin 'sales/rawaplso' %}"><i class="nav-icon fas fa-caret-right"></i><p>Raw APL-SO</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_rawappso_changelist' %}" class="nav-link {% active_admin 'sales/rawappso' %}"><i class="nav-icon fas fa-caret-right"></i><p>Raw APP-SO</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_sellingout_changelist' %}" class="nav-link {% active_admin 'sales/sellingout' %}"><i class="nav-icon fas fa-caret-right"></i><p>Selling Out</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_salestype_changelist' %}" class="nav-link {% active_admin 'sales/salestype' %}"><i class="nav-icon fas fa-caret-right"></i><p>Sales Types</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_repoffice_changelist' %}" class="nav-link {% active_admin 'sales/repoffice' %}"><i class="nav-icon fas fa-caret-right"></i><p>Representative Offices</p></a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item {% menu_open_admin 'sales/annualtarget' 'sales/cycletarget' %}">
+                <a href="#" class="nav-link {% active_admin 'sales/annualtarget' %}">
+                  <i class="fas fa-bullseye nav-icon"></i><p>
+                    Target<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_annualtarget_changelist' %}" class="nav-link {% active_admin 'sales/annualtarget' %}"><i class="nav-icon fas fa-caret-right"></i><p>Annual Target</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_cycletarget_changelist' %}" class="nav-link {% active_admin 'sales/cycletarget' %}"><i class="nav-icon fas fa-caret-right"></i><p>Cycle Target</p></a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item {% menu_open_admin 'sales/salesterritory' 'sales/salesarea' 'sales/arearegency' 'sales/salesteam' 'sales/salesregion' 'sales/regionprovince' 'sales/kamarea' %}">
+                <a href="#" class="nav-link {% active_admin 'sales/salesterritory' %}">
+                  <i class="fas fa-address-card nav-icon"></i><p>
+                    Territories<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_salesterritory_changelist' %}" class="nav-link {% active_admin 'sales/salesterritory' %}"><i class="nav-icon fas fa-caret-right"></i><p>Sales Territory</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_salesarea_changelist' %}" class="nav-link {% active_admin 'sales/salesarea' %}"><i class="nav-icon fas fa-caret-right"></i><p>Sales Areas</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_arearegency_changelist' %}" class="nav-link {% active_admin 'sales/arearegency' %}"><i class="nav-icon fas fa-caret-right"></i><p>Area Regencies</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_salesteam_changelist' %}" class="nav-link {% active_admin 'sales/salesteam' %}"><i class="nav-icon fas fa-caret-right"></i><p>Sales Teams</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_salesregion_changelist' %}" class="nav-link {% active_admin 'sales/salesregion' %}"><i class="nav-icon fas fa-caret-right"></i><p>Sales Regions</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_regionprovince_changelist' %}" class="nav-link {% active_admin 'sales/regionprovince' %}"><i class="nav-icon fas fa-caret-right"></i><p>Region Provinces</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_kamarea_changelist' %}" class="nav-link {% active_admin 'sales/kamarea' %}"><i class="nav-icon fas fa-caret-right"></i><p>KAM Areas</p></a>
+                  </li>
+                  {% comment %} <li class="nav-item">
+                    <a href="{% url 'admin:sales_postcover_changelist' %}" class="nav-link {% active_admin 'sales/postcover' %}"><i class="nav-icon fas fa-caret-right"></i><p>Position Coverage</p></a>
+                  </li> {% endcomment %}
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item {% menu_open_admin 'crm' %}">
+            <a href="#" class="nav-link {% active_admin 'crm' %}">
+              <i class="nav-icon fas fa-handshake"></i><p>
+                CRM<i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item {% menu_open_admin 'crm/hospitaltype' 'crm/association' %}">
+                <a href="#" class="nav-link {% active_admin 'crm/hospitaltype' %}">
+                  <i class="fas fa-address-card nav-icon"></i><p>
+                    Hospitals<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:crm_hospitaltype_changelist' %}" class="nav-link {% active_admin 'crm/hospitaltype' %}"><i class="nav-icon fas fa-caret-right"></i><p>Hospital Types</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:crm_association_changelist' %}" class="nav-link {% active_admin 'crm/association' %}"><i class="nav-icon fas fa-caret-right"></i><p>Associations</p></a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item {% menu_open_admin 'crm/doctor' 'crm/doctoreducation' 'crm/doctorplace' 'crm/specialization' %}">
+                <a href="#" class="nav-link {% active_admin 'crm/doctor' %}">
+                  <i class="fas fa-address-card nav-icon"></i><p>
+                    Doctors Profile<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:crm_doctor_changelist' %}" class="nav-link {% active_admin 'crm/doctor' %}"><i class="nav-icon fas fa-caret-right"></i><p>Doctors</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:crm_doctoreducation_changelist' %}" class="nav-link {% active_admin 'crm/doctoreducation' %}"><i class="nav-icon fas fa-caret-right"></i><p>Educations</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:crm_doctorplace_changelist' %}" class="nav-link {% active_admin 'crm/doctorplace' %}"><i class="nav-icon fas fa-caret-right"></i><p>Places of Practice</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:crm_specialization_changelist' %}" class="nav-link {% active_admin 'crm/specialization' %}"><i class="nav-icon fas fa-caret-right"></i><p>Specializations</p></a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item {% menu_open_admin 'crm/kpdmcontact' 'crm/kpdmcustomer' %}">
+                <a href="#" class="nav-link {% active_admin 'crm/kpdmcontact' %}">
+                  <i class="fas fa-address-card nav-icon"></i><p>
+                    KPDM Profile<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:crm_kpdmcontact_changelist' %}" class="nav-link {% active_admin 'crm/kpdmcontact' %}"><i class="nav-icon fas fa-caret-right"></i><p>Contacts</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:crm_kpdmcustomer_changelist' %}" class="nav-link {% active_admin 'crm/kpdmcustomer' %}"><i class="nav-icon fas fa-caret-right"></i><p>Customers</p></a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item {% menu_open_admin 'supplychain' %}">
+            <a href="#" class="nav-link {% active_admin 'supplychain' %}">
+              <i class="nav-icon fas fa-truck"></i><p>
+                SUPPLY CHAIN<i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item {% menu_open_admin 'supplychain/distributor/' 'supplychain/branchtype/' 'supplychain/branch/' 'supplychain/distributoritemgroup/' 'supplychain/distributoritem/' 'supplychain/ordertype/' 'supplychain/orderstatus/' %}">
+                <a href="#" class="nav-link {% active_admin 'supplychain/distributor/' 'supplychain/branchtype/' 'supplychain/branch/' 'supplychain/distributoritemgroup/' 'supplychain/distributoritem/' 'supplychain/ordertype/' 'supplychain/orderstatus/' %}">
+                  <i class="fas fa-address-card nav-icon"></i><p>
+                    Distribution<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:supplychain_distributor_changelist' %}" class="nav-link {% active_admin 'supplychain/distributor/' %}"><i class="nav-icon fas fa-caret-right"></i><p>Distributors</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:supplychain_branchtype_changelist' %}" class="nav-link {% active_admin 'supplychain/branchtype/' %}"><i class="nav-icon fas fa-caret-right"></i><p>Branch Types</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:supplychain_branch_changelist' %}" class="nav-link {% active_admin 'supplychain/branch/' %}"><i class="nav-icon fas fa-caret-right"></i><p>Branches</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:supplychain_distributoritemgroup_changelist' %}" class="nav-link {% active_admin 'supplychain/distributoritemgroup/' %}"><i class="nav-icon fas fa-caret-right"></i><p>Item Groups</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:supplychain_distributoritem_changelist' %}" class="nav-link {% active_admin 'supplychain/distributoritem/' %}"><i class="nav-icon fas fa-caret-right"></i><p>Items</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:supplychain_ordertype_changelist' %}" class="nav-link {% active_admin 'supplychain/ordertype/' %}"><i class="nav-icon fas fa-caret-right"></i><p>Order Types</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:supplychain_orderstatus_changelist' %}" class="nav-link {% active_admin 'supplychain/orderstatus/' %}"><i class="nav-icon fas fa-caret-right"></i><p>Order Statuses</p></a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item {% menu_open_admin 'supplychain/manufacturingitemgroup' 'supplychain/manufacturingitemsubgroup' 'supplychain/manufacturingitem' 'supplychain/stockstatus' %}">
+                <a href="#" class="nav-link {% active_admin 'supplychain/manufacturingitemgroup' 'supplychain/manufacturingitemsubgroup' 'supplychain/manufacturingitem' 'supplychain/stockstatus' %}">
+                  <i class="fas fa-address-card nav-icon"></i><p>
+                    Manufacturing<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:supplychain_manufacturingitemgroup_changelist' %}" class="nav-link {% active_admin 'supplychain/manufacturingitemgroup' %}"><i class="nav-icon fas fa-caret-right"></i><p>Item Groups</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:supplychain_manufacturingitemsubgroup_changelist' %}" class="nav-link {% active_admin 'supplychain/manufacturingitemsubgroup' %}"><i class="nav-icon fas fa-caret-right"></i><p>Item Subgroups</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:supplychain_manufacturingitem_changelist' %}" class="nav-link {% active_admin 'supplychain/manufacturingitem' %}"><i class="nav-icon fas fa-caret-right"></i><p>Items</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:supplychain_stockstatus_changelist' %}" class="nav-link {% active_admin 'supplychain/stockstatus' %}"><i class="nav-icon fas fa-caret-right"></i><p>Stock Statuses</p></a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item {% menu_open_admin 'supplychain/orderheader' 'supplychain/orderdetail' %}">
+                <a href="#" class="nav-link {% active_admin 'supplychain/orderheader' 'supplychain/orderdetail' %}">
+                  <i class="fas fa-address-card nav-icon"></i><p>
+                    Orders<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:supplychain_orderheader_changelist' %}" class="nav-link {% active_admin 'supplychain/orderheader' %}"><i class="nav-icon fas fa-caret-right"></i><p>Orders</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:supplychain_orderdetail_changelist' %}" class="nav-link {% active_admin 'supplychain/orderdetail' %}"><i class="nav-icon fas fa-caret-right"></i><p>Order Details</p></a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item {% menu_open_admin 'supplychain/stdistdaily' 'supplychain/branchstock' 'bom/branchstock_summary' %}">
+                <a href="#" class="nav-link {% active_admin 'supplychain/stdistdaily' 'supplychain/branchstock' 'bom/branchstock_summary' %}">
+                  <i class="fas fa-address-card nav-icon"></i><p>
+                    Stock<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  {% comment %} <li class="nav-item">
+                    <a href="{% url 'admin:supplychain_stockotsdistributor_changelist' %}" class="nav-link {% active_admin 'supplychain/stockotsdistributor' %}"><i class="nav-icon fas fa-caret-right"></i><p>On the spot Distributor Stock</p></a>
+                  </li> {% endcomment %}
+                  {% comment %} <li class="nav-item">
+                    <a href="{% url 'admin:supplychain_stockdailydistributor_changelist' %}" class="nav-link {% active_admin 'supplychain/stockdailydistributor' %}"><i class="nav-icon fas fa-caret-right"></i><p>Daily Distributor Stock</p></a>
+                  </li> {% endcomment %}
+                  <li class="nav-item">
+                    <a href="{% url 'admin:supplychain_stdistdaily_changelist' %}" class="nav-link {% active_admin 'supplychain/stdistdaily' %}"><i class="nav-icon fas fa-caret-right"></i><p>Daily Stock</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:supplychain_branchstock_changelist' %}" class="nav-link {% active_admin 'supplychain/branchstock' %}"><i class="nav-icon fas fa-caret-right"></i><p>Branch Stock Data</p></a>
+                  </li>
+                    <li class="nav-item">
+                      <a href="{% url 'bom:branchstock_summary' %}" class="nav-link{% if request.resolver_match.url_name == 'branchstock_summary' %} active{% endif %}"><i class="nav-icon fas fa-caret-right"></i><p>Branch Stock Summary</p></a>
+                    </li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item {% menu_open_admin 'finance' %}">
+            <a href="#" class="nav-link {% active_admin 'finance' %}">
+              <i class="nav-icon fas fa-wallet"></i><p>
+                FINANCE & ACCOUNTING<i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item {% menu_open_admin 'finance/itemprice' %}">
+                <a href="#" class="nav-link {% active_admin 'finance/itemprice' %}">
+                  <i class="fas fa-address-card nav-icon"></i><p>
+                    Product<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:finance_itemprice_changelist' %}" class="nav-link {% active_admin 'finance/itemprice' %}"><i class="nav-icon fas fa-caret-right"></i><p>Item Price</p></a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item {% menu_open_admin 'finance/arbalance' 'finance/arcollection' %}">
+                <a href="#" class="nav-link {% active_admin 'finance/arbalance' %}">
+                  <i class="fas fa-address-card nav-icon"></i><p>
+                    Receivables<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:finance_arbalance_changelist' %}" class="nav-link {% active_admin 'finance/arbalance' %}"><i class="nav-icon fas fa-caret-right"></i><p>MUP AR Balance</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:finance_arcollection_changelist' %}" class="nav-link {% active_admin 'finance/arcollection' %}"><i class="nav-icon fas fa-caret-right"></i><p>MUP AR Collection</p></a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item {% menu_open_admin 'humancapital' %}">
+            <a href="#" class="nav-link {% active_admin 'humancapital' %}">
+              <i class="nav-icon fas fa-id-card"></i><p>
+                HUMAN CAPITAL<i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item {% menu_open_admin 'humancapital/organizationtype' 'humancapital/organization' 'humancapital/business' 'humancapital/position' 'humancapital/assignment' %}">
+                <a href="#" class="nav-link {% active_admin 'humancapital/organization' 'humancapital/business' %}">
+                  <i class="fas fa-address-card nav-icon"></i><p>
+                    Organogram<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item {% menu_open_admin 'humancapital/organizationtype' 'humancapital/organization' 'humancapital/business' 'humancapital/position' 'humancapital/assignment' %}">
+                    <a href="#" class="nav-link {% active_admin 'humancapital/organization' 'humancapital/business' %}">
+                      <i class="nav-icon fas fa-map-marker-alt"></i><p>
+                        Structures<i class="right fas fa-angle-left"></i>
+                      </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                      <li class="nav-item">
+                        <a href="{% url 'admin:humancapital_organizationtype_changelist' %}" class="nav-link {% active_admin 'humancapital/organizationtype' %}"><i class="nav-icon fas fa-caret-right"></i><p>Organization Types</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:humancapital_organization_changelist' %}" class="nav-link {% active_admin 'humancapital/organization' %}"><i class="nav-icon fas fa-caret-right"></i><p>Organizations</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:humancapital_business_changelist' %}" class="nav-link {% active_admin 'humancapital/business' %}"><i class="nav-icon fas fa-caret-right"></i><p>Businesses</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:humancapital_position_changelist' %}" class="nav-link {% active_admin 'humancapital/position' %}"><i class="nav-icon fas fa-caret-right"></i><p>Positions</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:humancapital_assignment_changelist' %}" class="nav-link {% active_admin 'humancapital/assignment' %}"><i class="nav-icon fas fa-caret-right"></i><p>Assignments</p></a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item {% menu_open_admin 'humancapital/employeetitle' 'humancapital/employee' %}">
+                <a href="#" class="nav-link {% active_admin 'humancapital/employee' %}">
+                  <i class="fas fa-address-card nav-icon"></i><p>
+                    Employees<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:humancapital_employeetitle_changelist' %}" class="nav-link {% active_admin 'humancapital/employeetitle' %}"><i class="nav-icon fas fa-caret-right"></i><p>Employee Titles</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:humancapital_employee_changelist' %}" class="nav-link {% active_admin 'humancapital/employee' %}"><i class="nav-icon fas fa-caret-right"></i><p>Employees</p></a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item {% menu_open_admin 'analytics' %}">
+            <a href="#" class="nav-link {% active_admin 'analytics' %}">
+              <i class="nav-icon fas fa-chart-line"></i><p>
+                ANALYTICS<i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item {% menu_open_admin 'analytics/iqv' %}">
+                <a href="#" class="nav-link {% active_admin 'analytics/iqv' %}">
+                  <i class="fas fa-address-card nav-icon"></i><p>
+                    IQVIA<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item {% menu_open_admin 'analytics/iqv/itmatrans' %}">
+                    <a href="#" class="nav-link {% active_admin 'analytics/iqv/itmatrans' %}">
+                      <i class="nav-icon fas fa-map-marker-alt"></i><p>
+                        Transactions<i class="right fas fa-angle-left"></i>
+                      </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                      <li class="nav-item">
+                        <a href="{% url 'admin:analytics_iqv_itmatrans_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/itmatrans' %}"><i class="nav-icon fas fa-caret-right"></i><p>ITMA Transactions</p></a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item {% menu_open_admin 'analytics/iqv/atc1' 'analytics/iqv/atc2' 'analytics/iqv/atc3' 'analytics/iqv/atc4' 'analytics/iqv/nfc1' 'analytics/iqv/nfc2' 'analytics/iqv/nfc3' 'analytics/iqv/otc1' 'analytics/iqv/otc2' 'analytics/iqv/otc3' 'analytics/iqv/otc4' %}">
+                    <a href="#" class="nav-link {% active_admin 'analytics/iqv/atc1' %}">
+                      <i class="nav-icon fas fa-map-marker-alt"></i><p>
+                        Classifications<i class="right fas fa-angle-left"></i>
+                      </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                      <li class="nav-item {% menu_open_admin 'analytics/iqv/atc1' 'analytics/iqv/atc2' 'analytics/iqv/atc3' 'analytics/iqv/atc4' %}">
+                        <a href="#" class="nav-link {% active_admin 'analytics/iqv/atc1' %}">
+                          <i class="nav-icon fas fa-map-marker-alt"></i><p>
+                            ATC Classifications<i class="right fas fa-angle-left"></i>
+                          </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                          <li class="nav-item">
+                            <a href="{% url 'admin:analytics_iqv_atc1_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/atc1' %}"><i class="nav-icon fas fa-caret-right"></i><p>ATC 1</p></a>
+                          </li>
+                          <li class="nav-item">
+                            <a href="{% url 'admin:analytics_iqv_atc2_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/atc2' %}"><i class="nav-icon fas fa-caret-right"></i><p>ATC 2</p></a>
+                          </li>
+                          <li class="nav-item">
+                            <a href="{% url 'admin:analytics_iqv_atc3_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/atc3' %}"><i class="nav-icon fas fa-caret-right"></i><p>ATC 3</p></a>
+                          </li>
+                          <li class="nav-item">
+                            <a href="{% url 'admin:analytics_iqv_atc4_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/atc4' %}"><i class="nav-icon fas fa-caret-right"></i><p>ATC 4</p></a>
+                          </li>
+                        </ul>
+                      </li>
+                    </ul>
+                    <ul class="nav nav-treeview">
+                      <li class="nav-item {% menu_open_admin 'analytics/iqv/nfc1' 'analytics/iqv/nfc2' 'analytics/iqv/nfc3' %}">
+                        <a href="#" class="nav-link {% active_admin 'analytics/iqv/nfc1' %}">
+                          <i class="nav-icon fas fa-map-marker-alt"></i><p>
+                            NFC Classifications<i class="right fas fa-angle-left"></i>
+                          </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                          <li class="nav-item">
+                            <a href="{% url 'admin:analytics_iqv_nfc1_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/nfc1' %}"><i class="nav-icon fas fa-caret-right"></i><p>NFC 1</p></a>
+                          </li>
+                          <li class="nav-item">
+                            <a href="{% url 'admin:analytics_iqv_nfc2_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/nfc2' %}"><i class="nav-icon fas fa-caret-right"></i><p>NFC 2</p></a>
+                          </li>
+                          <li class="nav-item">
+                            <a href="{% url 'admin:analytics_iqv_nfc3_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/nfc3' %}"><i class="nav-icon fas fa-caret-right"></i><p>NFC 3</p></a>
+                          </li>
+                        </ul>
+                      </li>
+                    </ul>
+                    <ul class="nav nav-treeview">
+                      <li class="nav-item {% menu_open_admin 'analytics/iqv/otc1' 'analytics/iqv/otc2' 'analytics/iqv/otc3' 'analytics/iqv/otc4' %}">
+                        <a href="#" class="nav-link {% active_admin 'analytics/iqv/otc1' %}">
+                          <i class="nav-icon fas fa-map-marker-alt"></i><p>
+                            OTC Classifications<i class="right fas fa-angle-left"></i>
+                          </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                          <li class="nav-item">
+                            <a href="{% url 'admin:analytics_iqv_otc1_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/otc1' %}"><i class="nav-icon fas fa-caret-right"></i><p>OTC 1</p></a>
+                          </li>
+                          <li class="nav-item">
+                            <a href="{% url 'admin:analytics_iqv_otc2_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/otc2' %}"><i class="nav-icon fas fa-caret-right"></i><p>OTC 2</p></a>
+                          </li>
+                          <li class="nav-item">
+                            <a href="{% url 'admin:analytics_iqv_otc3_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/otc3' %}"><i class="nav-icon fas fa-caret-right"></i><p>OTC 3</p></a>
+                          </li>
+                          <li class="nav-item">
+                            <a href="{% url 'admin:analytics_iqv_otc4_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/otc4' %}"><i class="nav-icon fas fa-caret-right"></i><p>OTC 4</p></a>
+                          </li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item {% menu_open_admin 'analytics/iqv/corp' 'analytics/iqv/comtype' 'analytics/iqv/company' %}">
+                    <a href="#" class="nav-link {% active_admin 'analytics/iqv/company' %}">
+                      <i class="nav-icon fas fa-map-marker-alt"></i><p>
+                        Companies<i class="right fas fa-angle-left"></i>
+                      </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                      <li class="nav-item">
+                        <a href="{% url 'admin:analytics_iqv_corp_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/corp' %}"><i class="nav-icon fas fa-caret-right"></i><p>Corporations</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:analytics_iqv_comtype_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/comtype' %}"><i class="nav-icon fas fa-caret-right"></i><p>Company Types</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:analytics_iqv_company_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/company' %}"><i class="nav-icon fas fa-caret-right"></i><p>Companies</p></a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item {% menu_open_admin 'analytics/iqv/genflag' 'analytics/iqv/branddet' 'analytics/iqv/ethstatgrp' 'analytics/iqv/ethstat' 'analytics/iqv/regstat' 'analytics/iqv/packform' 'analytics/iqv/product' 'analytics/iqv/pack' %}">
+                    <a href="#" class="nav-link {% active_admin 'analytics/iqv/product' %}">
+                      <i class="nav-icon fas fa-map-marker-alt"></i><p>
+                        Products<i class="right fas fa-angle-left"></i>
+                      </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                      <li class="nav-item">
+                        <a href="{% url 'admin:analytics_iqv_genflag_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/genflag' %}"><i class="nav-icon fas fa-caret-right"></i><p>Generic Flags</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:analytics_iqv_branddet_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/branddet' %}"><i class="nav-icon fas fa-caret-right"></i><p>Brand Details</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:analytics_iqv_ethstatgrp_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/ethstatgrp' %}"><i class="nav-icon fas fa-caret-right"></i><p>Ethical Status Groups</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:analytics_iqv_ethstat_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/ethstat' %}"><i class="nav-icon fas fa-caret-right"></i><p>Ethical Statuses</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:analytics_iqv_regstat_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/regstat' %}"><i class="nav-icon fas fa-caret-right"></i><p>Registration Statuses</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:analytics_iqv_packform_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/packform' %}"><i class="nav-icon fas fa-caret-right"></i><p>Pack Forms</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:analytics_iqv_product_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/product' %}"><i class="nav-icon fas fa-caret-right"></i><p>Products</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:analytics_iqv_pack_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/pack' %}"><i class="nav-icon fas fa-caret-right"></i><p>Pack</p></a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item {% menu_open_admin 'analytics/iqv/molefam' 'analytics/iqv/molesubfam' 'analytics/iqv/molecule' %}">
+                    <a href="#" class="nav-link {% active_admin 'analytics/iqv/molecule' %}">
+                      <i class="nav-icon fas fa-map-marker-alt"></i><p>
+                        Molecules<i class="right fas fa-angle-left"></i>
+                      </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                      <li class="nav-item">
+                        <a href="{% url 'admin:analytics_iqv_molefam_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/molefam' %}"><i class="nav-icon fas fa-caret-right"></i><p>Molecule Families</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:analytics_iqv_molesubfam_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/molesubfam' %}"><i class="nav-icon fas fa-caret-right"></i><p>Molecule Sub Families</p></a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{% url 'admin:analytics_iqv_molecule_changelist' %}" class="nav-link {% active_admin 'analytics/iqv/molecule' %}"><i class="nav-icon fas fa-caret-right"></i><p>Molecules</p></a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item {% menu_open_admin 'cms' %}">
+            <a href="#" class="nav-link {% active_admin 'cms' %}">
+              <i class="nav-icon fas fa-cogs"></i><p>
+                CMS<i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item {% menu_open_admin 'cms/applicationlist' 'cms/modulelist' 'cms/menuitem' %}">
+                <a href="#" class="nav-link {% active_admin 'cms/applicationlist' %}">
+                  <i class="nav-icon fas fa-layer-group"></i><p>
+                    Structures<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:cms_applicationlist_changelist' %}" class="nav-link {% active_admin 'cms/applicationlist' %}"><i class="nav-icon fas fa-caret-right"></i><p>Applications</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:cms_modulelist_changelist' %}" class="nav-link {% active_admin 'cms/modulelist' %}"><i class="nav-icon fas fa-caret-right"></i><p>Modules</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:cms_menuitem_changelist' %}" class="nav-link {% active_admin 'cms/menuitem' %}"><i class="nav-icon fas fa-caret-right"></i><p>Menus</p></a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      
+    </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('sidebarSearch')
+        const menuItems = document.querySelectorAll('.nav-item')
+      
+        searchInput.addEventListener('keyup', function (event) {
+          const searchText = event.target.value.toLowerCase()
+      
+          menuItems.forEach((item) => {
+            const text = item.textContent.toLowerCase()
+            item.style.display = text.includes(searchText) ? '' : 'none'
+          })
+        })
+      })
+    </script>
+  </aside>
+{% endif %}

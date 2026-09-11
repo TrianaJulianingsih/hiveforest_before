@@ -1,0 +1,8 @@
+<ul class="list-group striped-list hiveforest">
+  <li class="list-group-item hiveforest">
+    <h6 class="list-group hiveforest">Contents</h6>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:contenttypes_contenttype_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Types</a>
+  </li>
+</ul>

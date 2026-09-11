@@ -1,0 +1,63 @@
+<ul class="list-group striped-list hiveforest">
+  <li class="list-group-item hiveforest">
+    <h6 class="list-group hiveforest">Modules</h6>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:analytics_iqv_itmatrans_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>ITMA Transactions</a>
+  </li>
+  <li class="list-group-item hiveforest">
+    <h6 class="list-group hiveforest">IQVIA Classifications</h6>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:analytics_iqv_atc1_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>ATC1</a> |
+    <a href="{% url 'admin:analytics_iqv_atc2_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>ATC2</a> |
+    <a href="{% url 'admin:analytics_iqv_atc3_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>ATC3</a> |
+    <a href="{% url 'admin:analytics_iqv_atc4_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>ATC4</a>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:analytics_iqv_otc1_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>OTC1</a> |
+    <a href="{% url 'admin:analytics_iqv_otc2_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>OTC2</a> |
+    <a href="{% url 'admin:analytics_iqv_otc3_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>OTC3</a> |
+    <a href="{% url 'admin:analytics_iqv_otc4_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>OTC4</a>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:analytics_iqv_nfc1_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>NFC1</a> |
+    <a href="{% url 'admin:analytics_iqv_nfc2_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>NFC2</a> |
+    <a href="{% url 'admin:analytics_iqv_nfc3_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>NFC3</a>
+  </li>
+  <li class="list-group-item hiveforest">
+    <h6 class="list-group hiveforest">Companies</h6>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:analytics_iqv_comtype_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Types</a> |
+    <a href="{% url 'admin:analytics_iqv_company_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Companies</a> |
+    <a href="{% url 'admin:analytics_iqv_corp_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Corporation</a>
+  </li>
+  <li class="list-group-item hiveforest">
+    <h6 class="list-group hiveforest">Products</h6>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:analytics_iqv_product_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Products</a> |
+    <a href="{% url 'admin:analytics_iqv_packform_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Pack Forms</a> |
+    <a href="{% url 'admin:analytics_iqv_pack_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Packs</a>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:analytics_iqv_genflag_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Generic Flags</a> |
+    <a href="{% url 'admin:analytics_iqv_branddet_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Brand Details</a>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:analytics_iqv_ethstatgrp_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Ethical Status Groups</a> |
+    <a href="{% url 'admin:analytics_iqv_ethstat_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Statuses</a>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:analytics_iqv_regstat_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Registration Statuses</a>
+  </li>
+  <li class="list-group-item hiveforest">
+    <h6 class="list-group hiveforest">Molecules</h6>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:analytics_iqv_molecule_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Molecules</a> |
+    <a href="{% url 'admin:analytics_iqv_molefam_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Families</a> |
+    <a href="{% url 'admin:analytics_iqv_molesubfam_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Sub Families</a>
+  </li>
+</ul>

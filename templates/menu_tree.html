@@ -1,0 +1,50 @@
+{% comment %} {% load custom_filters %}
+{% for menu in menus %}
+    {% menu_open_children menu as child_open %}
+    {% menu_active_or_child menu as child_active %}
+    <li class="nav-item {% if menu.children_list %}has-treeview{% endif %} {{ child_open }}" role="none">
+        <a href="{{ menu.url|default:'#' }}" class="nav-link {{ child_active }}" role="menuitem" 
+           {% if menu.children_list %}aria-haspopup="true" aria-expanded="{{ child_open|yesno:'true,false' }}"{% endif %}>
+            <i class="nav-icon {{ menu.icon|default:'fas fa-circle' }}" aria-hidden="true"></i>
+            <p>
+                {{ menu.shortname }}
+                {% if menu.children_list %}
+                <i class="right fas fa-angle-left" aria-hidden="true"></i>
+                {% endif %}
+            </p>
+        </a>
+        {% if menu.children_list %}
+            <ul class="nav nav-treeview" role="group" aria-label="{{ menu.shortname }} sub menus">
+                {% include "menu_tree.html" with menus=menu.children_list %}
+            </ul>
+        {% endif %}
+    </li>
+{% endfor %} {% endcomment %}
+
+{% load custom_filters %}
+{% for menu in menus %}
+    {% menu_open_children menu as child_open %}
+    {% menu_active_or_child menu as child_active %}
+    
+    {% with depth=menus.depth|default:0 %}
+    <li id="menu-{{ menu.id }}" class="nav-item {% if menu.children_list %}has-treeview{% endif %} {{ child_open }}" role="none">
+        <a href="{{ menu.url|default:'#' }}" class="nav-link {{ child_active }}" role="menuitem" 
+           {% if menu.children_list %}aria-haspopup="true" aria-expanded="{{ child_open|yesno:'true,false' }}"{% endif %}>
+            <i class="nav-icon {{ menu.icon|default:'fas fa-circle' }}" aria-hidden="true"></i>
+            <p>
+                {{ menu.shortname }}
+                {% if menu.children_list %}
+                <i class="right fas fa-angle-left" aria-hidden="true"></i>
+                {% endif %}
+            </p>
+        </a>
+        {% if menu.children_list %}
+            {% with next_depth=depth|add:1 %}
+            <ul class="nav nav-treeview level-{{ next_depth }}" role="group" aria-label="{{ menu.shortname }} sub menus">
+                {% include "menu_tree.html" with menus=menu.children_list depth=next_depth %}
+            </ul>
+            {% endwith %}
+        {% endif %}
+    </li>
+    {% endwith %}
+{% endfor %}

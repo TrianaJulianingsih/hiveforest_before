@@ -1,0 +1,288 @@
+{% load static i18n custom_filters %}
+<style>
+.nav-sidebar > .nav-item > .nav-treeview {
+    margin-left: 0;
+}
+
+.nav-sidebar .nav-treeview .nav-treeview {
+    margin-left: 1rem;
+}
+
+.nav-sidebar .nav-treeview .nav-treeview .nav-treeview {
+    margin-left: 1.5rem;
+}
+
+.nav-sidebar .nav-treeview .nav-link {
+    padding-left: 1.5rem;
+}
+
+.nav-sidebar .nav-treeview .nav-treeview .nav-link {
+    padding-left: 2rem;
+}
+
+.nav-sidebar .nav-treeview .nav-treeview .nav-treeview .nav-link {
+    padding-left: 2.5rem;
+}
+</style>
+
+<a href="/" class="brand-link">
+    <img src="{% static 'adminlte/img/HiveForest.png' %}" alt="HiveForest" class="brand-image" style="opacity:1">
+    <span class="brand-text font-weight-bold">HIVEFOREST</span>
+</a>
+<div class="sidebar">
+    {% if user.is_authenticated %}
+    <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+        <div class="image">
+            <a href="{% url 'profile' %}">
+                {% if user.userprofile.profile_picture %}
+                    <img src="{{ user.userprofile.profile_picture.url }}" class="img-circle elevation-2" alt="User Image">
+                {% else %}
+                    <img src="media/profile_pictures/default-user.png" alt="PP" class="img-circle elevation-2">
+                {% endif %}
+            </a>
+        </div>
+        <div class="info"><a href="{% url 'profile' %}" class="d-block">{{ user.get_full_name }}</a></div>
+    </div>
+    {% endif %}
+    <div class="form-inline">
+        <div class="input-group" data-widget="sidebar-search">
+            <input id="sidebarSearch" class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
+            <div class="input-group-append"><button class="btn btn-sidebar"><i class="fas fa-search fa-fw"></i></button></div>
+        </div>
+    </div>
+    <nav class="mt-2" aria-label="Main navigation">
+        <ul class="nav nav-pills nav-sidebar flex-column text-sm" data-widget="treeview" role="menu" data-accordion="false">
+            {% for app in apps_access %}
+                {% with app_id=app.id|stringformat:'s' %}
+                {% with app_key='app_'|add:app_id %}
+                {% with app_level_menus=menu_access|dict_key:app_key %}
+                {% with modules=mods_access|dict_key:app.id %}
+                    {% menu_group_open app_level_menus modules as app_open %}
+                    {% menu_group_active app_level_menus modules as app_active %}
+                    <li id="app-{{ app.code }}" class="nav-item {% if app_level_menus or modules %}has-treeview{% endif %} {{ app_open }}" role="none">
+                        <a href="{{ app.url|default:'#' }}" class="nav-link {% safe_menu_active app.url %} {{ app_active }}" role="menuitem" {% if app_level_menus or modules %}aria-haspopup="true" aria-expanded="{{ app_open|yesno:'true,false' }}"{% endif %}>
+                            <i class="nav-icon {{ app.icon }}" aria-hidden="true"></i>
+                            <p class="mb-0">{{ app.shortname.upper }}{% if app_level_menus or modules %}<i class="right fas fa-angle-left" aria-hidden="true"></i>{% endif %}</p>
+                        </a>
+                        {% if app_level_menus %}
+                            <ul class="nav nav-treeview" role="group" aria-label="{{ app.shortname }} sub menus">
+                                {% include "menu_tree.html" with menus=app_level_menus %}
+                            </ul>
+                        {% endif %}
+
+                        {% if modules %}
+                            <ul class="nav nav-treeview" role="group" aria-label="{{ app.shortname }} modules">
+                                {% for module in modules %}
+                                    {% with module_menus=menu_access|dict_key:module.id %}
+                                        {% menu_group_open module_menus as module_open %}
+                                        {% menu_group_active module_menus as module_active %}
+                                        <li class="nav-item {% if module_menus %}has-treeview{% endif %} {{ module_open }}" role="none">
+                                            <a href="{{ module.url|default:'#' }}" class="nav-link {% safe_menu_active module.url %} {{ module_active }}" role="menuitem" 
+                                            {% if module_menus %}aria-haspopup="true" aria-expanded="{{ module_open|yesno:'true,false' }}"{% endif %}>
+                                                <i class="nav-icon {{ module.icon }}" aria-hidden="true"></i>
+                                                <p>
+                                                    {{ module.shortname }}
+                                                    {% if module_menus %}
+                                                    <i class="right fas fa-angle-left" aria-hidden="true"></i>
+                                                    {% endif %}
+                                                </p>
+                                            </a>
+                                            {% if module_menus %}
+                                                <ul class="nav nav-treeview" role="group" aria-label="{{ module.shortname }} sub menus">
+                                                    {% include "menu_tree.html" with menus=module_menus %}
+                                                </ul>
+                                            {% endif %}
+                                        </li>
+                                    {% endwith %}
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </li>
+                {% endwith %}
+                {% endwith %}
+                {% endwith %}
+                {% endwith %}
+            {% endfor %}
+
+            {% if user.is_staff %}
+                <li id="app-SA" class="nav-item" role="none">
+                    <a href="/admin" class="nav-link {% active 'admin' %}" role="menuitem">
+                        <i class="nav-icon fas fa-cogs" aria-hidden="true"></i>
+                        <p class="mb-0">{% trans "SITE ADMINISTRATION" %}</p>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    
+    const searchInput = document.getElementById('sidebarSearch');
+    /* Scope to sidebar only: page content also uses .nav-link (e.g. Bootstrap tabs on organogram).
+       A global .nav-link.active clear would strip the default active tab on first paint. */
+    const sidebarRoot = document.querySelector('.main-sidebar') || document.body;
+    const allLinks = Array.from(sidebarRoot.querySelectorAll('.nav-link[href]:not([href="#"])'));
+    const menuItems = sidebarRoot.querySelectorAll('.nav-item');
+    
+    if(searchInput){
+        searchInput.addEventListener('keyup', e => {
+            const q = e.target.value.toLowerCase();
+            menuItems.forEach(li => {
+                const t = li.textContent.toLowerCase();
+                li.style.display = t.includes(q) ? '' : 'none';
+            });
+        });
+    }
+
+    function normalizePath(p){
+        if(!p) return '/';
+        p = p.split('?')[0].split('#')[0];
+        const parts = p.replace(/^\//,'').split('/');
+        const langs=['en','id'];
+        if(parts.length && langs.includes(parts[0])) parts.shift();
+        p='/' + parts.join('/');
+        if(p.length>1 && p.endsWith('/')) p=p.slice(0,-1);
+        return p || '/';
+    }
+
+    function activateLink(link, persist=true){
+        console.log('=== ACTIVATE LINK START ===');
+        console.log('Link clicked:', link.textContent.trim());
+        
+        if(!link) return;
+        
+        sidebarRoot.querySelectorAll('.nav-link.active').forEach(l=>l.classList.remove('active'));
+        link.classList.add('active');
+        
+        const opened = [];
+        
+        setTimeout(() => {
+            const allTreeviews = document.querySelectorAll('li.nav-item.has-treeview');
+            allTreeviews.forEach(treeview => {
+                if (treeview.contains(link)) {
+                    console.log('Forcing open:', treeview.id);
+                    treeview.classList.add('menu-open');
+                    treeview.classList.remove('menu-closed');
+                    
+                    if (treeview.id && !opened.includes(treeview.id)) {
+                        opened.push(treeview.id);
+                    }
+                    
+                    // const treeviewLink = treeview.querySelector('> a.nav-link');
+                    const treeviewLink = treeview.querySelector(':scope > a.nav-link');
+                    if (treeviewLink) {
+                        treeviewLink.classList.add('active');
+                        treeviewLink.setAttribute('aria-expanded', 'true');
+                    }
+                }
+            });
+            
+            if(persist){
+                localStorage.setItem('hf_open_menus', JSON.stringify(opened));
+            }
+        }, 50);
+        
+        if(persist){
+            localStorage.setItem('hf_active_href', link.getAttribute('href'));
+        }
+    }
+
+    try{
+        const opened = JSON.parse(localStorage.getItem('hf_open_menus')||'[]');
+        opened.forEach(id=>{ 
+            const li=document.getElementById(id); 
+            if(li) li.classList.add('menu-open'); 
+        });
+        
+        const activeHref = localStorage.getItem('hf_active_href');
+        if(activeHref){
+            const found = allLinks.find(a => a.getAttribute('href') === activeHref);
+            if(found) activateLink(found, false);
+        }
+    }catch(err){  }
+
+    allLinks.forEach(a => {
+        a.addEventListener('click', function(e) {
+            console.log('Menu clicked:', this.textContent.trim(), 'href:', this.getAttribute('href'));
+            
+            if(this.getAttribute('href') && this.getAttribute('href') !== '#') {
+                activateLink(this, true);
+            }
+            else if (this.getAttribute('href') === '#') {
+                setTimeout(() => {
+                    const openedMenus = Array.from(document.querySelectorAll('.has-treeview.menu-open'))
+                        .map(el => el.id)
+                        .filter(id => id);
+                    localStorage.setItem('hf_open_menus', JSON.stringify(openedMenus));
+                }, 100);
+            }
+        });
+    });
+
+    const current = normalizePath(window.location.pathname);
+    console.log('Current path:', current);
+
+    let foundActive = false;
+
+    function findAndActivateMatchingLink() {
+        const currentSegments = current.split('/').filter(Boolean);
+        
+        const strategies = [
+            (link) => normalizePath(link.getAttribute('href')) === current,
+            
+            (link) => {
+                const linkPath = normalizePath(link.getAttribute('href'));
+                return linkPath !== '/' && current.startsWith(linkPath + '/');
+            },
+            
+            (link) => {
+                const linkPath = normalizePath(link.getAttribute('href'));
+                const linkSegments = linkPath.split('/').filter(Boolean);
+                return linkSegments.length > 0 && 
+                    currentSegments.slice(0, linkSegments.length).join('/') === linkSegments.join('/');
+            }
+        ];
+        
+        for (let strategy of strategies) {
+            for (let link of allLinks) {
+                if (strategy(link)) {
+                    console.log('Match found with strategy:', strategy.name, link.textContent.trim());
+                    activateLink(link, false);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    foundActive = findAndActivateMatchingLink();
+
+    if (!foundActive) {
+        const currentSegments = current.split('/').filter(Boolean);
+        let bestMatch = null;
+        let maxMatches = 0;
+        
+        allLinks.forEach(link => {
+            const linkPath = normalizePath(link.getAttribute('href'));
+            const linkSegments = linkPath.split('/').filter(Boolean);
+            
+            const matches = linkSegments.filter(seg => currentSegments.includes(seg)).length;
+            if (matches > maxMatches && matches === linkSegments.length) {
+                maxMatches = matches;
+                bestMatch = link;
+            }
+        });
+        
+        if (bestMatch) {
+            console.log('Fallback match:', bestMatch.textContent.trim());
+            activateLink(bestMatch, false);
+            foundActive = true;
+        }
+    }
+
+    console.log('Auto-detect completed. Found active:', foundActive);
+});
+</script>
+  
