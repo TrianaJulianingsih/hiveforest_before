@@ -1,0 +1,10 @@
+<ul class="list-group striped-list hiveforest">
+    <li class="list-group-item hiveforest">
+        <h6 class="list-group hiveforest">Structures</h6>
+    </li>
+    <li class="list-group-item hiveforest">
+        <a href="{% url 'admin:cms_applicationlist_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Applications</a> |
+        <a href="{% url 'admin:cms_modulelist_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Modules</a> |
+        <a href="{% url 'admin:cms_menuitem_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Menus</a>
+    </li>
+</ul>

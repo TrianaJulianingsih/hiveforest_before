@@ -1,0 +1,177 @@
+{% extends 'main.html' %}
+{% load i18n static translation_tags %}
+
+{% block content %}
+{{ block.super }}
+{% get_translations 'stock_daily_distributor' as t %}
+
+{% if messages %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+  <script>
+    $(document).ready(function() {
+      {% for message in messages %}
+        toastr.success("{{ message|escapejs }}");
+      {% endfor %}
+    });
+  </script>
+{% endif %}
+<div class="card card-primary card-outline hiveforest pb-2">
+  <div class="card-header ui-sortable-handle">
+    <h1 class="card-title"><b>{{ t.page_title|default:'Stock Daily Distributor' }}</b></h1>
+    <div class="card-tools">
+      <ul class="nav nav-pills ml-auto">
+        <li class="nav-item text-muted">
+            Sync latest data:
+            {% if last_sync %}
+              <b>{{ last_sync|date:"d M Y H:i:s" }} WIB</b>
+            {% else %}
+              <span class="text-danger">Never synced</span>
+            {% endif %}
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card-body">
+      <table id="stock_daily_distributor_table" class="table table-striped table-bordered">
+        <thead>
+            <tr>
+              <th>{{ t.col_name|default:'Name' }}</th>
+              <th>{{ t.col_nm_prod|default:'Product Name' }}</th>
+              <th>{{ t.col_lot|default:'Lot' }}</th>
+              <th>{{ t.col_ed|default:'Expire Date' }}</th>
+              <th>{{ t.col_hna|default:'HNA' }}</th>
+              <th>{{ t.col_periode|default:'Periode' }}</th>
+              <th>{{ t.col_branch|default:'Branch' }}</th>
+              <th>{{ t.col_distributor|default:'Distributor' }}</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block datatable_js %}
+{{ block.super }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+$(document).ready(function() {
+  const table = $('#stock_daily_distributor_table').DataTable({
+    processing: true,
+    serverSide: true,
+    // ajax: "{% url 'sales:stock_daily_distributor_data' %}",
+    ajax: {
+      url: "{% url 'sales:stock_daily_distributor_data' %}",
+      type: "GET",
+      error: function(xhr, error, thrown) {
+        console.log("AJAX ERROR:");
+        console.log(xhr.status);
+        console.log(xhr.responseText);
+      }
+    },
+    pageLength: 25,
+    columns: [
+      { data: "name" },
+      { data: "nm_prod" },
+      { data: "lot" },
+      { data: "ed" },
+      { data: "hna" },
+      { data: "periode" },
+      { data: "branch" },
+      { data: "distributor" },
+      // { data: "action", orderable: false, searchable: false }
+    ],
+    "paging": true,
+    "searching": true,
+    "info": true,
+    "ordering": true,
+    "responsive": true,
+    "fixedHeader": true,
+    "autoWidth": false,
+    "pageLength": 25,
+    "order": [[0, "asc"]],
+    "lengthMenu": [[10, 25, 50, 100, 250, 500], [10, 25, 50, 100, 250, 500]],
+    "columnDefs": [
+      { "orderable": false, "targets": [7] },
+      { "className": "hv-centered", "targets": [7] }
+    ],
+    "buttons": [
+      { extend: 'csv', className: 'btn btn-sm btn-success', exportOptions: { columns: ':visible' } },
+      { extend: 'spacer', className: 'btn btn-sm btn-primary' },
+      { extend: 'excel', className: 'btn btn-sm btn-success', exportOptions: { columns: ':visible' } },
+      { extend: 'spacer', className: 'btn btn-sm btn-primary' },
+      { extend: 'colvis', className: 'btn btn-sm btn-primary', text: 'Columns' }
+    ],
+    "language": {
+      "paginate": {
+        "first": "First",
+        "last": "Last",
+        "previous": "Previous",
+        "next": "Next"
+      },
+      "buttons": {
+        "colvis": 'Columns'
+      },
+      "lengthMenu": "Show _MENU_ entries",
+      "emptyTable": "{{ t.no_data }}",
+      "zeroRecords": "{{ t.no_data }}"
+    },
+    "layout": {
+      "topStart": ['pageLength'],
+      "topEnd": ['buttons', 'search'],
+      "bottomStart": ['info'],
+      "bottomEnd": ['paging']
+    },
+  });
+
+  $('.column-filter').on('keyup change', function () {
+    const columnIndex = $(this).data('column');
+    const searchValue = $(this).val();
+    table.column(columnIndex).search(searchValue).draw();
+  });
+  
+  $('#reset-filters').on('click', function () {
+    $('.column-filter').val('');
+    table.columns().every(function () {
+      this.search('');
+    });
+    table.draw();
+  });
+  
+  $('table.dataTable thead').on('click', 'input, select', function (e) {
+    e.stopPropagation();
+  });
+});
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).on('click', '.btn-delete', function(e) {
+  e.preventDefault();
+
+  const form = $(this).closest('form');
+  const name = $(this).data('name');
+
+  Swal.fire({
+    title: '{{ t.confirm_title|default:"Confirmation" }}',
+    text: '{{ t.confirm_delete|default:"Are you sure you want to delete" }} ' + name + '?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: '{{ t.confirm_btn_delete|default:"Yes, Delete" }}',
+    cancelButtonText: '{{ t.btn_cancel|default:"Cancel" }}',
+    reverseButtons: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+      form.submit();
+    }
+  });
+});
+</script>
+{% endblock %}

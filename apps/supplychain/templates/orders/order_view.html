@@ -1,0 +1,125 @@
+{% extends "main.html" %}
+{% load i18n static %}
+{% block datatable_css %}
+    {{ block.super }}
+{% endblock %}
+{% block datatable_js %}
+    {{ block.super }}
+    <script src="{% static 'custom/js/change_list_datatable.js' %}"></script>
+{% endblock %}
+{% block content %}
+<div class="card card-primary card-outline hiveforest">
+    <div class="card-header">
+        <h3><b>View Order</b></h3>
+    </div> <!-- Card Header end -->        
+    <div class="card-body hiveforest">
+        <!-- Tabs Navigation -->
+        <ul class="nav nav-tabs" id="formTabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#tab1" role="tab">Order Info</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#tab2" role="tab">Products</a>
+            </li>
+        </ul>
+
+        <!-- Tabs Content -->
+        <div class="tab-content hiveforest">
+            <!-- Tab 1: Order Info -->
+            <div class="tab-pane fade show active" id="tab1" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="hv-form-group">
+                            <label>Distributor:</label>
+                            <p>{{ order.distributor }}</p>
+                        </div>
+                        <div class="hv-form-group">
+                            <label>Branch:</label>
+                            <p>{{ order.branch }}</p>
+                        </div>
+                        <div class="hv-form-group">
+                            <label>Order Type:</label>
+                            <p>{{ order.ordertype }}</p>
+                        </div>
+                        <div class="hv-form-group">
+                            <label>Order No.:</label>
+                            <p>{{ order.orderno }}</p>
+                        </div>
+                        <div class="hv-form-group">
+                            <label>Order Date:</label>
+                            <p>{{ order.orderdate }}</p>
+                        </div>
+                        <div class="hv-form-group">
+                            <label>Order Due:</label>
+                            <p>{{ order.orderdue }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="hv-form-group">
+                            <label>Description:</label>
+                            <p>{{ order.description }}</p>
+                        </div>
+                        <div class="hv-form-group">
+                            <label>Remark:</label>
+                            <p>{{ order.remark }}</p>
+                        </div>
+                        <div class="hv-form-group">
+                            <label>Lines:</label>
+                            <p>{{ order.lines|default:0 }}</p>
+                        </div>
+                        <div class="hv-form-group">
+                            <label>Amount:</label>
+                            <p>{{ order.sum_amount }}</p>
+                        </div>
+                        <div class="hv-form-group">
+                            <label>Progress:</label>
+                            <p>{{ order.progress }}</p>
+                        </div>
+                        <div class="hv-form-group">
+                            <label>Status:</label>
+                            <p>{{ order.status }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Products -->
+            <div class="tab-pane fade" id="tab2" role="tabpanel">
+                <table class="table table-bordered table-striped table-responsive display compact">
+                    <thead>
+                        <tr>
+                            <th>Line</th>
+                            <th>Group</th>
+                            <th>Item</th>
+                            <th>Qty</th>
+                            <th>UoM</th>
+                            <th>Price</th>
+                            <th>Amount</th>
+                            <th>Progress</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for detail in order_details %}
+                        <tr>
+                            <td class="hv-righted">{{ detail.orderline }}</td>
+                            <td class="hv-lefted">{{ detail.itemgroup }}</td>
+                            <td class="hv-lefted">{{ detail.item }}</td>
+                            <td class="hv-righted">{{ detail.qty }}</td>
+                            <td class="hv-lefted">{{ detail.uom }}</td>
+                            <td class="hv-righted">{{ detail.price|default:0|floatformat:"g" }}</td>
+                            <td class="hv-righted">{{ detail.amount|default:0|floatformat:"g" }}</td>
+                            <td class="hv-lefted">{{ detail.progress }}</td>
+                            <td class="hv-lefted">{{ detail.status }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>            
+    </div> <!-- Card Body end -->
+    <div class="card-footer">
+        <a href="{% url 'supplychain:order_list' %}" class="btn btn-secondary">Back to List</a>
+    </div> <!-- Card Footer end -->          
+</div>
+{% endblock %}

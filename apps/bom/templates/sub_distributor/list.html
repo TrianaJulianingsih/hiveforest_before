@@ -1,0 +1,261 @@
+{% extends "main.html" %}
+{% load i18n static translation_tags %}
+
+{% block content %}
+{{ block.super }}
+{% get_translations 'sub_distributor' as t %}
+<div class="card card-primary card-outline hiveforest pb-2">
+  <div class="card-header ui-sortable-handle">
+    <h1 class="card-title"><b>{{ t.page_title }}</b></h1>
+    <div class="card-tools">
+      <ul class="nav nav-pills ml-auto">
+        <li class="nav-item">
+          <a href="{% url 'bom:sub_distributor_add' %}" class="btn btn-sm btn-success">
+            <i class="fas fa-plus"></i> {{ t.btn_add }}
+          </a>
+          <button id="apply-filters" class="btn btn-sm btn-primary">{{ t.btn_filter }}</button>
+          <button id="reset-filters" class="btn btn-sm btn-secondary">{{ t.btn_reset }}</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <table id="subdist_table" class="table table-striped table-bordered">
+    <thead>
+      <tr>
+        <th class="hv-lefted">{{ t.col_name }}</th>
+        <th class="hv-lefted">{{ t.col_code }}</th>
+        <th class="hv-lefted">{{ t.col_shortname }}</th>
+        <th class="hv-lefted">{{ t.col_address }}</th>
+        <th class="hv-lefted">{{ t.col_station }}</th>
+        <th class="hv-lefted">{{ t.col_district }}</th>
+        <th class="hv-centered">{{ t.col_subdist }}</th>
+        <th class="hv-centered">{{ t.col_status }}</th>
+      </tr>
+      <tr>
+        <th><input type="text" class="form-control form-control-sm column-filter" data-column="0" placeholder="{{ t.search_name }}" /></th>
+        <th><input type="text" class="form-control form-control-sm column-filter" data-column="1" placeholder="{{ t.search_code }}" /></th>
+        <th><input type="text" class="form-control form-control-sm column-filter" data-column="2" placeholder="{{ t.search_name }}" /></th>
+        <th><input type="text" class="form-control form-control-sm column-filter" data-column="3" placeholder="{{ t.col_address }}" /></th>
+        <th><input type="text" class="form-control form-control-sm column-filter" data-column="4" placeholder="{{ t.col_station }}" /></th>
+        <th><input type="text" class="form-control form-control-sm column-filter" data-column="5" placeholder="{{ t.col_district }}" /></th>
+        <th></th>
+        <th>
+          <select class="form-control form-control-sm column-filter" data-column="7">
+            <option value="">{{ t.all_status }}</option>
+            <option value="Active">{{ t.status_active }}</option>
+            <option value="Inactive">{{ t.status_inactive }}</option>
+          </select>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in data %}
+      <tr>
+        <td class="hv-lefted">{{ c.name }}</td>
+        <td class="hv-lefted">{{ c.code|default:"-" }}</td>
+        <td class="hv-lefted">{{ c.shortname|default:"-" }}</td>
+        <td class="hv-lefted">
+          {% if c.latitude and c.longitude %}
+            <a href="https://www.google.com/maps?q={{ c.latitude }},{{ c.longitude }}" target="_blank" title="Open in Google Maps">
+              <i class="fas fa-map-marker-alt"></i>
+              {% if c.street %}
+                {{ c.street }}
+              {% else %}
+                {{ c.regency.name|default:"-" }} - {{ c.province.name|default:"-" }}
+              {% endif %}
+              {% if c.postcode %}, {{ c.postcode }}{% endif %}
+            </a>
+          {% else %}
+            {% if c.street %}
+              {{ c.street }}
+            {% else %}
+              {{ c.regency.name|default:"-" }} - {{ c.province.name|default:"-" }}
+            {% endif %}
+            {% if c.postcode %}, {{ c.postcode }}{% endif %}
+          {% endif %}
+        </td>
+        <td class="hv-lefted">{{ c.station.name|default:"-" }}</td>
+        <td class="hv-lefted">{{ c.district.name|default:"-" }}</td>
+        <td class="hv-centered">
+          <div class="custom-control custom-switch">
+            <input type="checkbox" 
+                   class="custom-control-input subdist-toggle" 
+                   id="subdist_{{ c.id }}" 
+                   data-customer-id="{{ c.id }}"
+                   {% if c.subdist == "Y" %}checked{% endif %}>
+            <label class="custom-control-label" for="subdist_{{ c.id }}">
+              <span class="badge {% if c.subdist == 'Y' %}badge-success{% else %}badge-secondary{% endif %}">
+                {% if c.subdist == "Y" %}Yes{% else %}No{% endif %}
+              </span>
+            </label>
+          </div>
+        </td>
+        <td class="hv-centered">
+          {% if c.status %}
+            <span class="badge badge-success">{{ t.status_active }}</span>
+          {% else %}
+            <span class="badge badge-secondary">{{ t.status_inactive }}</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="8" class="text-center">{{ t.no_data }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block datatable_js %}
+{{ block.super }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+$(document).ready(function() {
+  let table = $('#subdist_table').DataTable({
+    "paging": true,
+    "searching": true,
+    "info": true,
+    "ordering": true,
+    "responsive": true,
+    "fixedHeader": true,
+    "autoWidth": true,
+    "pageLength": 25,
+    "order": [[0, "asc"]],
+    "lengthMenu": [[10, 25, 50, 100, 250, 500], [10, 25, 50, 100, 250, 500]],
+    "buttons": [
+      { extend: 'csv', className: 'btn btn-sm btn-success', exportOptions: { columns: ':visible' } },
+      { extend: 'spacer', className: 'btn btn-sm btn-primary' },
+      { extend: 'excel', className: 'btn btn-sm btn-success', exportOptions: { columns: ':visible' } },
+      { extend: 'spacer', className: 'btn btn-sm btn-primary' },
+      { extend: 'colvis', className: 'btn btn-sm btn-primary', text: 'Columns' }
+    ],
+    "language": {
+      "paginate": {
+        "first": "First",
+        "last": "Last",
+        "previous": "Previous",
+        "next": "Next"
+      },
+      "buttons": {
+        "colvis": 'Columns'
+      },
+      "lengthMenu": "Show _MENU_ entries"
+    },
+    "layout": {
+      "topStart": ['pageLength'],
+      "topEnd": ['buttons', 'search'],
+      "bottomStart": ['info'],
+      "bottomEnd": ['paging']
+    },
+    "initComplete": function (settings, json) {
+      $('#subdist_table thead tr:eq(1) th')
+        .removeClass('dt-orderable dt-ordering-asc dt-ordering-desc')
+        .removeAttr('aria-sort')
+        .find('.dt-column-order').remove();
+      $('#subdist_table thead tr:eq(1) th .dt-column-title').each(function () {
+        $(this).contents().unwrap();
+      });
+    }
+  });
+
+  $('.column-filter').on('keyup change', function () {
+    const columnIndex = $(this).data('column');
+    const searchValue = $(this).val();
+    table.column(columnIndex).search(searchValue).draw();
+  });
+
+  $('#reset-filters').on('click', function () {
+    $('.column-filter').val('');
+    table.columns().every(function () {
+      this.search('');
+    });
+    table.draw();
+  });
+
+  $('table.dataTable thead').on('click', 'input, select', function (e) {
+    e.stopPropagation();
+  });
+
+  $('.subdist-toggle').on('change', function() {
+    const checkbox = $(this);
+    const customerId = checkbox.data('customer-id');
+    const isChecked = checkbox.is(':checked');
+    const newValue = isChecked ? 'Y' : 'N';
+    const badge = checkbox.siblings('label').find('.badge');
+    
+    if (!isChecked) {
+      Swal.fire({
+        title: '{{ t.confirm_title|default:"Confirmation" }}',
+        text: '{{ t.confirm_remove_subdist|default:"Are you sure you want to remove Sub-Distributor status?" }}',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '{{ t.btn_yes_remove|default:"Yes, Remove!" }}',
+        cancelButtonText: '{{ t.btn_cancel|default:"Cancel" }}',
+        reverseButtons: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+          updateSubdistStatus(checkbox, customerId, newValue, badge);
+        } else {
+          checkbox.prop('checked', true);
+        }
+      });
+    } else {
+      updateSubdistStatus(checkbox, customerId, newValue, badge);
+    }
+  });
+
+  function updateSubdistStatus(checkbox, customerId, newValue, badge) {
+    checkbox.prop('disabled', true);
+    
+    const url = `/{{ LANGUAGE_CODE }}/bom/customer-maintenance/sub-distributor/${customerId}/update-subdist/`;
+    const formData = new URLSearchParams({
+      'subdist': newValue,
+      'csrfmiddlewaretoken': '{{ csrf_token }}'
+    });
+    
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: formData,
+      credentials: 'same-origin'
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+          toastr.success(data.message);
+          
+          setTimeout(function() {
+            location.reload();
+          }, 1000);
+        } else {
+          checkbox.prop('checked', newValue === 'N');
+          toastr.error(data.message);
+          checkbox.prop('disabled', false);
+        }
+      })
+    .catch(error => {
+        checkbox.prop('checked', newValue === 'N');
+        toastr.error(`Error: ${error.message}`);
+        checkbox.prop('disabled', false);
+      });
+  }
+});
+</script>
+{% endblock %}

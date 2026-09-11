@@ -1,0 +1,186 @@
+<div id="filter-popover" class="hidden absolute left-0 top-full mt-2 w-[280px] bg-white border border-[#E1E4EA] rounded-[10px] dropdown-shadow z-30 overflow-hidden" data-filter-options-url="{% url 'crm:hcp_filter_options' %}">
+
+  <!-- Root panel -->
+  <div id="filter-panel-root" class="p-4">
+    <div class="flex items-center justify-between mb-3">
+      <span class="text-sm font-bold text-[#171a1f]">Filter By</span>
+      <a href="{% querystring specialization=None province=None page=None %}" class="text-xs font-medium text-[#636AE8] hover:underline">Reset</a>
+    </div>
+    <button type="button" class="filter-nav-row w-full flex items-center justify-between py-2.5 px-2 rounded-md hover:bg-gray-50" data-target="specialization">
+      <span class="text-sm text-[#323743]">Specialization</span>
+      <span class="flex items-center gap-2">
+        <span id="specialization-count" class="text-xs text-[#636AE8] font-semibold {% if not selected_specialities %}hidden{% endif %}">{{ selected_specialities|length }} selected</span>
+        <span class="text-[#9095a1]">&#8250;</span>
+      </span>
+    </button>
+    <button type="button" class="filter-nav-row w-full flex items-center justify-between py-2.5 px-2 rounded-md hover:bg-gray-50" data-target="province">
+      <span class="text-sm text-[#323743]">Province</span>
+      <span class="flex items-center gap-2">
+        <span id="province-count" class="text-xs text-[#636AE8] font-semibold {% if not selected_provinces %}hidden{% endif %}">{{ selected_provinces|length }} selected</span>
+        <span class="text-[#9095a1]">&#8250;</span>
+      </span>
+    </button>
+    <button type="submit" id="filter-confirm-btn" class="mt-3 w-full h-10 rounded-md bg-[#636AE8] text-white text-sm font-medium hover:bg-[#5259d6]">Confirm</button>
+  </div>
+
+  <!-- Specialization sub-panel -->
+  <div id="filter-panel-specialization" class="hidden p-4">
+    <div class="flex items-center justify-between mb-3">
+      <button type="button" class="filter-back flex items-center gap-1 text-sm font-bold text-[#171a1f]">
+        <span>&#8249;</span> Specialization
+      </button>
+      <a href="{% querystring specialization=None page=None %}" class="text-xs font-medium text-[#636AE8] hover:underline">Reset</a>
+    </div>
+    <input type="text" class="filter-search w-full h-9 px-3 mb-2 bg-[#f3f4f6] rounded-md text-sm border-none focus:outline-none focus:ring-2 focus:ring-[#636AE8]" placeholder="Search" data-list="specialization-options">
+    <div id="specialization-options" class="max-h-[220px] overflow-y-auto space-y-1">
+      {% for s in specialities %}
+      <label class="filter-option font-normal flex items-center justify-between py-1.5 px-2 rounded-md hover:bg-gray-50 cursor-pointer">
+        <span class="text-sm text-[#323743]">{{ s }}</span>
+        <input type="checkbox" name="specialization" value="{{ s }}" {% if s in selected_specialities %}checked{% endif %} class="w-4 h-4 rounded accent-[#636AE8]">
+      </label>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Province sub-panel -->
+  <div id="filter-panel-province" class="hidden p-4">
+    <div class="flex items-center justify-between mb-3">
+      <button type="button" class="filter-back flex items-center gap-1 text-sm font-bold text-[#171a1f]">
+        <span>&#8249;</span> Province
+      </button>
+      <a href="{% querystring province=None page=None %}" class="text-xs font-medium text-[#636AE8] hover:underline">Reset</a>
+    </div>
+    <input type="text" class="filter-search w-full h-9 px-3 mb-2 bg-[#f3f4f6] rounded-md text-sm border-none focus:outline-none focus:ring-2 focus:ring-[#636AE8]" placeholder="Search" data-list="province-options">
+    <div id="province-options" class="max-h-[220px] overflow-y-auto space-y-1">
+      {% for p in provinces %}
+      <label class="filter-option font-normal flex items-center justify-between py-1.5 px-2 rounded-md hover:bg-gray-50 cursor-pointer">
+        <span class="text-sm text-[#323743]">{{ p }}</span>
+        <input type="checkbox" name="province" value="{{ p }}" {% if p in selected_provinces %}checked{% endif %} class="w-4 h-4 rounded accent-[#636AE8]">
+      </label>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var root = document.getElementById('filter-root');
+  var toggleBtn = document.getElementById('filter-toggle-btn');
+  var popover = document.getElementById('filter-popover');
+
+  toggleBtn.addEventListener('click', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    popover.classList.toggle('hidden');
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!root.contains(e.target)) {
+      popover.classList.add('hidden');
+    }
+  });
+
+  document.querySelectorAll('.filter-nav-row').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.getElementById('filter-panel-root').classList.add('hidden');
+      document.getElementById('filter-panel-' + btn.dataset.target).classList.remove('hidden');
+    });
+  });
+
+  document.querySelectorAll('.filter-back').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      btn.closest('[id^="filter-panel-"]').classList.add('hidden');
+      document.getElementById('filter-panel-root').classList.remove('hidden');
+    });
+  });
+
+  function reorderOptions(containerId) {
+    var container = document.getElementById(containerId);
+    var items = Array.prototype.slice.call(container.querySelectorAll('.filter-option'));
+    items.sort(function (a, b) {
+      var aChecked = a.querySelector('input[type=checkbox]').checked;
+      var bChecked = b.querySelector('input[type=checkbox]').checked;
+      if (aChecked === bChecked) { return 0; }
+      return aChecked ? -1 : 1;
+    });
+    items.forEach(function (item) { container.appendChild(item); });
+  }
+
+  function updateCount(groupKey) {
+    var count = document.querySelectorAll('#' + groupKey + '-options input[type=checkbox]:checked').length;
+    var badge = document.getElementById(groupKey + '-count');
+    if (count > 0) {
+      badge.textContent = count + ' selected';
+      badge.classList.remove('hidden');
+    } else {
+      badge.classList.add('hidden');
+    }
+  }
+
+  var groupKeys = ['specialization', 'province'];
+  // null = no server-side narrowing applied yet for this group (show everything
+  // that matches the search box). Populated once the live-narrowing fetch below
+  // returns, so unrelated boxes never disappear just because a fetch is in flight.
+  var allowedValues = { specialization: null, province: null };
+  var optionsUrl = document.getElementById('filter-popover').dataset.filterOptionsUrl;
+
+  function updateVisibility(groupKey) {
+    var listId = groupKey + '-options';
+    var searchInput = document.querySelector('.filter-search[data-list="' + listId + '"]');
+    var term = searchInput ? searchInput.value.toLowerCase() : '';
+    var allowed = allowedValues[groupKey];
+    document.getElementById(listId).querySelectorAll('.filter-option').forEach(function (label) {
+      var checkbox = label.querySelector('input[type=checkbox]');
+      var matchesSearch = !term || label.textContent.toLowerCase().indexOf(term) !== -1;
+      // Never hide a box the user has already checked, even if it's no longer
+      // reachable under the other group's current selection - only Reset (or
+      // unchecking it) should make a selection disappear on its own.
+      var isAvailable = !allowed || checkbox.checked || allowed.indexOf(checkbox.value) !== -1;
+      // Tailwind's "important" build flag marks every utility (including this
+      // label's own "flex" class) !important, which silently beats a plain
+      // inline style.display - setProperty(..., 'important') is required for
+      // the toggle to actually take effect.
+      label.style.setProperty('display', matchesSearch && isAvailable ? 'flex' : 'none', 'important');
+    });
+  }
+
+  function refreshNarrowing() {
+    if (!optionsUrl) { return; }
+    var params = new URLSearchParams();
+    groupKeys.forEach(function (groupKey) {
+      document.querySelectorAll('#' + groupKey + '-options input[type=checkbox]:checked').forEach(function (cb) {
+        params.append(groupKey, cb.value);
+      });
+    });
+    fetch(optionsUrl + '?' + params.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        allowedValues.specialization = data.specialities;
+        allowedValues.province = data.provinces;
+        groupKeys.forEach(updateVisibility);
+      })
+      .catch(function () { /* leave options as-is if the request fails */ });
+  }
+
+  groupKeys.forEach(function (groupKey) {
+    var listId = groupKey + '-options';
+    reorderOptions(listId);
+    updateCount(groupKey);
+    document.getElementById(listId).querySelectorAll('input[type=checkbox]').forEach(function (cb) {
+      cb.addEventListener('change', function () {
+        reorderOptions(listId);
+        updateCount(groupKey);
+        refreshNarrowing();
+      });
+    });
+  });
+
+  document.querySelectorAll('.filter-search').forEach(function (input) {
+    input.addEventListener('input', function () {
+      var groupKey = input.dataset.list.replace('-options', '');
+      updateVisibility(groupKey);
+    });
+  });
+})();
+</script>

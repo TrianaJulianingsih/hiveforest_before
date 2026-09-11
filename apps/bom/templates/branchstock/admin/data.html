@@ -1,0 +1,499 @@
+{% extends "admin/base_site.html" %}
+{% load static custom_filters %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/bootstrap-multiselect/bootstrap-multiselect.css' %}">
+<style>
+  #branchStockFilters .multiselect-container>li>a>label,
+  #branchStockFilters .multiselect-container>li.multiselect-group label {
+    padding: .25rem .75rem;
+  }
+
+  #branchStockFilters .multiselect button.multiselect,
+  #branchStockFilters .multiselect-control {
+    color: #212529;
+    background-color: #ffffff;
+    border-color: #adb5bd;
+  }
+
+  #branchStockFilters .multiselect button.multiselect:hover,
+  #branchStockFilters .multiselect-control:hover {
+    background-color: #f8f9fa;
+    color: #212529;
+  }
+
+  #branchStockFilters .multiselect-selected-text {
+    color: inherit;
+  }
+
+  #branchStockFilters .multiselect {
+    min-width: 200px;
+  }
+
+  #branchStockFilters .btn-branch-action + .btn-branch-action {
+    margin-left: 0.75rem;
+  }
+</style>
+{% endblock %}
+
+{% block content_title %}{% endblock %}
+
+{% block content %}
+<div class="card hiveforest">
+  <div class="card-header d-flex flex-column flex-md-row align-items-md-center justify-content-md-between gap-3">
+    <form method="post" class="row g-2 align-items-end" id="branchStockFilters">
+      {% csrf_token %}
+      <div class="col-auto">
+        <label for="branch_id" class="form-label mb-1">Branch</label>
+        <select id="branch_id" name="branch_id[]" class="form-select form-select-sm" multiple>
+          {% for option in branch_options %}
+          <option value="{{ option.id }}" {% if option.selected %}selected{% endif %}>{{ option.label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <label for="team_id" class="form-label mb-1">Team</label>
+        <select id="team_id" name="team_id[]" class="form-select form-select-sm" multiple {% if not team_options %}disabled{% endif %}>
+          {% for option in team_options %}
+          <option value="{{ option.id }}" {% if option.selected %}selected{% endif %}>{{ option.label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <label for="product_name" class="form-label mb-1">Product</label>
+        <select id="product_name" name="product_name[]" class="form-select form-select-sm" multiple {% if not product_options %}disabled{% endif %}>
+          {% for option in product_options %}
+          <option value="{{ option.name }}" {% if option.selected %}selected{% endif %}>{{ option.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <label for="start_date" class="form-label mb-1">Start</label>
+        <input id="start_date" name="start_date" type="date" class="form-control form-control-sm" value="{{ start_date|date:'Y-m-d' }}">
+      </div>
+      <div class="col-auto">
+        <label for="end_date" class="form-label mb-1">End</label>
+        <input id="end_date" name="end_date" type="date" class="form-control form-control-sm" value="{{ end_date|date:'Y-m-d' }}">
+      </div>
+      <div class="col-auto mt-1 mt-md-0 d-flex align-items-center gap-2">
+        <button type="submit" class="btn btn-primary btn-sm btn-branch-action">Apply</button>
+        <button type="submit"
+                class="btn btn-success btn-sm buttons-csv buttons-html5 btn-branch-action"
+                name="export"
+                value="excel">
+          Export Excel
+        </button>
+      </div>
+    </form>
+  </div>
+  <div class="card-body table-responsive">
+    {% if filters_applied and date_columns %}
+    <table class="table table-bordered table-striped table-sm align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th scope="col">Branch</th>
+          <th scope="col">Team</th>
+          <th scope="col">Product</th>
+          {% for day in date_columns %}
+          <th scope="col" class="text-end">{{ day|date:"d M Y" }}</th>
+          {% endfor %}
+          <th scope="col" class="text-center">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for branch in branches %}
+          {% for team in branch.teams %}
+            {% for product in team.products %}
+            <tr>
+              <td>{{ branch.branch_name|default:branch.branch_label }}</td>
+              <td>{{ team.team_name|default:team.team_label }}</td>
+              <td>{{ product.product_name }}</td>
+              {% for value in product.value_list %}
+              <td class="text-end">{{ value|default:0 }}</td>
+              {% endfor %}
+              <td class="text-center">
+                {% if product.record_id %}
+                <a href="{% url 'admin:supplychain_branchstock_change' product.record_id %}" 
+                   class="btn btn-sm btn-outline-primary" 
+                   title="Edit">
+                  <i class="fas fa-edit"></i>
+                </a>
+                {% else %}
+                <span class="text-muted">-</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+            <tr class="table-secondary fw-semibold">
+              <td>&nbsp;</td>
+              <td><b>{{ team.team_name|default:team.team_label }} Total</b></td>
+              <td>-</td>
+              {% for value in team.totals_list %}
+              <td class="text-end">{{ value|default:0 }}</td>
+              {% endfor %}
+              <td class="text-center">-</td>
+            </tr>
+          {% endfor %}
+          <tr class="table-primary fw-semibold">
+            <td><b>{{ branch.branch_name|default:branch.branch_label }} Total</b></td>
+            <td>&nbsp;</td>
+            <td>-</td>
+            {% for value in branch.team_totals_list %}
+            <td class="text-end">{{ value|default:0 }}</td>
+            {% endfor %}
+            <td class="text-center">-</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot class="table-warning fw-semibold">
+        <tr>
+          <td><b>Grand Total</b></td>
+          <td>-</td>
+          <td>-</td>
+          {% for value in grand_totals_list %}
+          <td class="text-end">{{ value|default:0 }}</td>
+          {% endfor %}
+          <td class="text-center">-</td>
+        </tr>
+      </tfoot>
+    </table>
+    {% elif filters_applied %}
+    <div class="alert alert-info mb-0">Tidak ada data Branch Stock pada rentang dan filter yang dipilih.</div>
+    {% else %}
+    <div class="alert alert-secondary mb-0">Silakan pilih filter untuk menampilkan data Branch Stock.</div>
+    {% endif %}
+  </div>
+</div>
+<script src="{% static 'vendor/bootstrap-multiselect/bootstrap-multiselect.min.js' %}"></script>
+<script>
+  (function () {
+    const $ = window.jQuery || (window.django && window.django.jQuery) || null
+    if (!$) {
+      return
+    }
+
+    let graph = {}
+    try {
+      graph = JSON.parse('{{ filter_graph_json|default:"{}"|escapejs }}') || {}
+    } catch (error) {
+      graph = {}
+    }
+
+    const pluginReady = Boolean($.fn && typeof $.fn.multiselect === 'function')
+
+    const $branch = $('#branch_id')
+    const $team = $('#team_id')
+    const $product = $('#product_name')
+
+    if (!$branch.length || !$team.length || !$product.length) {
+      return
+    }
+
+    const buildButtonSummary = (options, select, placeholder, allText) => {
+      if (!options || options.length === 0) {
+        return placeholder
+      }
+
+      const totalOptions = $('option', select).length
+      if (totalOptions && options.length === totalOptions) {
+        return allText
+      }
+
+      const labels = []
+      options.each(function () {
+        const text = $(this).text()
+        if (text) {
+          labels.push(text)
+        }
+      })
+
+      if (labels.length <= 2) {
+        return labels.join(', ') || placeholder
+      }
+
+      const visible = labels.slice(0, 2).join(', ')
+      const remaining = labels.length - 2
+      return visible + ' +' + remaining
+    }
+
+    const buildButtonTitle = (options, placeholder) => {
+      if (!options || options.length === 0) {
+        return placeholder
+      }
+      const labels = []
+      options.each(function () {
+        const text = $(this).text()
+        if (text) {
+          labels.push(text)
+        }
+      })
+      return labels.join(', ') || placeholder
+    }
+
+    const attachManualFilter = ($el) => {
+      if (!pluginReady) {
+        return
+      }
+      const instance = $el.data('multiselect')
+      if (!instance || !instance.$filter || !instance.$ul) {
+        return
+      }
+      const $filterInput = instance.$filter.find('input')
+      if (!$filterInput.length) {
+        return
+      }
+
+      const applyFilter = () => {
+        const term = ($filterInput.val() || '').toString().toLowerCase().trim()
+        const $items = instance.$ul.find('li').filter(function () {
+          const $li = $(this)
+          return !$li.hasClass('multiselect-item') && !$li.hasClass('multiselect-group')
+        })
+
+        if (!term) {
+          $items.show()
+          instance.$ul.find('li.multiselect-none').remove()
+          instance.$ul.find('li.multiselect-group').show()
+          instance.$ul.find('li.multiselect-all').show()
+          return
+        }
+
+        let visibleCount = 0
+        $items.each(function () {
+          const $li = $(this)
+          const text = $li.text().toLowerCase()
+          const match = text.indexOf(term) !== -1
+          $li.toggle(match)
+          if (match) {
+            visibleCount += 1
+          }
+        })
+
+        instance.$ul.find('li.multiselect-group').each(function () {
+          const $group = $(this)
+          const groupVisible = $group.nextUntil('.multiselect-group, .multiselect-all').filter(':visible').length > 0
+          $group.toggle(groupVisible)
+        })
+
+        const selectAllVisible = instance.$ul.find('li.multiselect-all').nextAll('li:visible').length > 0
+        instance.$ul.find('li.multiselect-all').toggle(selectAllVisible)
+
+        instance.$ul.find('li.multiselect-none').remove()
+        if (visibleCount === 0) {
+          instance.$ul.append('<li class="multiselect-none text-muted px-3 py-1">Tidak ada hasil</li>')
+        }
+      }
+
+      $filterInput.off('input.hfMultiselectFilter keyup.hfMultiselectFilter')
+      $filterInput.on('input.hfMultiselectFilter keyup.hfMultiselectFilter', applyFilter)
+    }
+
+    const initMultiselect = ($el, placeholder, allText, width) => {
+      if (!pluginReady) {
+        return
+      }
+      $el.multiselect({
+        includeSelectAllOption: true,
+        enableFiltering: true,
+        enableCaseInsensitiveFiltering: true,
+        filterPlaceholder: 'Cari...',
+        buttonClass: 'btn btn-sm text-start multiselect-control',
+        buttonWidth: width,
+        numberDisplayed: 1,
+        maxHeight: 320,
+        nonSelectedText: placeholder,
+        allSelectedText: allText,
+        buttonText: function (options, select) {
+          return buildButtonSummary(options, select, placeholder, allText)
+        },
+        buttonTitle: function (options, select) {
+          return buildButtonTitle(options, placeholder)
+        },
+      })
+      attachManualFilter($el)
+    }
+
+    initMultiselect($branch, 'Pilih Branch', 'Semua Branch', '220px')
+    initMultiselect($team, 'Semua Team', 'Semua Team', '200px')
+    initMultiselect($product, 'Semua Produk', 'Semua Produk', '220px')
+
+    const setDisabled = ($el, disabled) => {
+      $el.prop('disabled', disabled)
+      if (pluginReady) {
+        if (disabled) {
+          $el.multiselect('disable')
+          $el.multiselect('deselectAll', false)
+        } else {
+          $el.multiselect('enable')
+        }
+        $el.multiselect('updateButtonText')
+      }
+    }
+
+    const getValues = ($el) => {
+      const selected = $el.val()
+      if (!selected) {
+        return []
+      }
+      return Array.isArray(selected) ? selected : [selected]
+    }
+
+    const updateOptions = ($el, entries) => {
+      const previous = new Set(getValues($el))
+      $el.empty()
+      entries.forEach(({ value, label }) => {
+        const option = document.createElement('option')
+        option.value = value
+        option.textContent = label
+        if (previous.has(value)) {
+          option.selected = true
+        }
+        $el.append(option)
+      })
+
+      if (pluginReady) {
+        $el.multiselect('rebuild')
+        attachManualFilter($el)
+      }
+
+      if (!entries.length) {
+        setDisabled($el, true)
+        return []
+      }
+
+      const retained = entries
+        .map((entry) => entry.value)
+        .filter((value) => previous.has(value))
+
+      if (pluginReady) {
+        if (retained.length) {
+          $el.multiselect('deselectAll', false)
+          $el.multiselect('select', retained)
+        } else {
+          $el.multiselect('deselectAll', false)
+        }
+        $el.multiselect('updateButtonText')
+      } else {
+        $el.val(retained)
+      }
+
+      setDisabled($el, false)
+      return retained
+    }
+
+    const collectTeams = (branchIds) => {
+      const teamMap = new Map()
+      branchIds.forEach((branchId) => {
+        const branchData = graph[branchId]
+        if (!branchData) {
+          return
+        }
+        Object.entries(branchData.teams || {}).forEach(([teamId, teamData]) => {
+          if (!teamMap.has(teamId)) {
+            teamMap.set(teamId, teamData.label || teamId)
+          }
+        })
+      })
+      return Array.from(teamMap.entries())
+        .map(([value, label]) => ({ value, label }))
+        .sort((a, b) => a.label.localeCompare(b.label))
+    }
+
+    const collectProducts = (branchIds, teamIds) => {
+      const productSet = new Set()
+      const teamSet = new Set(teamIds)
+      branchIds.forEach((branchId) => {
+        const branchData = graph[branchId]
+        if (!branchData) {
+          return
+        }
+        const teams = branchData.teams || {}
+        if (teamSet.size) {
+          teamSet.forEach((teamId) => {
+            const teamData = teams[teamId]
+            if (!teamData) {
+              return
+            }
+            (teamData.products || []).forEach((productName) => {
+              productSet.add(productName)
+            })
+          })
+        } else {
+          Object.values(teams).forEach((teamData) => {
+            (teamData.products || []).forEach((productName) => {
+              productSet.add(productName)
+            })
+          })
+        }
+      })
+      return Array.from(productSet)
+        .sort((a, b) => a.localeCompare(b))
+        .map((name) => ({ value: name, label: name }))
+    }
+
+    let suppress = false
+    const withSuppressed = (fn) => {
+      if (suppress) {
+        fn()
+        return
+      }
+      suppress = true
+      try {
+        fn()
+      } finally {
+        suppress = false
+      }
+    }
+
+    const refreshProducts = (branchesOverride, teamsOverride) => {
+      const branches = branchesOverride && branchesOverride.length
+        ? branchesOverride
+        : getValues($branch)
+      if (!branches.length) {
+        updateOptions($product, [])
+        return
+      }
+      const teamIds = teamsOverride && teamsOverride.length
+        ? teamsOverride
+        : getValues($team)
+      const productEntries = collectProducts(branches, teamIds)
+      updateOptions($product, productEntries)
+    }
+
+    const refreshTeams = () => {
+      const branches = getValues($branch)
+      if (!branches.length) {
+        updateOptions($team, [])
+        updateOptions($product, [])
+        return
+      }
+      const teamEntries = collectTeams(branches)
+      const retained = updateOptions($team, teamEntries)
+      refreshProducts(branches, retained)
+    }
+
+    withSuppressed(() => {
+      if (!$team.children().length) {
+        setDisabled($team, true)
+      }
+      if (!$product.children().length) {
+        setDisabled($product, true)
+      }
+      refreshTeams()
+    })
+
+    $branch.on('change', () => {
+      withSuppressed(() => {
+        refreshTeams()
+      })
+    })
+
+    $team.on('change', () => {
+      withSuppressed(() => {
+        refreshProducts()
+      })
+    })
+  })()
+</script>
+{% endblock %}

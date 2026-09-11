@@ -1,0 +1,15 @@
+.dual-list {
+    display: flex;
+    gap: 10px;
+}
+
+.dual-list select {
+    width: 200px;
+    height: 300px;
+    border: 1px solid #ccc;
+}
+
+.dual-list button {
+    margin: 10px 0;
+    display: block;
+}

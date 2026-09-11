@@ -1,0 +1,609 @@
+{% extends "main.html" %}
+{% load static translation_tags %}
+
+{% block extra_head %}
+{{ block.super }}
+<!-- Tailwind CSS v4. AdminLTE/Bootstrap's plain (unlayered) CSS otherwise beats Tailwind's
+     own utilities on shared tags like <a> regardless of specificity, since Tailwind wraps
+     its utilities in a CSS cascade layer and unlayered rules always win over layered ones. -->
+<script src="{% static 'vendor/tailwindcss/tailwindcss.js' %}"></script>
+<style type="text/tailwindcss">
+  @import "tailwindcss" important;
+</style>
+
+<!-- The page already shows its own heading below the breadcrumb bar, so hide
+     main.html's low-contrast duplicate subtitle there for this page only. -->
+<style>
+  .content-header small.d-block {
+    display: none !important;
+  }
+</style>
+
+<!-- Fonts -->
+<link href="{% static 'vendor/fonts/fonts.css' %}" type="text/css" rel="stylesheet">
+
+<style>
+  .hospital-profile-page {
+    font-family: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-smoothing: grayscale;
+    color: #1e293b;
+  }
+
+  .hospital-profile-page button,
+  .hospital-profile-page input:not([type="checkbox"]):not([type="radio"]),
+  .hospital-profile-page select,
+  .hospital-profile-page textarea {
+    box-sizing: border-box;
+    border: 0 solid transparent;
+    -webkit-appearance: none;
+    appearance: none;
+    font: inherit;
+  }
+
+  .hospital-profile-page button {
+    cursor: pointer;
+  }
+
+  .hospital-profile-page p {
+    margin: 0;
+  }
+
+  .hospital-profile-page table {
+    border-collapse: collapse;
+  }
+
+  .hospital-profile-page img,
+  .hospital-profile-page svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  .hospital-profile-page h1, .hospital-profile-page h2, .hospital-profile-page h3, .hospital-profile-page h4, .hospital-profile-page h5, .hospital-profile-page h6 {
+    font-family: "Archivo", ui-sans-serif, system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #0f172a;
+  }
+
+  .hospital-profile-page .custom-shadow {
+    box-shadow: 0px 0px 2px 0px #171a1f1f, 0px 4px 9px 0px #171a1f1c;
+  }
+
+  .hospital-profile-page .table-header-tint {
+    background-color: #e5e5ff;
+    color: #171a1f;
+    font-family: "Archivo", sans-serif;
+    font-weight: 600;
+  }
+
+  .hospital-profile-page .badge-customer {
+    background-color: #e7f9ee;
+    color: #1a9950;
+  }
+
+  .hospital-profile-page .badge-not-customer {
+    background-color: #f3f4f6;
+    color: #6b7280;
+  }
+
+  .hospital-profile-page .badge-info {
+    background-color: #f2f2fd;
+    color: #636AE8;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+{{ block.super }}
+{% get_translations 'hospital_profile' as t %}
+
+<div class="hospital-profile-page pt-6 pb-6">
+
+  <div class="relative overflow-hidden bg-white rounded-xl border border-[#eceef1] shadow-sm p-6 pb-20">
+
+  <div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-bold text-[#171a1f]">{{ t.page_title|default:'Hospitals' }}</h1>
+    <a id="back-link" href="{{ back_url }}" class="flex items-center gap-2 h-10 px-4 bg-[#636AE8] hover:bg-[#5259d6] text-white text-sm font-medium rounded-md">
+      <i class="fas fa-arrow-left" aria-hidden="true"></i>
+      <span>{{ t.btn_back|default:'Back' }}</span>
+    </a>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-8">
+
+    <!-- Left Sidebar Column -->
+    <aside class="flex flex-col gap-8 min-w-0">
+
+      <!-- Hospital Profile Card -->
+      <section class="bg-white rounded-[16px] custom-shadow overflow-hidden border border-[#f3f4f6]">
+        <div class="relative h-[151px] bg-[#f2f2fd]">
+          <div class="absolute -top-[55px] -left-[34px] w-[95px] h-[95px] bg-[#ced0f8]/40 rounded-full"></div>
+          <div class="absolute top-3 left-3 z-10">
+            {% if hospital.customer_id %}
+            <span class="badge-customer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap">
+              <i class="fas fa-check text-[10px]" aria-hidden="true"></i>
+              Customer
+            </span>
+            {% else %}
+            <span class="badge-not-customer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap">
+              <i class="fas fa-times text-[10px]" aria-hidden="true"></i>
+              Not a Customer
+            </span>
+            {% endif %}
+          </div>
+          <div class="absolute left-1/2 -bottom-[70px] -translate-x-1/2">
+            <div class="w-[140px] h-[140px] bg-[#636AE8] rounded-full flex items-center justify-center border-4 border-white">
+              <i class="fas fa-hospital text-white" style="font-size: 56px;" aria-hidden="true"></i>
+            </div>
+          </div>
+        </div>
+        <div class="pt-[85px] pb-8 px-6 text-center">
+          <h2 class="text-[20px] font-bold text-[#636AE8] mb-1">{{ hospital.display_name }}</h2>
+          <p class="text-[14px] text-[#171a1f] mb-1">{{ t.label_director|default:'Director' }}: {{ hospital.raw_director|default:"-" }}</p>
+          <p class="text-[14px] text-[#171a1f]">{{ t.label_phone|default:'Phone' }}: {{ hospital.raw_phone|default:"-" }}</p>
+        </div>
+      </section>
+
+      <!-- About Section -->
+      <section class="bg-white rounded-[10px] custom-shadow border border-[#f3f4f6] p-8">
+        <h2 class="text-[20px] font-bold text-[#171a1f] mb-6">About The Hospital</h2>
+        <div class="flex flex-col gap-3">
+          <span class="badge-info w-full flex items-center gap-2.5 px-4 py-3 rounded-[10px] text-sm font-medium">
+            <i class="fas fa-landmark" aria-hidden="true"></i>
+            {{ hospital.ownership.name|default:hospital.raw_ownership|default:"-" }}
+          </span>
+          <span class="badge-info w-full flex items-center gap-2.5 px-4 py-3 rounded-[10px] text-sm font-medium">
+            <i class="fas fa-shield-alt" aria-hidden="true"></i>
+            {{ hospital.raw_blustat|default:"-" }}
+          </span>
+        </div>
+      </section>
+    </aside>
+
+    <!-- Main Content Column -->
+    <div class="flex flex-col gap-8 min-w-0">
+
+      <!-- Search Bar -->
+      <form method="get" action="{% url 'crm:hospital_list' %}" class="w-full">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+            <img src="{% static 'custom/crm/hospital_profile/assets/IMG_2.svg' %}" alt="Search" class="w-4 h-4 opacity-40">
+          </div>
+          <input type="text" name="q" placeholder="{{ t.search_placeholder|default:'Search Hospital' }}" autocomplete="off" class="w-full h-11 pl-10 pr-4 bg-white border border-[#dee1e6] rounded-md text-sm text-[#171a1f] outline-none focus:ring-2 focus:ring-[#636AE8]/20 placeholder:text-[#bdc1ca]">
+        </div>
+      </form>
+
+      <!-- Main Dashboard Panel -->
+      <section class="bg-white rounded-[10px] custom-shadow border border-[#f3f4f6] p-8 grid grid-cols-1 xl:grid-cols-[4fr_3fr] gap-8">
+
+        <!-- Left Side: Location, Doctors, Bed Count, Services -->
+        <div class="flex flex-col gap-6 min-w-0">
+
+          <!-- Hospital Location -->
+          <div>
+            <div class="mb-6">
+              <h2 class="text-[20px] font-bold text-[#171a1f]">{{ t.section_hospital_location|default:'Hospital Location' }}</h2>
+              <p class="text-[14px] text-[#171a1f]">
+                {{ hospital.raw_address|default:"-" }}
+              </p>
+            </div>
+            {% if hospital.map_search_query %}
+            <div class="rounded-[6px] custom-shadow border border-[#dee1e6] overflow-hidden" style="height: 260px; width: 100%;">
+              <iframe
+                src="https://maps.google.com/maps?q={{ hospital.map_search_query|urlencode }}&output=embed"
+                style="border: 0; width: 100%; height: 100%;"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+              ></iframe>
+            </div>
+            {% endif %}
+          </div>
+
+          <hr class="border-t-[3px] border-[#f3f4f6]">
+
+          <!-- Doctors Table -->
+          <div>
+            <div data-client-table>
+              <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+                <h2 class="text-[20px] font-bold text-[#171a1f]">{{ t.section_doctors|default:'Doctors' }}</h2>
+                {% if doctors %}
+                {% include "html_dashboard/client_table_entries.html" with filter_column=3 filter_label=t.filter_label_specialties|default:"Specialties" %}
+                {% endif %}
+              </div>
+              <div class="rounded-[6px] custom-shadow border border-[#dee1e6] overflow-x-auto">
+                <table class="w-full min-w-[620px] text-center text-[14px] table-fixed">
+                  <thead class="table-header-tint">
+                    <tr class="h-[55px]">
+                      <th class="w-[7%] border-r border-[#dee1e6] whitespace-normal">{{ t.col_no|default:'NO' }}</th>
+                      <th class="w-[25%] border-r border-[#dee1e6] whitespace-normal">{{ t.col_name|default:'NAME' }}</th>
+                      <th class="w-[16%] border-r border-[#dee1e6] whitespace-normal">{{ t.col_license|default:'LICENSE' }}</th>
+                      <th class="w-[32%] border-r border-[#dee1e6] whitespace-normal">{{ t.col_specialties|default:'SPECIALTIES' }}</th>
+                      <th class="w-[20%] whitespace-normal">{{ t.col_start_date|default:'START DATE' }}</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-[#171a1f]">
+                    {% for doctor in doctors %}
+                    <tr data-row class="h-[56px] border-t border-[#dee1e6] {% cycle '' 'bg-[#fafafb]' %}">
+                      <td class="border-r border-[#dee1e6] whitespace-normal break-words">{{ forloop.counter }}</td>
+                      <td class="border-r border-[#dee1e6] whitespace-normal break-words">
+                        <a href="{% url 'crm:hcp_profile' doctor.pk %}" class="text-[#636AE8] hover:underline">{{ doctor.name }}</a>
+                      </td>
+                      <td class="border-r border-[#dee1e6] whitespace-normal break-words">{{ doctor.license|default:"-" }}</td>
+                      <td class="border-r border-[#dee1e6] whitespace-normal break-words">{{ doctor.specialities_display }}</td>
+                      <td class="whitespace-normal break-words">{{ doctor.start_period }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr class="border-t border-[#dee1e6]">
+                      <td class="py-3 text-[#9095a1]" colspan="5">{{ t.empty_doctors|default:'No doctors linked to this hospital.' }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              {% if doctors %}
+              {% include "html_dashboard/client_table_pagination.html" %}
+              {% endif %}
+            </div>
+          </div>
+
+          <hr class="border-t-[3px] border-[#f3f4f6]">
+
+          <!-- Bed Count Table -->
+          <div>
+            <div data-client-table>
+              <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+                <h2 class="text-[20px] font-bold text-[#171a1f]">{{ t.section_bed_count|default:'Bed Count' }}</h2>
+                {% if beds %}
+                {% include "html_dashboard/client_table_entries.html" with filter_column=1 filter_label=t.filter_label_class|default:"Class" %}
+                {% endif %}
+              </div>
+              <div class="rounded-[6px] custom-shadow border border-[#dee1e6] overflow-x-auto">
+                <table class="w-full min-w-[320px] text-center text-[14px] table-fixed">
+                  <thead class="table-header-tint">
+                    <tr class="h-[54px]">
+                      <th class="w-[15%] border-r border-[#dee1e6] whitespace-normal">{{ t.col_no|default:'NO' }}</th>
+                      <th class="w-[60%] border-r border-[#dee1e6] whitespace-normal">{{ t.col_class|default:'CLASS' }}</th>
+                      <th class="w-[25%] whitespace-normal">{{ t.col_count|default:'COUNT' }}</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-[#171a1f]">
+                    {% for bed in beds %}
+                    <tr data-row class="h-[56px] border-t border-[#dee1e6] {% cycle '' 'bg-[#fafafb]' %}">
+                      <td class="border-r border-[#dee1e6] whitespace-normal break-words">{{ forloop.counter }}</td>
+                      <td class="border-r border-[#dee1e6] whitespace-normal break-words">{{ bed.raw_bedclass|default:"-" }}</td>
+                      <td class="whitespace-normal break-words">{{ bed.raw_beds|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr class="border-t border-[#dee1e6]">
+                      <td class="py-3 text-[#9095a1]" colspan="3">{{ t.empty_beds|default:'No bed data on file.' }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              {% if beds %}
+              {% include "html_dashboard/client_table_pagination.html" %}
+              {% endif %}
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Side: Professional Group -->
+        <div class="xl:border-l-[5px] xl:border-[#f3f4f6] xl:pl-8 min-w-0">
+          <div class="flex flex-col gap-6">
+            <div data-client-table>
+              <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+                <h2 class="text-[20px] font-bold text-[#171a1f]">{{ t.section_professional_group|default:'Professional Group' }}</h2>
+                {% if professionals %}
+                {% include "html_dashboard/client_table_entries.html" with filter_column=1 filter_label=t.filter_label_professional|default:"Professional" %}
+                {% endif %}
+              </div>
+              <div class="rounded-[6px] custom-shadow border border-[#dee1e6] overflow-x-auto">
+                <table class="w-full min-w-[420px] text-center text-[14px] table-fixed">
+                  <thead class="table-header-tint">
+                    <tr class="h-[55px]">
+                      <th class="w-[15%] border-r border-[#dee1e6] whitespace-normal">{{ t.col_no|default:'NO' }}</th>
+                      <th class="w-[55%] border-r border-[#dee1e6] whitespace-normal">{{ t.col_professional|default:'PROFESSIONAL' }}</th>
+                      <th class="w-[30%] whitespace-normal">{{ t.col_count|default:'COUNT' }}</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-[#171a1f]">
+                    {% for professional in professionals %}
+                    <tr data-row class="h-[57px] border-t border-[#dee1e6] {% cycle '' 'bg-[#fafafb]' %}">
+                      <td class="border-r border-[#dee1e6] whitespace-normal break-words">{{ forloop.counter }}</td>
+                      <td class="border-r border-[#dee1e6] whitespace-normal break-words">{{ professional.raw_profgroup|default:"-" }}</td>
+                      <td class="whitespace-normal break-words">{{ professional.raw_profs|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr class="border-t border-[#dee1e6]">
+                      <td class="py-3 text-[#9095a1]" colspan="3">{{ t.empty_professionals|default:'No professional group data on file.' }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              {% if professionals %}
+              {% include "html_dashboard/client_table_pagination.html" %}
+              {% endif %}
+            </div>
+
+            <hr class="border-t-[3px] border-[#f3f4f6]">
+
+            <!-- Services Table -->
+            <div>
+              <div data-client-table>
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+                  <h2 class="text-[20px] font-bold text-[#171a1f]">{{ t.section_services|default:'Services' }}</h2>
+                  {% if services %}
+                  {% include "html_dashboard/client_table_entries.html" with filter_column=1 filter_label=t.filter_label_service|default:"Service" %}
+                  {% endif %}
+                </div>
+                <div class="rounded-[6px] custom-shadow border border-[#dee1e6] overflow-x-auto">
+                  <table class="w-full min-w-[280px] text-center text-[14px] table-fixed">
+                    <thead class="table-header-tint">
+                      <tr class="h-[54px]">
+                        <th class="w-[15%] border-r border-[#dee1e6] whitespace-normal">{{ t.col_no|default:'NO' }}</th>
+                        <th class="w-[85%] whitespace-normal">{{ t.col_service|default:'SERVICE' }}</th>
+                      </tr>
+                    </thead>
+                    <tbody class="text-[#171a1f]">
+                      {% for service in services %}
+                      <tr data-row class="h-[56px] border-t border-[#dee1e6] {% cycle '' 'bg-[#fafafb]' %}">
+                        <td class="border-r border-[#dee1e6] whitespace-normal break-words">{{ forloop.counter }}</td>
+                        <td class="whitespace-normal break-words">{{ service.raw_service|default:"-" }}</td>
+                      </tr>
+                      {% empty %}
+                      <tr class="border-t border-[#dee1e6]">
+                        <td class="py-3 text-[#9095a1]" colspan="2">{{ t.empty_services|default:'No service data on file.' }}</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                {% if services %}
+                {% include "html_dashboard/client_table_pagination.html" %}
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <button type="button" id="back-to-top-btn" aria-label="Back to top" class="absolute bottom-6 right-6 z-50 w-11 h-11 bg-[#636AE8] hover:bg-[#5259d6] text-white rounded-full shadow-lg flex items-center justify-center">
+    <i class="fas fa-arrow-up" aria-hidden="true"></i>
+  </button>
+
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var CLIENT_TABLE_I18N = {
+    showing: "{{ t.label_showing|default:'Showing'|escapejs }}",
+    to: "{{ t.label_to|default:'to'|escapejs }}",
+    of: "{{ t.label_of|default:'of'|escapejs }}",
+    entries: "{{ t.label_entries|default:'entries'|escapejs }}",
+    noMatching: "{{ t.empty_no_matching|default:'No matching entries found'|escapejs }}"
+  };
+
+  function initClientTable(root) {
+    var select = root.querySelector('[data-page-size-select]');
+    var allRows = Array.prototype.slice.call(root.querySelectorAll('tbody tr[data-row]'));
+    var paginationBlock = root.querySelector('[data-client-pagination]');
+    if (!select || !paginationBlock || allRows.length === 0) {
+      return;
+    }
+
+    var info = paginationBlock.querySelector('[data-info]');
+    var pager = paginationBlock.querySelector('[data-page-numbers]');
+    var filterRoot = root.querySelector('[data-filter-root]');
+    var filterToggle = root.querySelector('[data-filter-toggle]');
+    var filterPanel = root.querySelector('[data-filter-panel]');
+    var filterSearch = root.querySelector('[data-filter-search]');
+    var filterOptions = root.querySelector('[data-filter-options]');
+    var filterReset = root.querySelector('[data-filter-reset]');
+    var filterConfirm = root.querySelector('[data-filter-confirm]');
+    var filterCount = root.querySelector('[data-filter-count]');
+    var page = 1;
+    var filteredRows = allRows;
+    var checkedValues = {};
+
+    function columnValue(row) {
+      var columnIndex = parseInt(filterRoot.dataset.filterColumn, 10);
+      var cell = row.children[columnIndex];
+      return cell ? cell.textContent.trim() : '';
+    }
+
+    if (filterToggle && filterPanel) {
+      filterToggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+        filterPanel.classList.toggle('hidden');
+      });
+      document.addEventListener('click', function (e) {
+        if (!filterPanel.contains(e.target) && e.target !== filterToggle) {
+          filterPanel.classList.add('hidden');
+        }
+      });
+    }
+
+    if (filterConfirm && filterPanel) {
+      filterConfirm.addEventListener('click', function () {
+        filterPanel.classList.add('hidden');
+      });
+    }
+
+    if (filterOptions && !isNaN(parseInt(filterRoot.dataset.filterColumn, 10))) {
+      var values = {};
+      allRows.forEach(function (row) {
+        var v = columnValue(row);
+        if (v) {
+          values[v] = true;
+        }
+      });
+      var distinctValues = Object.keys(values).sort();
+
+      distinctValues.forEach(function (value) {
+        var label = document.createElement('label');
+        label.className = 'filter-option font-normal flex items-center justify-between py-1.5 px-2 rounded-md hover:bg-gray-50 cursor-pointer';
+        label.dataset.value = value.toLowerCase();
+        label.innerHTML = '<span class="text-sm text-[#323743]">' + value + '</span>';
+        var checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = value;
+        checkbox.className = 'w-4 h-4 rounded accent-[#636AE8]';
+        checkbox.addEventListener('change', function () {
+          if (checkbox.checked) {
+            checkedValues[value] = true;
+          } else {
+            delete checkedValues[value];
+          }
+          applyFilter();
+        });
+        label.appendChild(checkbox);
+        filterOptions.appendChild(label);
+      });
+
+      if (filterSearch) {
+        filterSearch.addEventListener('input', function () {
+          var term = filterSearch.value.trim().toLowerCase();
+          filterOptions.querySelectorAll('.filter-option').forEach(function (opt) {
+            opt.style.display = !term || opt.dataset.value.indexOf(term) !== -1 ? '' : 'none';
+          });
+        });
+      }
+    }
+
+    if (filterReset) {
+      filterReset.addEventListener('click', function () {
+        checkedValues = {};
+        if (filterOptions) {
+          filterOptions.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
+            cb.checked = false;
+          });
+        }
+        if (filterSearch) {
+          filterSearch.value = '';
+          filterOptions.querySelectorAll('.filter-option').forEach(function (opt) {
+            opt.style.display = '';
+          });
+        }
+        applyFilter();
+      });
+    }
+
+    function applyFilter() {
+      var selected = Object.keys(checkedValues);
+      filteredRows = selected.length === 0 ? allRows : allRows.filter(function (row) {
+        return checkedValues[columnValue(row)];
+      });
+      if (filterCount) {
+        if (selected.length > 0) {
+          filterCount.textContent = String(selected.length);
+          filterCount.style.display = 'inline-flex';
+        } else {
+          filterCount.textContent = '';
+          filterCount.style.display = 'none';
+        }
+      }
+      page = 1;
+      render();
+    }
+
+    function makeButton(label, targetPage, isActive) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = label;
+      btn.className = 'w-8 h-8 flex items-center justify-center rounded-full text-sm ' +
+        (isActive ? 'bg-[#f2f2fd] text-[#636AE8] font-semibold' : 'text-[#424856] hover:bg-gray-100');
+      btn.addEventListener('click', function () {
+        page = targetPage;
+        render();
+      });
+      return btn;
+    }
+
+    function elidedPageRange(current, total, onEachSide) {
+      onEachSide = onEachSide || 2;
+      var kept = [];
+      for (var i = 1; i <= total; i++) {
+        if (i === 1 || i === total || (i >= current - onEachSide && i <= current + onEachSide)) {
+          kept.push(i);
+        }
+      }
+      var result = [];
+      for (var idx = 0; idx < kept.length; idx++) {
+        if (idx > 0 && kept[idx] - kept[idx - 1] > 1) {
+          result.push('...');
+        }
+        result.push(kept[idx]);
+      }
+      return result;
+    }
+
+    function render() {
+      var total = filteredRows.length;
+      var pageSize = select.value === 'all' ? Math.max(total, 1) : parseInt(select.value, 10);
+      var totalPages = Math.max(1, Math.ceil(total / pageSize));
+      if (page > totalPages) {
+        page = totalPages;
+      }
+      var start = (page - 1) * pageSize;
+      var end = Math.min(start + pageSize, total);
+
+      allRows.forEach(function (row) {
+        row.style.display = 'none';
+      });
+      filteredRows.forEach(function (row, i) {
+        row.style.display = (i >= start && i < end) ? '' : 'none';
+      });
+
+      info.textContent = total === 0
+        ? CLIENT_TABLE_I18N.noMatching
+        : CLIENT_TABLE_I18N.showing + ' ' + (start + 1) + ' ' + CLIENT_TABLE_I18N.to + ' ' + end + ' ' + CLIENT_TABLE_I18N.of + ' ' + total + ' ' + CLIENT_TABLE_I18N.entries;
+
+      pager.innerHTML = '';
+      if (totalPages <= 1) {
+        return;
+      }
+      if (page > 1) {
+        pager.appendChild(makeButton('‹', page - 1, false));
+      }
+      elidedPageRange(page, totalPages, 2).forEach(function (item) {
+        if (item === '...') {
+          var ellipsis = document.createElement('span');
+          ellipsis.textContent = '…';
+          ellipsis.className = 'w-8 h-8 flex items-center justify-center text-sm text-[#9095a1]';
+          pager.appendChild(ellipsis);
+        } else {
+          pager.appendChild(makeButton(String(item), item, item === page));
+        }
+      });
+      if (page < totalPages) {
+        pager.appendChild(makeButton('›', page + 1, false));
+      }
+    }
+
+    select.addEventListener('change', function () {
+      page = 1;
+      render();
+    });
+
+    render();
+  }
+
+  document.querySelectorAll('[data-client-table]').forEach(initClientTable);
+
+  var backToTopBtn = document.getElementById('back-to-top-btn');
+  if (backToTopBtn) {
+    backToTopBtn.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+})();
+</script>
+{% endblock %}

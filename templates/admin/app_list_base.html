@@ -1,0 +1,108 @@
+<ul class="list-group striped-list hiveforest">
+    <li class="list-group-item hiveforest">
+        <h6 class="list-group hiveforest">Users</h6>
+    </li>
+    <li class="list-group-item hiveforest">
+        <a href="{% url 'admin:base_role_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>User/Group Roles</a> |
+        <a href="{% url 'admin:base_userprofile_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>User Profile</a> | 
+        <a href="{% url 'admin:base_forcepasswordstatus_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Force Change Password</a>  | 
+        <a href="{% url 'admin:base_passwordhistory_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Password History</a> | 
+        <a href="{% url 'admin:base_passwordpolicy_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Master Password Policy</a> 
+    </li>
+    <li class="list-group-item hiveforest">
+        <h6 class="list-group hiveforest">Permissions</h6>
+    </li>
+    <li class="list-group-item hiveforest">
+        <a href="{% url 'admin:base_cmspermission_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>CMS</a> |
+        <a href="{% url 'admin:base_scmpermission_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>SCM</a>
+    </li>
+    <li class="list-group-item hiveforest">
+        <h6 class="list-group hiveforest">Locations</h6>
+    </li>
+    <li class="list-group-item hiveforest">
+        <a href="{% url 'admin:base_island_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Islands</a> |
+        <a href="{% url 'admin:base_province_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Provinces</a>
+    </li>
+    <li class="list-group-item hiveforest">
+        <a href="{% url 'admin:base_regencytype_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Regency Types</a> |
+        <a href="{% url 'admin:base_regency_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Regencies</a>
+    </li>
+    <li class="list-group-item hiveforest">
+        <a href="{% url 'admin:base_district_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Districts</a> |
+        <a href="{% url 'admin:base_village_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Villages</a>
+    </li>
+    <li class="list-group-item hiveforest">
+        <h6 class="list-group hiveforest">People</h6>
+    </li>
+    <li class="list-group-item hiveforest">
+        <a href="{% url 'admin:base_person_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>People</a> |
+        <a href="{% url 'admin:base_gender_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Genders</a>  |
+        <a href="{% url 'admin:base_salutation_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Salutations</a>
+    </li>
+    <li class="list-group-item hiveforest">
+        <h6 class="list-group hiveforest">Contacts</h6>
+    </li>
+    <li class="list-group-item hiveforest">
+        <a href="{% url 'admin:base_contact_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Contacts</a> |
+        <a href="{% url 'admin:base_phonecontact_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Phones</a> |
+        <a href="{% url 'admin:base_emailcontact_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Emails</a> |
+        <a href="{% url 'admin:base_socialcontact_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Social</a> |
+        <a href="{% url 'admin:base_socialplatform_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Platforms</a> |
+        <a href="{% url 'admin:base_contactmedia_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Media</a> |
+        <a href="{% url 'admin:base_contactcontext_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Context</a> |
+        <a href="{% url 'admin:base_rolecategory_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Categories</a> |
+        <a href="{% url 'admin:base_contactrole_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Roles</a>
+    </li>    
+    <li class="list-group-item hiveforest">
+        <h6 class="list-group hiveforest">Entities</h6>
+    </li>
+    <li class="list-group-item hiveforest">
+        <a href="{% url 'admin:base_company_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Companies</a> |
+        <a href="{% url 'admin:base_companyownership_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Ownership</a> |
+        <a href="{% url 'admin:base_companyowner_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Owners</a>
+    </li>
+    <li class="list-group-item hiveforest">
+        <h6 class="list-group hiveforest">Reports</h6>
+    </li>
+    <li class="list-group-item hiveforest">
+        <a href="{% url 'admin:base_periodtemplate_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Period Templates</a>
+    </li>
+    <li class="list-group-item hiveforest">
+        <h6 class="list-group hiveforest">Items</h6>
+    </li>
+    <li class="list-group-item hiveforest">
+        <a href="{% url 'admin:base_uom_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>UoM</a>
+    </li>
+    <li class="list-group-item hiveforest">
+        <h6 class="list-group hiveforest">Warehouse Palettes</h6>
+    </li>
+    <li class="list-group-item hiveforest">
+        <a href="{% url 'admin:base_warehousepalette_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Warehouse Palettes</a> 
+        {% comment %} <a href="{% url 'admin:base_calculationformula_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Calculation Formulas</a> |
+        <a href="{% url 'admin:base_calculationvariable_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Calculation Variables</a> {% endcomment %}
+    </li>
+        <li class="list-group-item hiveforest">
+        <h6 class="list-group hiveforest">Translations</h6>
+    </li>
+    <li class="list-group-item hiveforest">
+        <a href="{% url 'admin:base_translationmodule_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Translation Modules</a> |
+        <a href="{% url 'admin:base_translationkey_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Translation Keys</a> |
+        <a href="{% url 'admin:base_translation_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Translations</a>
+    </li>
+    <li class="list-group-item hiveforest">
+        <h6 class="list-group hiveforest">Version History</h6>
+    </li>
+    <li class="list-group-item hiveforest">
+        <a href="{% url 'admin:base_appversion_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>App Versions</a> |
+        <a href="{% url 'admin:base_versionfeature_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Version Features</a> |
+        <a href="{% url 'admin_version_history' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>View History</a>
+    </li>
+    <li class="list-group-item hiveforest">
+        <h6 class="list-group hiveforest">Authentication</h6>
+    </li>
+    <li class="list-group-item hiveforest">
+        <a href="{% url 'admin:base_authenticationsetting_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Authentication Management</a> |
+        <a href="{% url 'admin:base_userauthentication_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>User Authentication Setup</a> |
+        <a href="{% url 'admin:base_authenticationlog_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Authentication Logs</a>
+    </li>
+</ul>

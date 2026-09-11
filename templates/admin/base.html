@@ -1,0 +1,142 @@
+{% load i18n static %}<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
+<html lang="{{ LANGUAGE_CODE|default:'en-us' }}" dir="{{ LANGUAGE_BIDI|yesno:'rtl,ltr,auto' }}">
+<head>
+<title>{% block title %}{% endblock %}</title>
+<link rel="shortcut icon" href="{% static 'favicon.ico' %}" />
+<link rel="stylesheet" href="{% block stylesheet %}{% static 'admin/css/base.css' %}{% endblock %}">
+{% block dark-mode-vars %}{% endblock %}
+{% if not is_popup and is_nav_sidebar_enabled %}
+  <link rel="stylesheet" href="{% static 'admin/css/nav_sidebar.css' %}">
+  <script src="{% static 'admin/js/nav_sidebar.js' %}" defer></script>
+{% endif %}
+
+<!-- EXTRA STYLE -->
+{% block extrastyle %}
+{% endblock %}
+
+{% if LANGUAGE_BIDI %}<link rel="stylesheet" href="{% block stylesheet_rtl %}{% static 'admin/css/rtl.css' %}{% endblock %}">{% endif %}
+
+{% block extrahead %}
+  <!-- AdminLTE  -->
+  <link rel="stylesheet" href="{% static 'adminlte/css/adminlte.min.css' %}">
+  <link rel="stylesheet" href="{% static 'adminlte/plugins/fontawesome-free/css/all.min.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/sweetalert2/sweetalert2.min.css' %}">
+  {% block datatable_css %}
+    <!-- Datatable  -->
+    <link rel="stylesheet" href="{% static 'datatables/bs4/datatables-bs4.min.css' %}">
+    <link rel="stylesheet" href="{% static 'datatables/bs4-btns/btns.datatables-bs4.min.css' %}">
+  {% endblock %}
+  <link rel="stylesheet" type="text/css" href="{% static 'custom/css/custom.css' %}">
+  <!-- AdminLTE  -->
+  <script src="{% static 'adminlte/plugins/jquery/jquery.min.js' %}"></script>
+  <script src="{% static 'adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'adminlte/js/adminlte.min.js' %}"></script>
+  <script src="{% static 'vendor/sweetalert2/sweetalert2.all.min.js' %}"></script>
+  <script type="text/javascript">
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+  </script>
+
+  <!-- AdminLTE for demo purposes 
+  <script src="{% static 'adminlte/dist/js/demo.js' %}"></script>
+  -->
+  <!-- DataTables -->
+  {% block datatable_js %}
+  <script src="{% static 'datatables/bs4/datatables-bs4.min.js' %}"></script>
+  <script src="{% static 'datatables/bs4-btns/btns.datatables-bs4.min.js' %}"></script>    
+  {% endblock %}
+  <script src="{% static 'adminlte/plugins/jszip/jszip.min.js' %}"></script>
+  <script src="{% static 'adminlte/plugins/pdfmake/pdfmake.min.js' %}"></script>
+  <script src="{% static 'adminlte/plugins/pdfmake/vfs_fonts.js' %}"></script>
+{% endblock %}
+
+{% block responsive %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'admin/css/responsive.css' %}">
+    {% if LANGUAGE_BIDI %}<link rel="stylesheet" href="{% static 'admin/css/responsive_rtl.css' %}">{% endif %}
+{% endblock %}
+{% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE">{% endblock %}
+</head>
+
+<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %} hold-transition sidebar-mini text-sm{% endblock %}"
+  data-admin-utc-offset="{% now 'Z' %}">
+<div class="wrapper">
+    {% if not is_popup %}
+      <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+        {% include 'admin/navbar.html' %}
+      </nav>
+      <aside class="main-sidebar sidebar-dark-primary elevation-4">
+        {% include 'admin/sidebar.html' %}
+      </aside> 
+    {% endif %}
+    <div class="content-wrapper" id="main">
+      {% if not is_popup and is_nav_sidebar_enabled %}
+        {% block nav-sidebar %}{% endblock %}
+      {% endif %}
+
+      {% block nav-breadcrumbs %}
+      <nav aria-label="{% translate 'Breadcrumbs' %}">
+        {% block breadcrumbs %}
+          <div class="breadcrumbs">
+            <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+            {% if title %} &rsaquo; {{ title }}{% endif %}
+          </div>
+        {% endblock %}
+      </nav>
+      {% endblock %}
+
+      <main id="content-start" class="content" tabindex="-1">
+        {% block messages %}
+          {% if messages %}
+            <ul class="messagelist">{% for message in messages %}
+              <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|capfirst }}</li>
+            {% endfor %}</ul>
+          {% endif %}
+        {% endblock messages %}
+        <!-- Content -->
+        <div id="content" class="{% block coltype %}colM{% endblock %}">
+          {% block pretitle %}{% endblock %}
+          {% block content_title %}{% if title %}<h4>{{ title }}</h4>{% endif %}{% endblock %}
+          {% block content_subtitle %}{% if subtitle %}<h5>{{ subtitle }}</h5>{% endif %}{% endblock %}
+          {% block content %}
+            {% block object-tools %}{% endblock %}
+            {{ content }}
+          {% endblock %}
+          {% block sidebar %}{% endblock %}
+          <br class="clear">
+        </div>
+        <!-- END Content -->
+      </main>
+    </div>
+    <footer class="main-footer">
+      {% include 'admin/footer.html' %}
+      {% block footer %}
+      {% endblock %}
+    </footer>
+</div>
+<!-- END Container -->
+
+<!-- SVGs -->
+<svg xmlns="http://www.w3.org/2000/svg" class="base-svgs">
+  <symbol viewBox="0 0 24 24" width="1rem" height="1rem" id="icon-auto"><path d="M0 0h24v24H0z" fill="currentColor"/><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2V4a8 8 0 1 0 0 16z"/></symbol>
+  <symbol viewBox="0 0 24 24" width="1rem" height="1rem" id="icon-moon"><path d="M0 0h24v24H0z" fill="currentColor"/><path d="M10 7a7 7 0 0 0 12 4.9v.1c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2h.1A6.979 6.979 0 0 0 10 7zm-6 5a8 8 0 0 0 15.062 3.762A9 9 0 0 1 8.238 4.938 7.999 7.999 0 0 0 4 12z"/></symbol>
+  <symbol viewBox="0 0 24 24" width="1rem" height="1rem" id="icon-sun"><path d="M0 0h24v24H0z" fill="currentColor"/><path d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM11 1h2v3h-2V1zm0 19h2v3h-2v-3zM3.515 4.929l1.414-1.414L7.05 5.636 5.636 7.05 3.515 4.93zM16.95 18.364l1.414-1.414 2.121 2.121-1.414 1.414-2.121-2.121zm2.121-14.85l1.414 1.415-2.121 2.121-1.414-1.414 2.121-2.121zM5.636 16.95l1.414 1.414-2.121 2.121-1.414-1.414 2.121-2.121zM23 11v2h-3v-2h3zM4 11v2H1v-2h3z"/></symbol>
+</svg>
+<!-- END SVGs -->
+<script src="{% static 'custom/js/swal-sync.js' %}"></script>
+</body>
+</html>

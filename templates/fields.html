@@ -1,0 +1,7 @@
+<div class="form-group">
+    {{ field.label_tag }}
+    {{ field }}
+    {% if field.errors %}
+        <span class="text-danger">{{ field.errors }}</span>
+    {% endif %}
+</div>

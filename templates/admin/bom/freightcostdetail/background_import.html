@@ -1,0 +1,86 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block extrahead %}
+  {{ block.super }}
+  {% if active_job_count %}
+    <meta http-equiv="refresh" content="5">
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <div id="content-main">
+    <h1>{{ title }}</h1>
+    <div class="module" style="padding: 16px; margin-bottom: 20px;">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <p>
+          <label for="file"><strong>Upload file freight cost</strong></label><br>
+          <input type="file" name="file" id="file" required>
+        </p>
+        <p>Allowed extensions: {{ allowed_extensions }}</p>
+        <p>
+          <button type="submit" class="button default">Start Background Import</button>
+          <a href="{{ changelist_url }}" class="button">Back to Freight Cost Detail</a>
+          <a href="{{ legacy_import_url }}" class="button">Legacy Import Page</a>
+        </p>
+      </form>
+      <p style="margin-bottom: 0; color: #57606a;">
+        Setelah job dimulai di server, proses insert tetap berjalan walaupun browser ditutup. Jika ada job aktif, halaman ini auto-refresh tiap 5 detik.
+      </p>
+    </div>
+
+    <div class="module">
+      <h2 style="padding: 12px 16px; margin: 0;">Recent Background Jobs</h2>
+      <div style="padding: 0 16px 16px 16px; overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th style="text-align:left; padding: 8px;">Job</th>
+              <th style="text-align:left; padding: 8px;">File</th>
+              <th style="text-align:left; padding: 8px;">Status</th>
+              <th style="text-align:left; padding: 8px;">Rows</th>
+              <th style="text-align:left; padding: 8px;">Processed</th>
+              <th style="text-align:left; padding: 8px;">Created</th>
+              <th style="text-align:left; padding: 8px;">Skipped</th>
+              <th style="text-align:left; padding: 8px;">Chunk</th>
+              <th style="text-align:left; padding: 8px;">Requested By</th>
+              <th style="text-align:left; padding: 8px;">PID</th>
+              <th style="text-align:left; padding: 8px;">Started</th>
+              <th style="text-align:left; padding: 8px;">Completed</th>
+              <th style="text-align:left; padding: 8px;">Message</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for job in jobs %}
+              <tr>
+                <td style="padding: 8px; vertical-align: top;">#{{ job.pk }}</td>
+                <td style="padding: 8px; vertical-align: top;">{{ job.original_filename }}</td>
+                <td style="padding: 8px; vertical-align: top;">{{ job.get_status_display }}</td>
+                <td style="padding: 8px; vertical-align: top;">{{ job.total_rows|default:"-" }}</td>
+                <td style="padding: 8px; vertical-align: top;">{{ job.processed_rows }}</td>
+                <td style="padding: 8px; vertical-align: top;">{{ job.created_rows }}</td>
+                <td style="padding: 8px; vertical-align: top;">{{ job.skipped_rows }}</td>
+                <td style="padding: 8px; vertical-align: top;">{{ job.chunk_count }}</td>
+                <td style="padding: 8px; vertical-align: top;">{{ job.requested_by|default:"-" }}</td>
+                <td style="padding: 8px; vertical-align: top;">{{ job.background_pid|default:"-" }}</td>
+                <td style="padding: 8px; vertical-align: top;">{{ job.started_at|date:"Y-m-d H:i:s"|default:"-" }}</td>
+                <td style="padding: 8px; vertical-align: top;">{{ job.completed_at|date:"Y-m-d H:i:s"|default:"-" }}</td>
+                <td style="padding: 8px; vertical-align: top; max-width: 320px;">
+                  {{ job.message|default:"-" }}
+                  {% if job.error_message %}
+                    <div style="margin-top: 6px; color: #b42318;">{{ job.error_message }}</div>
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="13" style="padding: 12px;">No background import jobs yet.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock %}

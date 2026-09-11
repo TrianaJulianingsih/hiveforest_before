@@ -1,0 +1,422 @@
+{% extends "main.html" %}
+{% load i18n static translation_tags %}
+
+{% block content %}
+{{ block.super }}
+{% get_translations 'freight_cost' as t %}
+<div class="card card-primary card-outline hiveforest pb-2">
+  <div class="card-header ui-sortable-handle">
+    <h1 class="card-title"><b>{{ t.page_title|default:'Freight Cost Report' }}</b></h1>
+    <div class="card-tools">
+      <ul class="nav nav-pills ml-auto">
+        <li class="nav-item">
+          <select id="filter-year" class="form-control form-control-sm d-inline-block mr-2" style="width: 140px;">
+            <option value="">{{ t.option_all_year|default:'All Year' }}</option>
+            {% for year in year_choices %}
+            <option value="{{ year }}"{% if selected_year == year %} selected{% endif %}>{{ year }}</option>
+            {% endfor %}
+          </select>
+          <a href="{% url 'bom:freight_cost_export' %}?{{ request.GET.urlencode }}" class="btn btn-sm btn-success">
+            <i class="fas fa-file-excel"></i> {{ t.btn_export_excel|default:t.btn_export|default:'Export Excel' }}
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <div class="table-responsive">
+      <table id="freight-cost-table" class="table table-striped table-bordered">
+        <thead>
+          <tr>
+            <th class="hv-lefted">{{ t.col_freight_number|default:'FREIGHT NUMBER' }}</th>
+            <th class="hv-lefted">{{ t.col_shipping_date|default:'SHIPPING_DATE' }}</th>
+            <th class="hv-lefted">{{ t.col_from_location|default:'FROM_LOCATION' }}</th>
+            <th class="hv-lefted">{{ t.col_to_location|default:'TO_LOCATION' }}</th>
+            <th class="hv-lefted">{{ t.col_expedition_name|default:'EXPEDITION_NAME' }}</th>
+            <th class="hv-lefted">{{ t.col_expedition_type|default:'EXPEDITION_TYPE' }}</th>
+            <th class="hv-lefted">{{ t.col_packaging_type|default:'PACKAGING_TYPE' }}</th>
+            <th class="hv-lefted">{{ t.col_item_code|default:'ITEM_CODE' }}</th>
+            <th class="hv-lefted">{{ t.col_item_description|default:'ITEM_DESCRIPTION' }}</th>
+            <th class="hv-lefted">{{ t.col_qty_freight|default:'QTY_FREIGHT' }}</th>
+            <th class="hv-lefted">{{ t.col_total_weight|default:'TOTAL_WEIGHT' }}</th>
+            <th class="hv-lefted">{{ t.col_nama_principal|default:'NAMA_PRINCIPAL' }}</th>
+            <th class="hv-lefted">{{ t.col_group_produk|default:'GROUP_PRODUK' }}</th>
+            <th class="hv-lefted">{{ t.col_total_freight|default:'TOTAL_FREIGHT' }}</th>
+            <th class="hv-lefted">{{ t.col_freight_type|default:'FREIGHT_TYPE' }}</th>
+            <th class="hv-lefted">{{ t.col_total_cost|default:'TOTAL_COST' }}</th>
+            {#  <th class="hv-lefted">{{ t.col_kode_cab|default:'KODE_CAB' }}</th>  #}
+            <th class="hv-lefted">{{ t.col_nama_cab|default:'NAMA_CAB' }}</th>
+            <th class="hv-lefted">{{ t.col_item_group|default:'ItemGroup' }}</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="export-progress-overlay" class="export-progress-overlay d-none">
+  <div class="export-progress-card">
+    <div class="export-progress-title">{{ t.btn_export_excel|default:t.btn_export|default:'Export' }}</div>
+    <div id="export-progress-text" class="export-progress-text">Menyiapkan file export...</div>
+    <div class="progress mt-3" style="height: 18px;">
+      <div
+        id="export-progress-bar"
+        class="progress-bar progress-bar-striped progress-bar-animated"
+        role="progressbar"
+        style="width: 0%"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0"
+      >0%</div>
+    </div>
+    <div id="export-progress-meta" class="export-progress-meta mt-2">Menunggu respons server...</div>
+  </div>
+</div>
+{% endblock %}
+
+{% block datatable_js %}
+{{ block.super }}
+<style>
+  #freight-cost-table_wrapper .dt-layout-row:first-child {
+    margin-bottom: 1.5rem;
+  }
+
+  #freight-cost-table_wrapper .dt-layout-table {
+    margin-top: 0.5rem;
+  }
+
+  #freight-cost-table_wrapper .dt-search {
+    margin-bottom: 0.25rem;
+  }
+
+  .export-progress-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 2050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .export-progress-overlay.d-none {
+    display: none;
+  }
+
+  .export-progress-card {
+    width: min(460px, 100%);
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+    padding: 1.25rem;
+  }
+
+  .export-progress-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1f2937;
+  }
+
+  .export-progress-text,
+  .export-progress-meta {
+    color: #4b5563;
+    font-size: 0.92rem;
+  }
+</style>
+<script>
+  $(document).ready(function() {
+    const exportOverlay = $('#export-progress-overlay');
+    const exportProgressBar = $('#export-progress-bar');
+    const exportProgressText = $('#export-progress-text');
+    const exportProgressMeta = $('#export-progress-meta');
+    const exportProgressUrl = '{% url "bom:freight_cost_export_progress" %}';
+    const csrfToken = '{{ csrf_token }}';
+    let exportProgressPoller = null;
+    let lastServerProgress = 0;
+
+    const table = $('#freight-cost-table').DataTable({
+      processing: true,
+      serverSide: true,
+      ajax: {
+        url: "{% url 'bom:freight_cost_data' %}",
+        type: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken
+        },
+        data: function(d) {
+          d.year = $('#filter-year').val();
+        }
+      },
+      columns: [
+        { data: 'freight_number' },
+        { data: 'shipping_date' },
+        { data: 'from_location' },
+        { data: 'to_location' },
+        { data: 'expedition_name' },
+        { data: 'expedition_type' },
+        { data: 'packaging_type' },
+        { data: 'item_code' },
+        { data: 'item_description' },
+        { data: 'qty_freight' },
+        { data: 'total_weight' },
+        { data: 'nama_principal' },
+        { data: 'group_produk' },
+        { data: 'total_freight' },
+        { data: 'freight_type' },
+        { data: 'total_cost' },
+        // { data: 'kode_cab' },
+        { data: 'nama_cab' },
+        { data: 'item_group' }
+      ],
+      paging: true,
+      searching: true,
+      info: true,
+      ordering: true,
+      responsive: true,
+      fixedHeader: true,
+      autoWidth: false,
+      pageLength: 25,
+      order: [[1, 'desc'], [0, 'asc']],
+      lengthMenu: [[10, 25, 50, 100, 250, 500], [10, 25, 50, 100, 250, 500]],
+      language: {
+        emptyTable: '{{ t.no_data|default:"No freight cost data found."|escapejs }}',
+        zeroRecords: '{{ t.no_data|default:"No freight cost data found."|escapejs }}',
+        paginate: {
+          first: '{{ t.paginate_first|default:"First"|escapejs }}',
+          last: '{{ t.paginate_last|default:"Last"|escapejs }}',
+          previous: '{{ t.paginate_previous|default:"Previous"|escapejs }}',
+          next: '{{ t.paginate_next|default:"Next"|escapejs }}'
+        },
+        lengthMenu: '{{ t.length_menu|default:"Show _MENU_ entries"|escapejs }}'
+      },
+      layout: {
+        topStart: ['pageLength'],
+        topEnd: ['search'],
+        bottomStart: ['info'],
+        bottomEnd: ['paging']
+      }
+    });
+
+    function buildFilterUrl() {
+      const params = new URLSearchParams();
+      const year = $('#filter-year').val();
+      if (year) {
+        params.set('year', year);
+      }
+
+      const queryString = params.toString();
+      return queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
+    }
+
+    function formatBytes(bytes) {
+      if (!Number.isFinite(bytes) || bytes <= 0) {
+        return '0 B';
+      }
+
+      const units = ['B', 'KB', 'MB', 'GB'];
+      let size = bytes;
+      let unitIndex = 0;
+
+      while (size >= 1024 && unitIndex < units.length - 1) {
+        size /= 1024;
+        unitIndex += 1;
+      }
+
+      return `${size.toFixed(unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
+    }
+
+    function parseFilename(disposition, fallbackName) {
+      if (!disposition) {
+        return fallbackName;
+      }
+
+      const utfMatch = disposition.match(/filename\*=UTF-8''([^;]+)/i);
+      if (utfMatch && utfMatch[1]) {
+        return decodeURIComponent(utfMatch[1]);
+      }
+
+      const asciiMatch = disposition.match(/filename="?([^";]+)"?/i);
+      return asciiMatch && asciiMatch[1] ? asciiMatch[1] : fallbackName;
+    }
+
+    function openExportOverlay() {
+      lastServerProgress = 0;
+      exportProgressText.text('Menyiapkan file export...');
+      exportProgressMeta.text('Menunggu respons server...');
+      exportProgressBar.css('width', '0%');
+      exportProgressBar.attr('aria-valuenow', 0);
+      exportProgressBar.text('0%');
+      exportProgressBar.addClass('progress-bar-striped progress-bar-animated');
+      exportOverlay.removeClass('d-none');
+    }
+
+    function closeExportOverlay() {
+      exportOverlay.addClass('d-none');
+    }
+
+    function stopExportProgressPolling() {
+      if (exportProgressPoller) {
+        window.clearInterval(exportProgressPoller);
+        exportProgressPoller = null;
+      }
+    }
+
+    function setExportProgress(percent, text, meta) {
+      const boundedPercent = Math.max(0, Math.min(100, Math.round(percent || 0)));
+      exportProgressBar.css('width', `${boundedPercent}%`);
+      exportProgressBar.attr('aria-valuenow', boundedPercent);
+      exportProgressBar.text(`${boundedPercent}%`);
+
+      if (text) {
+        exportProgressText.text(text);
+      }
+      if (typeof meta === 'string') {
+        exportProgressMeta.text(meta);
+      }
+    }
+
+    async function pollExportProgress(exportToken) {
+      const response = await fetch(`${exportProgressUrl}?export_token=${encodeURIComponent(exportToken)}`, {
+        method: 'GET',
+        credentials: 'same-origin',
+        cache: 'no-store'
+      });
+
+      if (!response.ok) {
+        return;
+      }
+
+      const payload = await response.json();
+      if (!payload.found) {
+        return;
+      }
+
+      lastServerProgress = Math.max(lastServerProgress, Number(payload.percent || 0));
+      setExportProgress(lastServerProgress, payload.message, payload.meta || '');
+
+      if (payload.state === 'failed') {
+        stopExportProgressPolling();
+      }
+    }
+
+    function startExportProgressPolling(exportToken) {
+      stopExportProgressPolling();
+      pollExportProgress(exportToken);
+      exportProgressPoller = window.setInterval(function() {
+        pollExportProgress(exportToken);
+      }, 400);
+    }
+
+    async function triggerExportDownload(url, exportToken) {
+      openExportOverlay();
+      startExportProgressPolling(exportToken);
+
+      try {
+        const response = await fetch(url, {
+          method: 'GET',
+          credentials: 'same-origin'
+        });
+
+        if (!response.ok) {
+          throw new Error(`Export gagal (${response.status}).`);
+        }
+
+        const contentLengthHeader = response.headers.get('Content-Length');
+        const totalBytes = contentLengthHeader ? Number(contentLengthHeader) : 0;
+        const contentDisposition = response.headers.get('Content-Disposition');
+        const contentType = response.headers.get('Content-Type') || 'application/octet-stream';
+        const fallbackName = url.includes('format=csv') ? 'freight_cost_report.csv' : 'freight_cost_report.xlsx';
+        const filename = parseFilename(contentDisposition, fallbackName);
+        const downloadBasePercent = Math.max(lastServerProgress, 95);
+
+        exportProgressText.text('Mengunduh file export...');
+        exportProgressMeta.text(totalBytes > 0 ? `0 B / ${formatBytes(totalBytes)}` : 'Mulai mengunduh file...');
+        stopExportProgressPolling();
+
+        if (!response.body) {
+          const blob = await response.blob();
+          const blobUrl = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = blobUrl;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.URL.revokeObjectURL(blobUrl);
+          setExportProgress(100, 'Download selesai.', `${formatBytes(blob.size)} selesai diunduh`);
+          closeExportOverlay();
+          return;
+        }
+
+        const reader = response.body.getReader();
+        const chunks = [];
+        let receivedBytes = 0;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) {
+            break;
+          }
+
+          chunks.push(value);
+          receivedBytes += value.length;
+
+          if (totalBytes > 0) {
+            const percent = downloadBasePercent + ((receivedBytes / totalBytes) * (100 - downloadBasePercent));
+            setExportProgress(percent, 'Mengunduh file export...', `${formatBytes(receivedBytes)} / ${formatBytes(totalBytes)}`);
+          } else {
+            setExportProgress(downloadBasePercent, 'Mengunduh file export...', `${formatBytes(receivedBytes)} terunduh`);
+            exportProgressMeta.text(`${formatBytes(receivedBytes)} terunduh`);
+          }
+        }
+
+        exportProgressBar.removeClass('progress-bar-striped progress-bar-animated');
+        setExportProgress(100, 'Download selesai.', `${formatBytes(receivedBytes)} selesai diunduh`);
+
+        const blob = new Blob(chunks, { type: contentType });
+        const blobUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(blobUrl);
+
+        setTimeout(closeExportOverlay, 500);
+      } catch (error) {
+        stopExportProgressPolling();
+        closeExportOverlay();
+        alert(error.message || 'Export gagal.');
+      }
+    }
+
+    $('#filter-year').on('change', function() {
+      window.history.replaceState({}, '', buildFilterUrl());
+      table.ajax.reload();
+      $('a[href^="{% url 'bom:freight_cost_export' %}"]').attr('href', `{% url 'bom:freight_cost_export' %}?${new URL(buildFilterUrl(), window.location.origin).searchParams.toString()}`);
+    });
+
+    const currentParams = new URL(buildFilterUrl(), window.location.origin).searchParams.toString();
+    $('a[href^="{% url 'bom:freight_cost_export' %}"]').attr('href', currentParams ? `{% url 'bom:freight_cost_export' %}?${currentParams}` : '{% url 'bom:freight_cost_export' %}');
+
+    $(document).on('click', 'a[href^="{% url 'bom:freight_cost_export' %}"]', function(event) {
+      event.preventDefault();
+      const exportUrl = new URL($(this).attr('href'), window.location.origin);
+      const exportToken = window.crypto && typeof window.crypto.randomUUID === 'function'
+        ? window.crypto.randomUUID()
+        : `freight-export-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+      exportUrl.searchParams.set('export_token', exportToken);
+      triggerExportDownload(exportUrl.toString(), exportToken);
+    });
+
+    $('#apply-filters').on('click', function() {
+      window.location.href = buildFilterUrl();
+    });
+  });
+</script>
+{% endblock %}

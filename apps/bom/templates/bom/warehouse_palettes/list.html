@@ -1,0 +1,208 @@
+{% extends "main.html" %}
+{% load i18n static translation_tags %}
+
+{% block content %}
+{{ block.super }}
+{% get_translations 'warehouse_palettes' as t %}
+
+{% comment %} {% if messages %}
+<script>
+    {% for message in messages %}
+        Swal.fire({
+        icon: '{{ message.tags }}',
+        title: '{{ message }}',
+        timer: 2000,
+        showConfirmButton: false
+        });
+    {% endfor %}
+</script>
+{% endif %} {% endcomment %}
+
+<div class="card card-primary card-outline hiveforest pb-2">
+  <div class="card-header ui-sortable-handle">
+    <h1 class="card-title"><b>{{ t.page_title|default:'Warehouse Palettes' }}</b></h1>
+    <div class="card-tools">
+      <ul class="nav nav-pills ml-auto">
+        <li class="nav-item">
+          {% if perms.base.add_warehousepalette %}
+          <a href="{% url 'bom:warehouse_palettes:warehouse_palette_add' %}" class="btn btn-sm btn-success">
+            <i class="fas fa-plus"></i> {{ t.btn_add|default:'Add' }}
+          </a>
+          {% endif %}
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="card-body">
+      <table id="warehouse_palette_table" class="table table-striped table-bordered">
+        <thead>
+          <tr>
+            <th>{{ t.col_code|default:'Kode' }}</th>
+            <th>{{ t.col_name|default:'Name' }}</th>
+            <th>{{ t.col_initial|default:'Initial' }}</th>
+            <th>{{ t.col_shortname|default:'Shortname' }}</th>
+            <th>{{ t.col_company|default:'Company' }}</th>
+            <th>{{ t.col_ambient|default:'Ambient' }}</th>
+            <th>{{ t.col_acroom|default:'AC Room' }}</th>
+            <th>{{ t.col_capacity|default:'Capacity' }}</th>
+            {% comment %} <th>{{ t.col_used|default:'Used' }}</th> {% endcomment %}
+            <th>{{ t.col_branch|default:'Branch' }}</th>
+            {% comment %} <th>{{ t.col_remaining|default:'Remaining' }}</th> {% endcomment %}
+            {% comment %} <th>{{ t.col_warehouse_code|default:'Warehouse Code' }}</th> {% endcomment %}
+            <th>{{ t.col_action|default:'Aksi' }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in palettes %}
+          <tr>
+            <td>{{ p.code }}</td>
+            <td>{{ p.name }}</td>
+            <td>{{ p.initial }}</td>
+            <td>{{ p.shortname }}</td>
+            <td>{{ p.company }}</td>
+            <td>{{ p.ambient_capacity }}</td>
+            <td>{{ p.ac_room_capacity }}</td>
+            <td>{{ p.capacity }}</td>
+            {% comment %} <td>{{ p.utilized }}</td> {% endcomment %}
+            <td>{{ p.branch }}</td>
+            {% comment %} <td>{{ p.remaining }}</td> {% endcomment %}
+            {% comment %} <td>{{ p.warehouse_code }}</td> {% endcomment %}
+            <td>
+              {% if perms.base.change_warehousepalette %}
+              <a href="{% url 'bom:warehouse_palettes:warehouse_palette_edit' p.pk %}" class="btn btn-sm btn-warning text-dark"><i class="fa fa-edit"></i> {{ t.btn_edit|default:'Edit' }}</a>
+              {% endif %}
+              {% if perms.base.delete_warehousepalette %}
+                {% if not p.deleted %}
+                  <form method="post" action="{% url 'bom:warehouse_palettes:warehouse_palette_delete' p.pk %}" style="display:inline;" class="delete-form">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-sm btn-danger btn-delete" data-name="{{ p }}"><i class="fa fa-trash"></i> {{ t.btn_delete|default:'Delete' }}</button>
+                  </form>
+                {% else %}
+                  {% if can_hard_delete %}
+                    <form method="post" action="{% url 'bom:warehouse_palettes:warehouse_palette_delete' p.pk %}" style="display:inline;" class="delete-form">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i> {{ t.btn_deleted|default:'Hard Delete' }}</button>
+                    </form>
+                  {% else %}
+                    <span class="badge badge-secondary"><i class="fa fa-trash"></i> {{ t.btn_delete|default:'Deleted' }}</span>
+                  {% endif %}
+                {% endif %}
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="12">{{ t.no_data|default:'No data available.' }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block datatable_js %}
+{{ block.super }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+$(document).ready(function() {
+  let table = $('#warehouse_palette_table').DataTable({
+    "paging": true,
+    "searching": true,
+    "info": true,
+    "ordering": true,
+    "responsive": true,
+    "fixedHeader": true,
+    "autoWidth": false,
+    "pageLength": 25,
+    "order": [[0, "asc"]],
+    "lengthMenu": [[10, 25, 50, 100, 250, 500], [10, 25, 50, 100, 250, 500]],
+    "columnDefs": [
+      { "orderable": false, "targets": [6, 7] },
+      { "className": "hv-centered", "targets": [6, 7] }
+    ],
+    "buttons": [
+      { extend: 'csv', className: 'btn btn-sm btn-success', exportOptions: { columns: ':visible' } },
+      { extend: 'spacer', className: 'btn btn-sm btn-primary' },
+      { extend: 'excel', className: 'btn btn-sm btn-success', exportOptions: { columns: ':visible' } },
+      { extend: 'spacer', className: 'btn btn-sm btn-primary' },
+      { extend: 'colvis', className: 'btn btn-sm btn-primary', text: 'Columns' }
+    ],
+    "language": {
+      "paginate": {
+        "first": "First",
+        "last": "Last",
+        "previous": "Previous",
+        "next": "Next"
+      },
+      "buttons": {
+        "colvis": 'Columns'
+      },
+      "lengthMenu": "Show _MENU_ entries",
+      "emptyTable": "{{ t.no_data }}",
+      "zeroRecords": "{{ t.no_data }}"
+    },
+    "layout": {
+      "topStart": ['pageLength'],
+      "topEnd": ['buttons', 'search'],
+      "bottomStart": ['info'],
+      "bottomEnd": ['paging']
+    },
+    "initComplete": function (settings, json) {
+      $('#product_table thead tr:eq(1) th')
+        .removeClass('dt-orderable dt-ordering-asc dt-ordering-desc')
+        .removeAttr('aria-sort')
+        .find('.dt-column-order').remove();
+      $('#product_table thead tr:eq(1) th .dt-column-title').each(function () {
+        $(this).contents().unwrap();
+      });
+    }
+  });
+
+  $('.column-filter').on('keyup change', function () {
+    const columnIndex = $(this).data('column');
+    const searchValue = $(this).val();
+    table.column(columnIndex).search(searchValue).draw();
+  });
+  
+  $('#reset-filters').on('click', function () {
+    $('.column-filter').val('');
+    table.columns().every(function () {
+      this.search('');
+    });
+    table.draw();
+  });
+  
+  $('table.dataTable thead').on('click', 'input, select', function (e) {
+    e.stopPropagation();
+  });
+});
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).on('click', '.btn-delete', function(e) {
+  e.preventDefault();
+
+  const form = $(this).closest('form');
+  const name = $(this).data('name');
+
+  Swal.fire({
+    title: '{{ t.confirm_title|default:"Confirmation" }}',
+    text: '{{ t.confirm_delete|default:"Are you sure you want to delete" }} ' + name + '?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: '{{ t.confirm_btn_delete|default:"Yes, Delete" }}',
+    cancelButtonText: '{{ t.btn_cancel|default:"Cancel" }}',
+    reverseButtons: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+      form.submit();
+    }
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "main.html" %}
+{% load i18n static %}
+{% block datatable_css %}
+    {{ block.super }}
+{% endblock %}
+{% block datatable_js %}
+    {{ block.super }}
+{% endblock %}
+{% block content %}
+<div class="card card-primary card-outline hiveforest">
+    <div class="card-body hiveforest">
+        <iframe
+            src="{{ iframe_url }}"
+            width="100%"
+            height="720"
+            style="border:none;"
+            frameborder="0"
+            allowFullScreen="true" >
+            Your browser does not support iframes.
+        </iframe>
+    </div>
+
+{% endblock %}

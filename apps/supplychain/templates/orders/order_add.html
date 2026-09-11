@@ -1,0 +1,240 @@
+{% extends "main.html" %}
+{% load i18n static %}
+{% block datatable_css %}
+    {{ block.super }}
+{% endblock %}
+{% block datatable_js %}
+    {{ block.super }}
+    <script src="{% static 'custom/js/change_list_datatable.js' %}"></script>
+{% endblock %}
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    <div class="card card-primary card-outline hiveforest">
+        <div class="card-header">
+            <h3><b>Add Order</b></h3>
+            <!-- Display form errors -->
+            {% if order_form.errors %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for field, errors in order_form.errors.items %}
+                        {% for error in errors %}
+                            <li>{{ field|title }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div> <!-- Card Header end -->
+        <div class="card-body hiveforest">
+            <!-- Tabs Navigation -->
+            <ul class="nav nav-tabs" id="formTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#tab1" role="tab">Order Info</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#tab2" role="tab">Products</a>
+                </li>
+            </ul>
+            <!-- Tabs Content -->
+            <div class="tab-content hiveforest">
+                <!-- Tab 1 -->
+                <div class="tab-pane fade show active" id="tab1" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="hv-form-group">
+                                {{ order_form.distributor.label_tag }}
+                                {{ order_form.distributor }}
+                            </div>
+                            <div class="hv-form-group">
+                                {{ order_form.branch.label_tag }}
+                                {{ order_form.branch }}
+                            </div>
+                            <div class="hv-form-group">
+                                {{ order_form.ordertype.label_tag }}
+                                {{ order_form.ordertype }}
+                            </div>
+                            <div class="hv-form-group">
+                                {{ order_form.orderno.label_tag }}
+                                {{ order_form.orderno }}
+                            </div>
+                            <div class="hv-form-group">
+                                {{ order_form.orderdate.label_tag }}
+                                {{ order_form.orderdate }}
+                            </div>
+                            <div class="hv-form-group">
+                                {{ order_form.orderdue.label_tag }}
+                                {{ order_form.orderdue }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="hv-form-group">
+                                {{ order_form.description.label_tag }}
+                                {{ order_form.description }}
+                            </div>
+                            <div class="hv-form-group">
+                                {{ order_form.remark.label_tag }}
+                                {{ order_form.remark }}
+                            </div>
+                            <div class="hv-form-group">
+                                {{ order_form.progress.label_tag }}
+                                {{ order_form.progress }}
+                            </div>
+                            <div class="hv-form-group">
+                                {{ order_form.status.label_tag }}
+                                {{ order_form.status }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Tab 2 -->
+                <div class="tab-pane fade" id="tab2" role="tabpanel">
+                    {{ detail_formset.management_form }}
+                    {% for form in detail_formset %}
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                <ul>
+                                    {% for field, errors in form.errors.items %}
+                                        {% for error in errors %}
+                                            <li>{{ field|title }}: {{ error }}</li>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Line</th>
+                                <th>Group</th>
+                                <th>Item</th>
+                                <th>Qty</th>
+                                <th>UoM</th>
+                                <th>Price</th>
+                                <th>Amount</th>
+                                <th>Progress</th>
+                                <th>Status</th>
+                                <th>Row</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for form in detail_formset %}
+                            <tr>
+                                <td>{{ form.orderline }}</td>
+                                <td>{{ form.itemgroup }}</td>
+                                <td>{{ form.item }}</td>
+                                <td><input type="number" name="{{ form.qty.name }}" class="qty form-control" min="1" value="{{ form.qty.value|default_if_none:'' }}"></td>
+                                <td>{{ form.uom }}</td>
+                                <td><input type="number" name="{{ form.price.name }}" class="price form-control" step="0.01" value="{{ form.price.value|default_if_none:'' }}"></td>
+                                <td><input type="text" name="{{ form.amount.name }}" class="amount form-control" readonly></td>
+                                <td>{{ form.progress }}</td>
+                                <td>{{ form.status }}</td>
+                                <td><button type="button" class="remove-row btn-danger btn-sm">Remove</button></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <button type="button" id="add-row" class="btn-primary btn-sm">Add Line</button>
+                </div>
+            </div>
+        </div> <!-- Card Body end -->
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a href="{% url 'supplychain:order_list' %}" class="btn btn-secondary">Cancel</a>
+        </div> <!-- Card Footer end -->    
+    </div>
+</form>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.form-control').forEach(function (input) {
+            const maxLength = input.getAttribute('maxlength');
+                if (maxLength) {
+                    const calculatedWidth = maxLength * 0.6; // Adjust multiplier as needed
+                    input.style.minWidth = '10ch'; // Set a reasonable minimum width
+                    input.style.maxWidth = '40ch'; // Set a reasonable maximum width
+                    input.style.width = `${Math.min(calculatedWidth, 40)}ch`; // Ensure it doesn't exceed max-width
+                }
+        });
+        const progressField = document.getElementById('progressDropdown');
+        if (progressField) {
+            progressField.readOnly = true;  // Ensure users can't modify it
+        }
+        function updateAmount(row) {
+            let qty = parseFloat(row.querySelector(".qty-input").value) || 0;
+            let price = parseFloat(row.querySelector(".price-input").value) || 0;
+            let amountField = row.querySelector(".amount-field");
+            amountField.value = (qty * price).toFixed(2);
+        }
+        // Attach event listeners to all existing rows
+        document.querySelectorAll(".qty-input, .price-input").forEach(input => {
+            input.addEventListener("input", function() {
+                updateAmount(this.closest("tr"));
+            });
+        });
+        // Add new row logic
+        document.getElementById("add-row").addEventListener("click", function () {
+            let table = document.getElementById("order-detail-table");
+            let totalForms = document.querySelector("#id_orderdetail_set-TOTAL_FORMS");
+            let formIdx = totalForms.value;
+
+            let newRow = table.querySelector("tr.order-detail-row").cloneNode(true);
+
+            // Update new row field names
+            newRow.innerHTML = newRow.innerHTML.replace(/-\d+-/g, `-${formIdx}-`);
+
+            // Clear input values
+            newRow.querySelector(".qty").value = "";
+            newRow.querySelector(".price").value = "";
+            newRow.querySelector(".amount").value = "";
+
+            // Reattach event listeners
+            newRow.querySelector(".qty").addEventListener("input", () => updateAmount(newRow));
+            newRow.querySelector(".price").addEventListener("input", () => updateAmount(newRow));
+
+            table.appendChild(newRow);
+            totalForms.value = parseInt(formIdx) + 1;
+        });
+    });
+
+    document.getElementById('distributorDropdown').addEventListener('change', function () {
+        const distributorId = this.value;
+        const branchDropdown = document.getElementById('branchDropdown');
+        const ordertypeDropdown = document.getElementById('ordertypeDropdown');
+
+        if (distributorId) {
+            $.ajax({
+                url: "{% url 'supplychain:get_branches' %}",
+                data: { distributor_id: distributorId },
+                success: function (data) {
+                    branchDropdown.innerHTML = ''; // Clear existing options
+                    branchDropdown.innerHTML = '<option value="">Select a branch</option>'; // Default option
+                    data.branches.forEach(function (branch) {
+                        const option = document.createElement('option');
+                        option.value = branch.id;
+                        option.text = branch.name;
+                        branchDropdown.appendChild(option);
+                    });
+                }
+            });
+            $.ajax({
+                url: "{% url 'supplychain:get_ordertypes' %}",
+                data: { distributor_id: distributorId },
+                success: function (data) {
+                    ordertypeDropdown.innerHTML = ''; // Clear existing options
+                    ordertypeDropdown.innerHTML = '<option value="">Select a order type</option>'; // Default option
+                    data.ordertypes.forEach(function (ordertype) {
+                        const option = document.createElement('option');
+                        option.value = ordertype.id;
+                        option.text = ordertype.name;
+                        ordertypeDropdown.appendChild(option);
+                    });
+                }
+            });
+        } else {
+            branchDropdown.innerHTML = '<option value="">Select a branch</option>'; // Reset if no distributor selected
+            ordertypeDropdown.innerHTML = '<option value="">Select an order type</option>'; // Reset if no distributor selected
+        }
+    });
+</script>
+{% endblock %}

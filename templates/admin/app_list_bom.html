@@ -1,0 +1,9 @@
+<ul class="list-group striped-list hiveforest">
+    <li class="list-group-item hiveforest">
+        <h6 class="list-group hiveforest">Freight Cost</h6>
+    </li>
+    <li class="list-group-item hiveforest">
+        <a href="{% url 'admin:bom_freightcost_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Freight Cost</a> |
+        <a href="{% url 'admin:bom_freightcostdetail_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Freight Cost Detail</a>
+    </li>
+</ul>

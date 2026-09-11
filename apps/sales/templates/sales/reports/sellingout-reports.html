@@ -1,0 +1,1152 @@
+{% extends "main.html" %}
+
+{% block datatable_css %}
+  {{ block.super }}
+  <style>
+    .tmbg-report-wrapper {
+      max-height: 74vh;
+      overflow: auto;
+    }
+
+    .tmbg-report-table {
+      min-width: 1700px;
+      margin-bottom: 0;
+      border-collapse: separate;
+      border-spacing: 0;
+      position: relative;
+    }
+
+    .tmbg-report-table th,
+    .tmbg-report-table td {
+      border-color: #cdd8e6;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
+    .tmbg-report-table thead th {
+      background: #20476e;
+      color: #fff;
+      border-bottom: 2px solid #16324f;
+      position: sticky;
+      text-align: center;
+      top: 0;
+      z-index: 3;
+    }
+
+    .tmbg-report-table .number-cell.pos {
+      color: #1e7e34;
+      font-weight: 600;
+    }
+
+    .tmbg-report-table .number-cell.neg {
+      color: #c82333;
+      font-weight: 600;
+    }
+
+    .tmbg-report-table .number-cell.ach-low {
+      color: #c82333;
+      font-weight: 600;
+    }
+
+    .tmbg-report-table .number-cell.ach-high {
+      color: #1e7e34;
+      font-weight: 600;
+    }
+
+    .tmbg-report-table .number-cell.pos::before {
+      content: "\25B2 ";
+      font-size: .72em;
+      vertical-align: 1px;
+    }
+
+    .tmbg-report-table .number-cell.neg::before {
+      content: "\25BC ";
+      font-size: .72em;
+      vertical-align: 1px;
+    }
+
+    /* Zebra striping on the numeric area; total rows override via !important. */
+    .tmbg-report-table tbody tr:nth-child(even) .number-cell {
+      background: #f4f8fe;
+    }
+
+    .tmbg-report-table tbody td {
+      height: 28px;
+    }
+
+    .tmbg-report-table .product-brand,
+    .tmbg-report-table .product-variant {
+      background: #eef4fa;
+      color: #28486b;
+      font-weight: 600;
+      vertical-align: top;
+    }
+
+    .tmbg-report-table .product-brand {
+      min-width: 130px;
+    }
+
+    .tmbg-report-table .product-variant {
+      min-width: 90px;
+    }
+
+    .tmbg-report-table .product-freeze,
+    .tmbg-report-table .variant-freeze {
+      position: sticky !important;
+      background: #eef4fa;
+      background-clip: padding-box;
+      box-sizing: border-box;
+      white-space: normal;
+      word-break: break-word;
+    }
+
+    /* Product & Variant are merged into one frozen column (brand stacked over
+       variant); Type + Metric are frozen too so the row context stays visible on
+       horizontal scroll. Metric is the last frozen column: it carries the
+       freeze-boundary shadow. */
+    .tmbg-report-table .product-freeze {
+      left: 0 !important;
+      width: 160px;
+      min-width: 160px;
+      max-width: 160px;
+      z-index: 20;
+    }
+
+    .tmbg-report-table .metric-section {
+      position: sticky !important;
+      left: 160px !important;
+      width: 100px;
+      min-width: 100px;
+      max-width: 100px;
+      z-index: 20;
+      background-clip: padding-box;
+      vertical-align: top;
+      white-space: normal;
+    }
+
+    .tmbg-report-table .metric-label {
+      position: sticky !important;
+      left: 260px !important;
+      width: 110px;
+      min-width: 110px;
+      max-width: 110px;
+      z-index: 20;
+      background-clip: padding-box;
+      border-right: 0;
+      box-shadow: 2px 0 0 #dfe3e7;
+    }
+
+    .tmbg-report-table .pv-brand {
+      display: block;
+      font-weight: 700;
+    }
+
+    .tmbg-report-table .pv-variant {
+      display: block;
+      font-weight: 400;
+      font-size: .85em;
+      opacity: .75;
+    }
+
+    .tmbg-report-table thead .product-freeze,
+    .tmbg-report-table thead .metric-section,
+    .tmbg-report-table thead .metric-label {
+      top: 0 !important;
+      z-index: 30;
+      background: #20476e !important;
+    }
+
+    .tmbg-report-table tbody tr.metric-highlight td {
+      border-top: 1px solid #b9c6d6;
+    }
+
+    /* Row-header zone (Type + Metric columns) tinted; placed after the rows
+       above so it wins specificity ties on those label cells. */
+    .tmbg-report-table td.metric-section,
+    .tmbg-report-table td.metric-label {
+      background: #eef4fa;
+      color: #28486b;
+    }
+
+    .tmbg-report-table .subtotal-row td {
+      background: #d6e6f5 !important;
+      border-top: 2px solid #b9d1ea;
+    }
+
+    .tmbg-report-table .subtotal-brand,
+    .tmbg-report-table .subtotal-variant {
+      font-weight: 700;
+      vertical-align: top;
+    }
+
+    .tmbg-report-table .group-total-row td {
+      background: #aecbe8 !important;
+      color: #16324f;
+      border-top: 2px solid #8fb4dc;
+    }
+
+    .tmbg-report-table .group-total-brand,
+    .tmbg-report-table .group-total-variant {
+      font-weight: 700;
+      vertical-align: top;
+    }
+
+
+    .tmbg-report-table th:nth-last-child(2),
+    .tmbg-report-table td:nth-last-child(2) {
+      border-left: 2px solid #bcd4ef;
+    }
+
+    .tmbg-report-table th:last-child,
+    .tmbg-report-table td:last-child {
+      border-left: 1px solid #dfe9f5;
+    }
+
+    .tmbg-report-table .number-cell {
+      min-width: 88px;
+      text-align: right;
+    }
+
+    .report-note {
+      font-size: 0.85rem;
+    }
+
+    .report-column-filters {
+      border-top: 1px solid #dee2e6;
+      padding-top: .75rem;
+      margin-top: .25rem;
+    }
+
+    .optional-filter-card {
+      width: 100%;
+      border: 1px solid #dee2e6;
+      border-radius: .25rem;
+      margin-top: .5rem;
+    }
+
+    .optional-filter-card .card-header {
+      background: #f8f9fa;
+      padding: .5rem .75rem;
+    }
+
+    .optional-filter-toggle,
+    .optional-filter-toggle:hover,
+    .optional-filter-toggle:focus {
+      background-color: #007bff !important;
+      border-color: #007bff !important;
+      color: #fff !important;
+      font-weight: 600;
+      text-decoration: none !important;
+    }
+
+    .optional-filter-help {
+      font-size: .85rem;
+      color: #6c757d;
+    }
+
+    .optional-filter-count {
+      display: none;
+      font-size: .75rem;
+      margin-left: .35rem;
+    }
+
+    .report-column-filters .select2-container {
+      width: 100% !important;
+    }
+
+    /* Let multi-select chips wrap so the box grows when many are picked.
+       The Select2 base sets white-space:nowrap here (chips forced to one line,
+       box stays static); overflow:hidden is kept because it makes the box
+       contain the floated chips as they wrap. */
+    .report-column-filters .select2-container--bootstrap4 .select2-selection--multiple .select2-selection__rendered {
+      white-space: normal;
+    }
+
+    .model-filter-shell {
+      border: 1px solid #dee2e6;
+      border-radius: .25rem;
+      padding: 1rem;
+    }
+
+    .model-selection-label {
+      font-weight: 600;
+    }
+
+    #model-selection-panel .cibg-product-filter {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: .25rem;
+      padding: .75rem;
+    }
+
+    #model-selection-panel .cibg-product-filter .select2-container {
+      width: 100% !important;
+    }
+  </style>
+  <style>
+    /* ── Region View: wrapper is the single scroll container ── */
+    .cibg-report-wrapper {
+      max-height: 74vh;
+      overflow-y: auto;
+      overflow-x: auto;
+      position: relative;
+    }
+
+    /* Track sizes to the widest table (min-width 1050px) so the product title
+       lines up with the table's right edge, and both scroll together inside the
+       wrapper (the vertical scrollbar no longer offsets the title). */
+    .cibg-report-track {
+      display: inline-block;
+      vertical-align: top;
+    }
+
+    .cibg-month-title {
+      background: transparent;
+      border: 0;
+      margin: 1rem 0 .25rem;
+      padding: 0;
+      font-weight: 700;
+      line-height: 1.65rem;
+    }
+
+    .cibg-month-block {
+      margin-bottom: 2rem;
+    }
+
+    .cibg-period-label {
+      display: inline;
+      margin-left: .35rem;
+      font-size: .75rem;
+      font-weight: 600;
+    }
+
+    .cibg-product-title {
+      position: sticky;
+      top: 0;
+      z-index: 500;
+      height: 2.5rem;
+      line-height: 2.375rem;
+      box-sizing: border-box;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 0 0 .25rem;
+      padding: 0 .75rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ── table base ── */
+    .cibg-report-table {
+      min-width: 1050px;
+      margin-bottom: 1.25rem;
+      border-collapse: separate;
+      border-spacing: 0;
+      position: relative;
+    }
+
+    .cibg-report-table th,
+    .cibg-report-table td {
+      border-style: solid;
+      border-color: #cdd8e6;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
+    /* Frozen cells carrying a box-shadow divider drop their right border so the
+       line is not doubled; freeze-target-unit keeps its border for UNIT|VALUE. */
+    .cibg-report-table .branch-cell,
+    .cibg-report-table .freeze-target-header,
+    .cibg-report-table .freeze-target-value {
+      border-right: 0 !important;
+    }
+
+    .cibg-report-table thead th {
+      background: #20476e;
+      color: #fff;
+      border-bottom: 2px solid #16324f;
+      text-align: center;
+    }
+
+    .cibg-report-table .number-cell.pos {
+      color: #1e7e34;
+      font-weight: 600;
+    }
+
+    .cibg-report-table .number-cell.neg {
+      color: #c82333;
+      font-weight: 600;
+    }
+
+    .cibg-report-table .number-cell.pos::before {
+      content: "\25B2 ";
+      font-size: .72em;
+      vertical-align: 1px;
+    }
+
+    .cibg-report-table .number-cell.neg::before {
+      content: "\25BC ";
+      font-size: .72em;
+      vertical-align: 1px;
+    }
+
+    /* Zebra striping on the numeric area; total rows override via !important. */
+    .cibg-report-table tbody tr:nth-child(even) .number-cell {
+      background: #f4f8fe;
+    }
+
+    /*
+     * ── HEADER VERTICAL FREEZE ──
+     *
+     * IMPORTANT: Do NOT put position:sticky on <thead> itself.
+     * That creates a containing block which prevents child <th>
+     * cells from being sticky on the horizontal (left) axis.
+     *
+     * Instead, each <th> gets its own sticky + top value.
+     */
+    .cibg-report-table thead {
+      z-index: 5;
+      background: #20476e;
+    }
+
+    /* Row 1 header cells: stick just below the sticky product title (2.5rem). */
+    .cibg-report-table thead .cibg-header-r1 > th {
+      position: sticky !important;
+      top: 2.5rem;
+      z-index: 10;
+      background: #20476e;
+    }
+
+    /* Row 2 header cells: stick below row 1 (title height + row 1 height). */
+    .cibg-report-table thead .cibg-header-r2 > th {
+      position: sticky !important;
+      top: calc(2.5rem + 31px);
+      z-index: 10;
+      background: #20476e;
+    }
+
+    /* ── number cells ── */
+    .cibg-report-table .number-cell {
+      min-width: 82px;
+      text-align: right;
+    }
+
+    /* ═══════════════════════════════════════════
+     *  FROZEN COLUMNS: BRANCH + TARGET UNIT/VALUE
+     *  3 leftmost columns stay fixed on h-scroll
+     * ═══════════════════════════════════════════ */
+
+    /* -- Column widths (fixed) -- */
+    .cibg-report-table .branch-cell {
+      width: 150px;
+      min-width: 150px;
+      max-width: 150px;
+    }
+    .cibg-report-table .freeze-target-unit {
+      width: 82px;
+      min-width: 82px;
+      max-width: 82px;
+    }
+    .cibg-report-table .freeze-target-value {
+      width: 82px;
+      min-width: 82px;
+      max-width: 82px;
+    }
+
+    /* ── BRANCH column (body cells) ── */
+    .cibg-report-table tbody .branch-cell {
+      position: -webkit-sticky !important;
+      position: sticky !important;
+      left: 0 !important;
+      z-index: 200 !important;
+      background: #eef4fa !important;
+      color: #28486b;
+      font-weight: 600;
+      background-clip: padding-box;
+      box-sizing: border-box;
+      border-right: 0 !important;
+      box-shadow: 2px 0 0 #dfe3e7;
+    }
+
+    /* ── BRANCH column (header, rowspan=2 → sticks at top:2.5rem) ── */
+    .cibg-report-table thead .branch-cell {
+      position: -webkit-sticky !important;
+      position: sticky !important;
+      left: 0 !important;
+      top: 2.5rem !important;
+      z-index: 400 !important;
+      background: #20476e !important;
+      background-clip: padding-box;
+      box-sizing: border-box;
+      box-shadow: 2px 0 0 #dfe3e7;
+    }
+
+    /* ── TARGET header (colspan=2, row 1) ── */
+    .cibg-report-table thead .freeze-target-header {
+      position: -webkit-sticky !important;
+      position: sticky !important;
+      left: 150px !important;
+      z-index: 390 !important;
+      background: #20476e !important;
+      background-clip: padding-box;
+      box-shadow: 2px 0 0 #dfe3e7;
+    }
+
+    /* ── TARGET UNIT (header, row 2) ── */
+    .cibg-report-table thead .freeze-target-unit {
+      position: -webkit-sticky !important;
+      position: sticky !important;
+      left: 150px !important;
+      z-index: 390 !important;
+      background: #20476e !important;
+      background-clip: padding-box;
+    }
+
+    /* ── TARGET VALUE (header, row 2) ── */
+    .cibg-report-table thead .freeze-target-value {
+      position: -webkit-sticky !important;
+      position: sticky !important;
+      left: 232px !important;
+      z-index: 390 !important;
+      background: #20476e !important;
+      background-clip: padding-box;
+      box-shadow: 2px 0 0 #dfe3e7;
+    }
+
+    /* ── TARGET UNIT (body cells) ── */
+    .cibg-report-table tbody .freeze-target-unit {
+      position: -webkit-sticky !important;
+      position: sticky !important;
+      left: 150px !important;
+      z-index: 200 !important;
+      background: #fff !important;
+      background-clip: padding-box;
+    }
+
+    /* ── TARGET VALUE (body cells) ── */
+    .cibg-report-table tbody .freeze-target-value {
+      position: -webkit-sticky !important;
+      position: sticky !important;
+      left: 232px !important;
+      z-index: 200 !important;
+      background: #fff !important;
+      background-clip: padding-box;
+      box-shadow: 2px 0 0 #dfe3e7;
+    }
+
+    /* ═══════════════════════════════════════════
+     *  ROW TYPE BACKGROUNDS
+     *  Override the #fff default for frozen cells
+     *  on special rows (totals, unmapped, etc.)
+     * ═══════════════════════════════════════════ */
+
+    .cibg-report-table .cibg-region-total td {
+      background: #d6e6f5 !important;
+      font-weight: 700;
+    }
+
+    .cibg-report-table .cibg-nsm-total td {
+      background: #aecbe8 !important;
+      border-top: 2px solid #8fb4dc;
+      font-weight: 700;
+    }
+
+    .cibg-report-table .cibg-grand-total td {
+      background: #16324f !important;
+      color: #fff;
+      border-top: 2px solid #0f2942;
+      font-weight: 700;
+    }
+
+    /* Growth on the dark blue Grand Total row: lighten so it stays legible. */
+    .cibg-report-table .cibg-grand-total .number-cell.pos {
+      color: #9be7b5;
+    }
+
+    .cibg-report-table .cibg-grand-total .number-cell.neg {
+      color: #ffb3b8;
+    }
+
+    .cibg-report-table .cibg-unmapped-branch td {
+      background: #fff6e0 !important;
+    }
+
+    /* ═══════════════════════════════════════════
+     *  UI CONTROLS (filters, tabs, etc.)
+     * ═══════════════════════════════════════════ */
+
+    .cibg-product-filter {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: .25rem;
+      padding: .75rem;
+    }
+
+    .cibg-product-filter .select2-container {
+      width: 100% !important;
+    }
+
+    .cibg-sheet-tabs {
+      border-bottom: 2px solid #6c757d;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: nowrap;
+    }
+
+    .cibg-sheet-tabs .nav-link {
+      background: #e9ecef;
+      border: 1px solid #adb5bd;
+      border-bottom: 0;
+      color: #343a40;
+      font-weight: 600;
+      margin-right: .2rem;
+      padding: .5rem .9rem;
+    }
+
+    .cibg-sheet-tabs .nav-link.active {
+      background: #fff;
+      border-color: #6c757d;
+      border-top: 3px solid #007bff;
+      color: #007bff;
+      padding-top: calc(.5rem - 2px);
+    }
+
+    .cibg-sheet-content {
+      border: 1px solid #dee2e6;
+      padding: 1rem;
+    }
+
+    .cibg-sheet-tabs + .cibg-sheet-content {
+      border-top: 0;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="card card-primary card-outline hiveforest">
+    <div class="card-header">
+      <h1 class="card-title">
+        <b id="report-title">
+          {% if report_ready %}
+            {% if selected_model == "cibg" %}Region View{% else %}Period View{% endif %} - {{ selected_year }}
+          {% else %}
+            Sellingout Reports
+          {% endif %}
+        </b>
+      </h1>
+    </div>
+
+    <div class="card-body">
+      <div id="model-selection-wrapper" class="model-filter-shell"{% if selected_model %} style="display: none;"{% endif %}>
+        <form method="get" id="model-selection-form" class="form-row align-items-end mb-3">
+          <div class="form-group col-md-5 mb-0">
+            <label for="report-model" class="model-selection-label">Display Model</label>
+            <select id="report-model" name="model" class="form-control" required>
+              <option value="">Select display model</option>
+              {% for model in model_choices %}
+                <option value="{{ model.value }}">{{ model.label }}</option>
+              {% endfor %}
+            </select>
+            <small class="form-text text-muted">
+              Select a model to open its report filters.
+            </small>
+          </div>
+        </form>
+        <div id="model-selection-panel" class="mt-3" style="display: none;"></div>
+      </div>
+
+      {% if selected_model == "cibg" or selected_model == "tmbg" %}
+        {% include "sales/reports/_sellingout_filters.html" %}
+        {% if report_ready %}
+          {% include "sales/reports/_sellingout_result.html" %}
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  {{ block.super }}
+  <script>
+    // Sellingout reports shared behavior.
+    (function ($) {
+      const reportUrl = "{% url 'sales:sellingout_reports' %}";
+      const filterOptionsUrl = "{% url 'sales:sellingout_filter_options' %}";
+      const yearOptionsUrl = "{% url 'sales:sellingout_year_options' %}";
+      const pageReportReady = "{{ report_ready|yesno:'true,false' }}" === 'true';
+
+      function elementsWithin(root, selector) {
+        const $root = $(root);
+        return $root.filter(selector).add($root.find(selector));
+      }
+
+      function selectedValues($select) {
+        return ($select.val() || []).map(String);
+      }
+
+      function buildReportUrl($form) {
+        const params = new URLSearchParams(new FormData($form[0]));
+
+        // Preserve current select values if an async options request temporarily
+        // disabled the element.
+        $form.find('select[name]').each(function () {
+          const $select = $(this);
+          const name = this.name;
+          if (!name || params.has(name)) {
+            return;
+          }
+
+          if (this.multiple) {
+            selectedValues($select).forEach(function (value) {
+              params.append(name, value);
+            });
+          } else if ($select.val()) {
+            params.append(name, $select.val());
+          }
+        });
+
+        const url = new URL(reportUrl, window.location.origin);
+        url.search = '';
+        params.forEach(function (value, key) {
+          url.searchParams.append(key, value);
+        });
+        url.searchParams.set('display', '1');
+        return url.toString();
+      }
+
+      function cleanReportUrl(url) {
+        const cleanUrl = new URL(reportUrl, window.location.origin);
+        cleanUrl.search = '';
+        return cleanUrl.toString();
+      }
+
+      function setSubmitState($form, isLoading) {
+        $form.find('button[type="submit"]').each(function () {
+          const $button = $(this);
+          if (isLoading) {
+            if (!$button.data('hjp-original-html')) {
+              $button.data('hjp-original-html', $button.html());
+            }
+            $button
+              .prop('disabled', true)
+              .html('<i class="fas fa-spinner fa-spin mr-1"></i> Loading report...');
+            return;
+          }
+
+          $button
+            .prop('disabled', false)
+            .html($button.data('hjp-original-html') || $button.html());
+        });
+      }
+
+      function renderReportResult(html, url) {
+        const parsed = new DOMParser().parseFromString(html, 'text/html');
+        const incomingResult = parsed.querySelector('#report-result-content');
+        const currentResult = document.querySelector('#report-result-content');
+        if (!incomingResult || !currentResult) {
+          throw new Error('Report response is invalid.');
+        }
+
+        currentResult.replaceWith(incomingResult);
+
+        const reportTitle = incomingResult.getAttribute('data-report-title');
+        if (reportTitle) {
+          const $title = $('#report-title');
+          if ($title.length) {
+            $title.text(reportTitle);
+          }
+        }
+
+        window.history.pushState({}, '', cleanReportUrl(url));
+      }
+
+      function handleReportSubmit(event, $form, setStatus) {
+        event.preventDefault();
+        const url = new URL(buildReportUrl($form), window.location.origin);
+        url.searchParams.set('partial', 'report');
+        const controller = new AbortController();
+        const timeoutId = window.setTimeout(function () {
+          controller.abort();
+        }, 60000);
+
+        setSubmitState($form, true);
+        setStatus('Loading report...');
+
+        fetch(url.toString(), {
+          method: 'GET',
+          credentials: 'same-origin',
+          headers: {'X-Requested-With': 'XMLHttpRequest'},
+          signal: controller.signal,
+        })
+          .then(function (response) {
+            if (!response.ok) {
+              throw new Error('Report could not be loaded.');
+            }
+            return response.text();
+          })
+          .then(function (html) {
+            renderReportResult(html, url);
+            setStatus('Report loaded.');
+          })
+          .catch(function (error) {
+            if (error.name === 'AbortError') {
+              setStatus('Report loading timed out. Opening the report normally...');
+            } else {
+              setStatus('Report could not be loaded. Opening the report normally...');
+            }
+            window.location.assign(cleanReportUrl(url));
+          })
+          .finally(function () {
+            window.clearTimeout(timeoutId);
+            setSubmitState($form, false);
+          });
+      }
+
+      function initializeYearOptions($form, reportReady) {
+        const $year = $form.find('#report-year');
+        if (reportReady || !$year.length) {
+          return;
+        }
+
+        const selectedYear = String($year.val() || '');
+        $year.prop('disabled', true);
+        fetch(yearOptionsUrl, {
+          method: 'GET',
+          headers: {'X-Requested-With': 'XMLHttpRequest'},
+        })
+          .then(function (response) {
+            if (!response.ok) {
+              throw new Error('Year options could not be loaded.');
+            }
+            return response.json();
+          })
+          .then(function (data) {
+            const years = (data.years || []).map(String);
+            if (!years.length) {
+              return;
+            }
+
+            $year.empty();
+            years.forEach(function (year) {
+              $year.append(new Option(year, year, false, year === selectedYear));
+            });
+
+            if (!$year.val()) {
+              $year.val(years[years.length - 1]);
+            }
+          })
+          .catch(function () {
+            // The current-year fallback rendered by the server remains usable.
+          })
+          .finally(function () {
+            $year.prop('disabled', false);
+          });
+      }
+
+      function initializeTmbgFilters(root) {
+        const $form = elementsWithin(root, '#report-filter-form').first();
+        if (!$form.length || $form.data('hjp-initialized')) {
+          return;
+        }
+        $form.data('hjp-initialized', true);
+
+        const $business = $form.find('#report-business');
+        const $group = $form.find('#report-group');
+        const $subgroup = $form.find('#report-subgroup');
+        const $product = $form.find('#report-product');
+        const $feedback = $form.find('#report-filter-feedback');
+        const $filterCount = $form.find('#optional-filter-count');
+        const reportReady = String($form.data('report-ready')) === 'true'
+          || pageReportReady;
+
+        $form.find('.report-filter-select').each(function () {
+          $(this).select2({
+            theme: 'bootstrap4',
+            width: '100%',
+            placeholder: $(this).data('placeholder'),
+            allowClear: true,
+            closeOnSelect: false,
+          });
+        });
+
+        function updateFilterCount() {
+          const count = selectedValues($group).length
+            + selectedValues($subgroup).length
+            + selectedValues($product).length;
+
+          $filterCount.text(count + (count === 1 ? ' filter selected' : ' filters selected'));
+          $filterCount.toggle(count > 0);
+        }
+
+        function replaceOptions($select, options) {
+          $select.empty();
+          options.forEach(function (option) {
+            $select.append(new Option(option.label, option.id, false, false));
+          });
+          $select.val(null).trigger('change.select2');
+          updateFilterCount();
+        }
+
+        function setLoading(isLoading, $except) {
+          $form.find('.report-filter-select').each(function () {
+            if ($except && $except.length && this === $except[0]) {
+              // Keep the select the user is actively picking in open/enabled.
+              return;
+            }
+            $(this).prop('disabled', isLoading);
+          });
+          if (isLoading) {
+            $feedback.text('Updating filters...');
+          }
+        }
+
+        function loadDependentOptions(level) {
+          const $trigger = level === 'group'
+            ? $group
+            : level === 'subgroup'
+              ? $subgroup
+              : null;
+          const params = new URLSearchParams();
+          const groupValues = selectedValues($group);
+          const subgroupValues = selectedValues($subgroup);
+
+          if ($business.val()) {
+            params.append('business_id', $business.val());
+          }
+          if (level !== 'business') {
+            groupValues.forEach(function (value) {
+              params.append('group_ids', value);
+            });
+          }
+          if (level === 'subgroup') {
+            subgroupValues.forEach(function (value) {
+              params.append('subgroup_ids', value);
+            });
+          }
+
+          setLoading(true, $trigger);
+          fetch(filterOptionsUrl + '?' + params.toString(), {
+            method: 'GET',
+            headers: {'X-Requested-With': 'XMLHttpRequest'},
+          })
+            .then(function (response) {
+              if (!response.ok) {
+                throw new Error('Filter options could not be loaded.');
+              }
+              return response.json();
+            })
+            .then(function (data) {
+              if (level === 'business') {
+                replaceOptions($group, data.groups);
+                replaceOptions($subgroup, data.subgroups);
+                replaceOptions($product, data.product_options);
+              } else if (level === 'group') {
+                replaceOptions($subgroup, data.subgroups);
+                replaceOptions($product, data.product_options);
+              } else {
+                replaceOptions($product, data.product_options);
+              }
+              $feedback.text('Filters updated.');
+            })
+            .catch(function (error) {
+              $feedback.text(error.message);
+            })
+            .finally(function () {
+              setLoading(false, $trigger);
+            });
+        }
+
+        $business.on('change.hjpReport', function () {
+          loadDependentOptions('business');
+        });
+        $group.on('change.hjpReport', function () {
+          loadDependentOptions('group');
+        });
+        $subgroup.on('change.hjpReport', function () {
+          loadDependentOptions('subgroup');
+        });
+        $form.find('.report-filter-select').on('change.hjpReport', updateFilterCount);
+        $form.on('submit.hjpReport', function (event) {
+          handleReportSubmit(event, $form, function (message) {
+            $feedback.text(message);
+          });
+        });
+
+        updateFilterCount();
+        if (!reportReady) {
+          initializeYearOptions($form, reportReady);
+          loadDependentOptions('business');
+        }
+      }
+
+      function initializeCibgFilters(root) {
+        const $form = elementsWithin(root, '#cibg-report-form').first();
+        if (!$form.length || $form.data('hjp-initialized')) {
+          return;
+        }
+        $form.data('hjp-initialized', true);
+
+        const $business = $form.find('#report-business');
+        const $product = $form.find('#report-product');
+        const $feedback = $form.find('#cibg-filter-feedback');
+        const reportReady = String($form.data('report-ready')) === 'true'
+          || pageReportReady;
+
+        $product.select2({
+          theme: 'bootstrap4',
+          width: '100%',
+          placeholder: $product.data('placeholder'),
+          allowClear: true,
+          closeOnSelect: false,
+        });
+
+        function replaceProductOptions(options) {
+          $product.empty();
+          options.forEach(function (option) {
+            $product.append(new Option(option.label, option.id, false, false));
+          });
+          $product.val(null).trigger('change.select2');
+        }
+
+        function loadProductOptions() {
+          const params = new URLSearchParams();
+          params.append('products_only', '1');
+          if ($business.val()) {
+            params.append('business_id', $business.val());
+          }
+
+          $product.prop('disabled', true);
+          $feedback.text('Updating product options...');
+          fetch(filterOptionsUrl + '?' + params.toString(), {
+            method: 'GET',
+            headers: {'X-Requested-With': 'XMLHttpRequest'},
+          })
+            .then(function (response) {
+              if (!response.ok) {
+                throw new Error('Product options could not be loaded.');
+              }
+              return response.json();
+            })
+            .then(function (data) {
+              replaceProductOptions(data.product_options);
+              $feedback.text('Product options updated.');
+            })
+            .catch(function (error) {
+              $feedback.text(error.message);
+            })
+            .finally(function () {
+              $product.prop('disabled', false);
+            });
+        }
+
+        $business.on('change.hjpReport', loadProductOptions);
+        $form.on('submit.hjpReport', function (event) {
+          handleReportSubmit(event, $form, function (message) {
+            $feedback.text(message);
+          });
+        });
+
+        if (!reportReady) {
+          initializeYearOptions($form, reportReady);
+          loadProductOptions();
+        }
+      }
+
+      function initializeModelSelector(root) {
+        const $model = elementsWithin(root, '#report-model').first();
+        if (!$model.length || $model.data('hjp-initialized')) {
+          return;
+        }
+        $model.data('hjp-initialized', true);
+
+        $model.on('change.hjpReport', function () {
+          const model = this.value;
+          if (!model) {
+            return;
+          }
+
+          const $wrapper = $('#model-selection-wrapper');
+          const $panel = $('#model-selection-panel');
+          if (!$wrapper.length || !$panel.length) {
+            const fallbackUrl = new URL(window.location.href);
+            fallbackUrl.search = '';
+            fallbackUrl.searchParams.set('model', model);
+            window.location.assign(fallbackUrl.toString());
+            return;
+          }
+
+          const partialUrl = new URL(reportUrl, window.location.origin);
+          partialUrl.searchParams.set('model', model);
+          partialUrl.searchParams.set('partial', '1');
+
+          $model.prop('disabled', true);
+          $panel
+            .html('<div class="alert alert-info"><i class="fas fa-spinner fa-spin mr-1"></i> Opening report filters...</div>')
+            .show();
+
+          fetch(partialUrl.toString(), {
+            method: 'GET',
+            headers: {'X-Requested-With': 'XMLHttpRequest'},
+          })
+            .then(function (response) {
+              if (!response.ok) {
+                throw new Error('Report filters could not be loaded.');
+              }
+              return response.text();
+            })
+            .then(function (html) {
+              $panel.html(html);
+
+              window.history.replaceState(
+                {model: model},
+                '',
+                cleanReportUrl(partialUrl),
+              );
+
+              initializeReportPanel($panel);
+            })
+            .catch(function (error) {
+              $panel.html('<div class="alert alert-danger">' + error.message + '</div>');
+            })
+            .finally(function () {
+              $model.prop('disabled', false);
+            });
+        });
+      }
+
+      function initializeReportPanel(root) {
+        initializeTmbgFilters(root);
+        initializeCibgFilters(root);
+      }
+
+      function initializeReport(root) {
+        initializeModelSelector(root);
+        initializeReportPanel(root);
+      }
+
+      $(document).on('click.hjpReport', '.change-model-link', function (event) {
+        const $wrapper = $('#model-selection-wrapper');
+        const $panel = $('#model-selection-panel');
+        if (!$wrapper.length || !$panel.length) {
+          return;
+        }
+
+        event.preventDefault();
+        $panel.empty().hide();
+        $('#report-model').val('').prop('disabled', false);
+        $('#report-filter-form, #cibg-report-form').hide();
+        $('#report-result-content').hide();
+        $wrapper.show();
+        window.history.replaceState({}, '', cleanReportUrl(window.location.href));
+      });
+
+      window.initializeHjpValueReport = initializeReport;
+      $(function () {
+        initializeReport(document);
+      });
+    })(jQuery);
+  </script>
+{% endblock %}

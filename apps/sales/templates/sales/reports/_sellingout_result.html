@@ -1,0 +1,152 @@
+{# Sellingout result partial (Period View / Region View). Report styles live in
+   sellingout-reports.html's datatable_css block, always rendered on first
+   load, so no per-model style include is needed here. #}
+{% if selected_model == "cibg" %}
+<div id="report-result-content" data-report-title="Region View - {{ selected_year }}">
+  <div class="text-muted small mb-3">
+    Sales Value is shown in Mio Rupiah. Target and % Ach. are empty until target data is available.
+    Period: {{ selected_from_month_label }} - {{ selected_to_month_label }} {{ selected_year }}.
+  </div>
+
+  {% if product_reports %}
+    {% if show_product_tabs %}
+      <ul class="nav nav-tabs cibg-sheet-tabs" role="tablist">
+        {% for product in product_reports %}
+          <li class="nav-item">
+            <a class="nav-link {% if forloop.first %}active{% endif %}" data-toggle="tab" href="#cibg-product-{{ forloop.counter }}" role="tab">
+              {{ product.product_name }}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <div class="tab-content cibg-sheet-content">
+      {% for product in product_reports %}
+        <div id="cibg-product-{{ forloop.counter }}" class="tab-pane fade {% if forloop.first %}show active{% endif %}" role="tabpanel">
+          <div class="cibg-report-wrapper">
+            <div class="cibg-report-track">
+            <h3 class="cibg-product-title">{{ product.product_name }}</h3>
+            {% for month in product.months %}
+              <section class="cibg-month-block">
+                <h3 class="cibg-month-title">{{ month.label }} {{ selected_year }}</h3>
+                <table class="table table-bordered table-sm cibg-report-table">
+                  <thead>
+                    <tr class="cibg-header-r1">
+                      <th rowspan="2" class="branch-cell">
+                        BRANCH
+                      </th>
+                      <th colspan="2" class="freeze-target-header">
+                        TARGET
+                        <small class="cibg-period-label">{{ month.label }} {{ selected_year }}</small>
+                      </th>
+                      <th colspan="2">
+                        SALES
+                        <small class="cibg-period-label">{{ month.label }} {{ selected_year }}</small>
+                      </th>
+                      <th colspan="2">% ACH.</th>
+                      <th colspan="2">{{ previous_year }}</th>
+                      <th colspan="2">% GROWTH</th>
+                    </tr>
+                    <tr class="cibg-header-r2">
+                        <th class="number-cell freeze-target-unit">UNIT</th>
+                        <th class="number-cell freeze-target-value">VALUE</th>
+                      <th class="number-cell">UNIT</th>
+                      <th class="number-cell">VALUE</th>
+                      <th class="number-cell">UNIT</th>
+                      <th class="number-cell">VALUE</th>
+                      <th class="number-cell">UNIT</th>
+                      <th class="number-cell">VALUE</th>
+                      <th class="number-cell">UNIT</th>
+                      <th class="number-cell">VALUE</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for row in month.rows %}
+                      <tr class="{{ row.row_class }}">
+                        <td class="branch-cell">{{ row.label }}</td>
+                        <td class="number-cell freeze-target-unit" title="{{ row.target_unit.full }}">{{ row.target_unit.display }}</td>
+                        <td class="number-cell freeze-target-value" title="{{ row.target_value.full }}">{{ row.target_value.display }}</td>
+                        <td class="number-cell" title="{{ row.sales_unit.full }}">{{ row.sales_unit.display }}</td>
+                        <td class="number-cell" title="{{ row.sales_value.full }}">{{ row.sales_value.display }}</td>
+                        <td class="number-cell" title="{{ row.achievement_unit.full }}">{{ row.achievement_unit.display }}</td>
+                        <td class="number-cell" title="{{ row.achievement_value.full }}">{{ row.achievement_value.display }}</td>
+                        <td class="number-cell" title="{{ row.previous_unit.full }}">{{ row.previous_unit.display }}</td>
+                        <td class="number-cell" title="{{ row.previous_value.full }}">{{ row.previous_value.display }}</td>
+                        <td class="number-cell {{ row.growth_unit.trend }}" title="{{ row.growth_unit.full }}">{{ row.growth_unit.display }}</td>
+                        <td class="number-cell {{ row.growth_value.trend }}" title="{{ row.growth_value.full }}">{{ row.growth_value.display }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </section>
+            {% endfor %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info">No data for the selected filters.</div>
+  {% endif %}
+</div>
+{% else %}
+<div id="report-result-content" data-report-title="Period View - {{ selected_year }}">
+  <div class="report-note text-muted mb-2">
+    Value in Mio Rupiah. Quantity in tablets.
+    Period: {{ selected_from_month_label }} - {{ selected_to_month_label }} {{ selected_year }}.
+    YTD: Jan - {{ ytd_month_label }} {{ selected_year }}.
+  </div>
+
+  <div class="table-responsive tmbg-report-wrapper">
+    <table class="table table-bordered table-sm tmbg-report-table">
+      <thead>
+        <tr>
+          <th class="product-freeze">Product</th>
+          <th class="metric-section">Type</th>
+          <th class="metric-label">Metric</th>
+          {% for month in months %}
+            <th class="number-cell">{{ month.label }}</th>
+          {% endfor %}
+          <th class="number-cell">TOTAL</th>
+          <th class="number-cell">YTD {{ ytd_month_label }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for block in products %}
+          {% for section in block.sections %}
+            {% for row in section.rows %}
+              <tr class="{{ block.block_class }} {{ row.row_class }}">
+                {% if forloop.parentloop.first and forloop.first %}
+                  <td class="product-freeze {{ block.brand_class }}" rowspan="{{ block.rowspan }}">
+                    <span class="pv-brand">{{ block.brand }}</span>
+                    {% if block.variant %}<span class="pv-variant">{{ block.variant }}</span>{% endif %}
+                  </td>
+                {% endif %}
+
+                {% if forloop.first %}
+                  <td class="metric-section" rowspan="{{ section.rowspan }}">
+                    {{ section.label }}<br>
+                    <small>{{ section.unit }}</small>
+                  </td>
+                {% endif %}
+
+                <td class="metric-label">{{ row.label }}</td>
+                {% for value in row.values %}
+                  <td class="number-cell {{ value.trend }}" title="{{ value.full }}">{{ value.display }}</td>
+                {% endfor %}
+                <td class="number-cell font-weight-bold {{ row.total.trend }}" title="{{ row.total.full }}">{{ row.total.display }}</td>
+                <td class="number-cell {{ row.ytd.trend }}" title="{{ row.ytd.full }}">{{ row.ytd.display }}</td>
+              </tr>
+            {% endfor %}
+          {% endfor %}
+        {% empty %}
+          <tr>
+            <td colspan="{{ table_colspan }}" class="text-center text-muted">No data for the selected filters.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}

@@ -1,0 +1,29 @@
+{# ╔════════════════════════════════════════════════════════════════════════════════════════════════╗ #}
+{# ║  Name: organization_tree                                                                       ║ #}
+{# ╟────────────────────────────────────────────────────────────────────────────────────────────────╢ #}
+{# ║  Path: apps\humancapital\templates\humancapital\organization\organization_tree.html            ║ #}
+{# ║  Created: Jun/4-2025 by Setiadji                                                               ║ #}
+{# ║  Updated:                                                                                      ║ #}
+{# ╚════════════════════════════════════════════════════════════════════════════════════════════════╝ #}
+{% extends 'main.html' %}
+{% load static i18n %}
+{% block title %}HiveForest | Organization Tree View{% endblock %}
+
+{% block extra_head %}
+    <!-- React App CSS -->
+    <link rel="stylesheet" href="{% static 'hivetree/static/css/main.ac743b7f.css' %}">
+{% endblock %}
+
+{% block content_header %}
+    {% block nav-breadcrumbs %}
+        {{ block.super }}
+    {% endblock %}
+{% endblock %}
+
+{% block content %}
+    <div id="root"></div>
+
+    <!-- React App JS -->
+    <script src="{% static 'hivetree/static/js/453.fa0b9ce2.chunk.js' %}"></script>
+    <script src="{% static 'hivetree/static/js/main.dac61206.js' %}"></script>
+{% endblock %}

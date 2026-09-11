@@ -1,0 +1,308 @@
+<ul class="list-group striped-list hiveforest">
+  <li class="list-group-item hiveforest">
+    <h6 class="list-group hiveforest">Products</h6>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:sales_product_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Products</a> |
+    <a href="{% url 'admin:sales_productgroup_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Groups</a> |
+    <a href="{% url 'admin:sales_productsubgroup_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Subgroups</a>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:sales_productcategory_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Category</a> |
+    <a href="{% url 'admin:sales_productpackage_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Packaging</a>
+  </li>
+  <li class="list-group-item hiveforest">
+    <h6 class="list-group hiveforest">Customers</h6>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:sales_customer_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Customers</a> |
+    <a href="{% url 'admin:sales_customertype_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Types</a> |
+    <a href="{% url 'admin:sales_customergroup_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Groups</a>
+  </li>
+  <li class="list-group-item hiveforest">
+    <h6 class="list-group hiveforest">Outlets</h6>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:sales_outlet_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Outlets</a> |
+    <a href="{% url 'admin:sales_outletgroup_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Groups</a>
+  </li>
+  <li class="list-group-item hiveforest">
+    <h6 class="list-group hiveforest">Sales</h6>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:sales_rawmuso_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Raw MUP-SO</a> |
+    <a href="{% url 'admin:sales_rawrnso_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Raw RN-SO</a> |
+    <a href="{% url 'admin:sales_rawlmsso_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Raw LMS-SO</a> |
+    <a href="{% url 'admin:sales_rawkfso_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Raw KFTD-SO</a> |
+    <a href="{% url 'admin:sales_rawigso_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Raw IGM-SO</a> |
+    <a href="{% url 'admin:sales_rawppso_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Raw PPI-SO</a> |
+    <a href="{% url 'admin:sales_rawaplso_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Raw APL-SO</a> |
+    <a href="{% url 'admin:sales_rawappso_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Raw APP-SO</a> |
+    <button type="button" id="btn-import-rawappso" class="btn btn-primary btn-sm"
+            data-url="{% url 'sales:import_rawappso' %}">Import APP-SO</button> |
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#syncModal">Sync</button>
+    <!-- Sync Modal -->
+    <div class="modal fade" id="syncModal" tabindex="-1" role="dialog" aria-labelledby="syncModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <form class="modal-content" id="syncForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="syncModalLabel">Sync Data</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+
+            <!-- TYPE SELECT -->
+            <div class="form-group">
+              <label for="type">Task Type</label>
+              <select class="form-control" id="type" name="type" required>
+                <option value="">-- Select Task Type --</option>
+                <option value="combine_so">Combine Selling Out</option>
+                <option value="update_so_price">Update Selling Out Price</option>
+                <option value="closed_so">Closed Selling Out</option>
+              </select>
+            </div>
+            
+            <!-- DISTRIBUTOR -->
+            <div class="form-group">
+              <label for="dist">Distributor</label>
+              <select class="form-control" id="dist" name="dist" required>
+                <option value="">-- Select Distributor --</option>
+                <option value="mup">MUP</option>
+                <option value="apl">APL</option>
+                <option value="app">APP</option>
+              </select>
+            </div>
+
+            <!-- START AND END DATE -->
+            <div class="form-row">
+              <div class="form-group col">
+                <label for="start_date">Start Date</label>
+                <input type="date" class="form-control" id="start_date" name="start_date" required>
+              </div>
+              <div class="form-group col">
+                <label for="end_date">End Date</label>
+                <input type="date" class="form-control" id="end_date" name="end_date" required>
+              </div>
+            </div>
+            <div id="syncResult" class="text-center"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary" id="startSyncBtn">
+              <span id="syncBtnSpinner" class="spinner-border spinner-border-sm mr-1" role="status" aria-hidden="true" style="display:none;"></span>
+              Start Sync
+            </button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <a href="{% url 'admin:sales_sellingout_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Selling Out</a> |
+    <a href="{% url 'admin:sales_salestype_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Types</a> |
+    <a href="{% url 'admin:sales_repoffice_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Representative Offices</a>
+  </li>
+  <li class="list-group-item hiveforest">
+    <h6 class="list-group hiveforest">Reconciliation</h6>
+  </li>
+  <li class="list-group-item hiveforest">
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#reconExportModal">Export Recon (Excel)</button>
+    <!-- Recon Export Modal -->
+    <div class="modal fade" id="reconExportModal" tabindex="-1" role="dialog" aria-labelledby="reconExportLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <form class="modal-content" id="reconExportForm" method="get" action="{% url 'sales:export_so_recon' %}" target="_blank">
+          <div class="modal-header">
+            <h5 class="modal-title" id="reconExportLabel">Export Rekonsiliasi Selling Out</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+
+            <!-- METRIC -->
+            <div class="form-group">
+              <label for="recon_metric">Metrik</label>
+              <select class="form-control" id="recon_metric" name="metric" required>
+                <option value="qty">Qty (banyak)</option>
+                <option value="thna">THNA (gross value)</option>
+              </select>
+            </div>
+
+            <!-- START AND END DATE -->
+            <div class="form-row">
+              <div class="form-group col">
+                <label for="recon_from">Tanggal Dari</label>
+                <input type="date" class="form-control" id="recon_from" name="date_from" required>
+              </div>
+              <div class="form-group col">
+                <label for="recon_to">Tanggal Sampai</label>
+                <input type="date" class="form-control" id="recon_to" name="date_to" required>
+              </div>
+            </div>
+            <small class="text-muted">Excel: pivot grup produk &times; bulan (SellingOut), 1 sheet per tahun.</small>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Export</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </li>
+  <li class="list-group-item hiveforest">
+    <h6 class="list-group hiveforest">ECatalog Sales</h6>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:sales_ecatalog_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Ecatalog</a> |
+    <a href="{% url 'admin:sales_satker_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Satker</a>
+  </li>
+  <li class="list-group-item hiveforest">
+    <h6 class="list-group hiveforest">Reports</h6>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'sales:sellingout_reports' %}"{% if request.resolver_match.url_name == 'sellingout_reports' %} aria-current="page"{% endif %}>Sellingout Reports</a>
+  </li>
+  <li class="list-group-item hiveforest">
+    <h6 class="list-group hiveforest">Target</h6>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:sales_annualtarget_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Annual Target</a> |
+    <a href="{% url 'admin:sales_cycletarget_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Cycle Target</a> |
+  </li>
+  <li class="list-group-item hiveforest">
+    <h6 class="list-group hiveforest">Territories</h6>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:sales_salesarea_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Sales Areas</a> |
+    <a href="{% url 'admin:sales_arearegency_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Area Regencies</a> |
+    <a href="{% url 'admin:sales_salesregion_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Sales Regions</a> |
+    <a href="{% url 'admin:sales_regionprovince_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Regions Province</a> |    
+    <a href="{% url 'admin:sales_kamarea_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>KAM Areas</a> |
+    <a href="{% url 'admin:sales_salesteam_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Sales Teams</a>
+  </li>
+</ul>
+
+<script>
+$('#syncForm').on('submit', function(e){
+    e.preventDefault();
+
+    $('#syncProgress').show();
+    $('#syncResult').text('');
+    $('#startSyncBtn').prop('disabled', true);
+    $('#syncBtnSpinner').show();
+
+    var formData = new FormData(this);
+    $.ajax({
+        url: "{% url 'sales:sync-so' %}",
+        type: 'POST',
+        data: formData,
+        contentType: false,
+        processData: false,
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        success: function(data){
+            if(data.success){
+                $('#syncResult').removeClass('text-danger').addClass('text-success').text(data.message);
+                $('#syncProgress .progress-bar').addClass('bg-success');
+            } else {
+                $('#syncResult').removeClass('text-success').addClass('text-danger').text(data.message);
+                $('#syncProgress .progress-bar').addClass('bg-danger');
+            }
+        },
+        error: function(){
+            $('#syncResult').removeClass('text-success').addClass('text-danger').text('Failed to connect to server!');
+            $('#syncProgress .progress-bar').addClass('bg-danger');
+        },
+        complete: function(){
+            $('#startSyncBtn').prop('disabled', false);
+            $('#syncBtnSpinner').hide();
+        }
+    });
+});
+
+$('#syncModal').on('show.bs.modal', function () {
+    $('#syncForm')[0].reset();              // Reset form
+    $('#syncResult').removeClass('text-success text-danger').text('');
+    $('#syncProgress').hide();
+    $('#syncProgress .progress-bar').removeClass('bg-success bg-danger');
+    $('#startSyncBtn').prop('disabled', false);
+    $('#syncBtnSpinner').hide();
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const importButton = document.getElementById('btn-import-rawappso');
+  if (!importButton) return;
+
+  importButton.addEventListener('click', function () {
+    const importUrl = this.dataset.url;
+
+    Swal.fire({
+      title: 'Import APP Selling Out',
+      html: `
+        <input type="file" id="rawappso-file" accept=".csv,.xlsx,.xls" class="form-control">
+        <label class="mt-3 d-block text-left">
+          <input type="checkbox" id="rawappso-dry-run"> Dry-run (validate only)
+        </label>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Upload',
+      preConfirm: function () {
+        const file = document.getElementById('rawappso-file').files[0];
+        if (!file) {
+          Swal.showValidationMessage('Select a CSV or Excel file.');
+          return false;
+        }
+
+        return {
+          file: file,
+          dryRun: document.getElementById('rawappso-dry-run').checked,
+        };
+      },
+    }).then(function (result) {
+      if (!result.isConfirmed) return;
+
+      const formData = new FormData();
+      formData.append('file', result.value.file);
+      if (result.value.dryRun) formData.append('dry_run', '1');
+
+      Swal.fire({
+        title: 'Processing...',
+        text: 'The APP Selling Out file is being processed.',
+        allowOutsideClick: false,
+        didOpen: function () {
+          Swal.showLoading();
+        },
+      });
+
+      fetch(importUrl, {
+        method: 'POST',
+        body: formData,
+        headers: {'Accept': 'application/json'},
+      })
+        .then(function (response) {
+          return response.json().then(function (data) {
+            return {ok: response.ok, data: data};
+          });
+        })
+        .then(function (result) {
+          const succeeded = result.ok && result.data.status === 'success';
+          Swal.fire({
+            icon: succeeded ? 'success' : 'error',
+            title: succeeded ? 'Success' : 'Failed',
+            text: result.data.message || 'Something happened.',
+          });
+        })
+        .catch(function () {
+          Swal.fire({
+            icon: 'error',
+            title: 'Network Error',
+            text: 'Please try again.',
+          });
+        });
+    });
+  });
+});
+</script>

@@ -1,0 +1,79 @@
+{% extends "main.html" %}
+{% load i18n %}
+
+{% block title %}HiveForest | {% if mode == 'add' %}Performance Group Add{% else %}Performance Group Edit{% endif %}{% endblock %}
+
+{% block content %}
+<div class="card card-primary card-outline hiveforest">
+    <form method="post" action="{% if mode == 'add' %}{% url 'performance:group_create' %}{% else %}{% url 'performance:group_edit' performancegroup.pk %}{% endif %}">
+        {% csrf_token %}
+        <div class="card-header ui-sortable-handle" style="cursor: move;">
+            <h1 class="card-title"><b>{% if mode == 'add' %}Add Performance Group{% else %}Edit Performance Group | {{ performancegroup.name }}{% endif %}</b></h1>
+        </div>
+        <div class="card-body hiveforest">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="hv-form-group">
+                        {{ form.performance_model.label_tag }}
+                        {{ form.performance_model }}<span class="text-danger">*</span>
+                        {{ form.performance_model.errors }}
+                    </div>
+                    <div class="hv-form-group">
+                        {{ form.code.label_tag }}
+                        {{ form.code }}<span class="text-danger">*</span>
+                        {{ form.code.errors }}
+                    </div>
+                    <div class="hv-form-group">
+                        {{ form.name.label_tag }}
+                        {{ form.name }}<span class="text-danger">*</span>
+                        {{ form.name.errors }}
+                    </div>
+                    <div class="hv-form-group">
+                        {{ form.bobot.label_tag }}
+                        {{ form.bobot }}<span class="text-danger">*</span>
+                        {{ form.bobot.errors }}
+                    </div>
+                    <div class="hv-form-group">
+                        {{ form.sort_order.label_tag }}
+                        {{ form.sort_order }}
+                        {{ form.sort_order.errors }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="hv-form-group">
+                        {{ form.description.label_tag }}
+                        {{ form.description }}
+                        {{ form.description.errors }}
+                    </div>
+                    <div class="hv-form-group">
+                        {{ form.initial.label_tag }}
+                        {{ form.initial }}
+                        {{ form.initial.errors }}
+                    </div>
+                    <div class="hv-form-group">
+                        {{ form.shortname.label_tag }}
+                        {{ form.shortname }}
+                        {{ form.shortname.errors }}
+                    </div>
+                    <div class="hv-form-group">
+                        {{ form.status.label_tag }}
+                        {{ form.status }}
+                        {{ form.status.errors }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer" style="display:flex;flex-direction: row;justify-content: flex-start;">
+            <button type="submit" name="action" value="save" class="btn btn-success">
+                <i class="fas fa-save"></i> Save
+            </button>
+            <a href="{% url 'performance:group_list' %}" class="btn btn-secondary ml-2">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+            <a href="{% url 'performance:model_list' %}" class="btn btn-outline-primary ml-2">
+                <i class="fas fa-tags"></i> Models
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

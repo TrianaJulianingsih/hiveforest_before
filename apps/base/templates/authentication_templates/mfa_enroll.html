@@ -1,0 +1,74 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}" />
+    <title>HIVEFOREST | Authenticator Setup</title>
+    <link rel="stylesheet" href="{% static 'adminlte/css/adminlte.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'adminlte/plugins/fontawesome-free/css/all.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'custom/css/custom.css' %}" />
+    <link rel="stylesheet" href="{% static 'custom/css/auth-pages.css' %}" />
+  </head>
+  <body class="login-page">
+    <div class="login-box" style="max-width: 430px;">
+      <div class="login-logo">
+        <a href="#">THE <span style="color:#ffc107">HIVE</span>FOREST</a>
+        <div class="subtitle">Authenticator Setup</div>
+      </div>
+      <div class="card">
+        <div class="card-body login-card-body">
+          <p class="login-box-msg">
+            <i class="fas fa-mobile-alt mr-2"></i>
+            Scan the QR code in Multi Factor, then enter the 6-digit code.
+          </p>
+
+          {% if authenticator_qr_base64 %}
+            <div class="text-center mb-3">
+              <img src="data:image/png;base64,{{ authenticator_qr_base64 }}" alt="Authenticator QR" style="max-width:220px; width:100%;" />
+            </div>
+          {% else %}
+            <div class="alert alert-info">
+              QR preview is not available yet. Use the setup key below in Multi Factor.
+            </div>
+          {% endif %}
+
+          <!--  <div class="alert alert-secondary">
+            <strong>Setup Key:</strong><br />
+            <code style="word-break: break-all;">{{ authenticator_secret }}</code>
+          </div>
+
+          <div class="alert alert-light">
+            <strong>Setup URI:</strong><br />
+            <code style="word-break: break-all;">{{ authenticator_uri }}</code>
+          </div>  -->
+
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+          {% endif %}
+
+          <form method="post">
+            {% csrf_token %}
+            <div class="input-group mb-3">
+              {{ form.otp_code }}
+              <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-shield-alt"></span>
+                </div>
+              </div>
+            </div>
+            {% if form.otp_code.errors %}
+              <div class="alert alert-danger py-2">
+                {{ form.otp_code.errors|striptags }}
+              </div>
+            {% endif %}
+            <button type="submit" class="btn btn-primary btn-block">
+              <i class="fas fa-check-circle mr-2"></i> Activate Authenticator
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

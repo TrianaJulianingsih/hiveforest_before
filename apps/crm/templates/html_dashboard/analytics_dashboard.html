@@ -1,0 +1,561 @@
+{% extends "main.html" %}
+{% load i18n static translation_tags custom_filters %}
+
+{% block extra_head %}
+{{ block.super }}
+<!-- Tailwind CSS v4. AdminLTE/Bootstrap's plain (unlayered) CSS otherwise beats Tailwind's
+     own utilities on shared tags like <a> regardless of specificity, since Tailwind wraps
+     its utilities in a CSS cascade layer and unlayered rules always win over layered ones. -->
+<script src="{% static 'vendor/tailwindcss/tailwindcss.js' %}"></script>
+<style type="text/tailwindcss">
+  @import "tailwindcss" important;
+</style>
+
+<!-- The page already shows its own heading below the breadcrumb bar, so hide
+     main.html's low-contrast duplicate subtitle there for this page only. -->
+<style>
+  .content-header small.d-block {
+    display: none !important;
+  }
+</style>
+
+<!-- AdminLTE collapses the sidebar to an icon-only "mini" mode (full labels only appear
+     on :hover) whenever body carries its "sidebar-collapse" class - which happens both on
+     narrow (<992px) viewports and, stickily, after the hamburger toggle has been clicked
+     once. Key these overrides off that class (not a viewport width) so they force the
+     normal, fully-expanded layout back on whenever AdminLTE has actually collapsed it, for
+     whatever reason, while never touching the page when it's already naturally expanded -
+     which is what caused long labels like "CUSTOMER RELATIONSHIP" to clip earlier. -->
+<style>
+  .sidebar-collapse .main-sidebar,
+  .sidebar-mini.sidebar-collapse .main-sidebar {
+    margin-left: 0 !important;
+    width: 250px !important;
+  }
+  /* AdminLTE's own desktop rule for this (.sidebar-mini.sidebar-collapse .content-wrapper)
+     is itself !important with 3 classes of specificity, so ours has to match or exceed
+     that exact selector to win - a plain .sidebar-collapse prefix alone loses to it. */
+  .sidebar-collapse .content-wrapper,
+  .sidebar-collapse .main-footer,
+  .sidebar-collapse .main-header,
+  .sidebar-mini.sidebar-collapse .content-wrapper,
+  .sidebar-mini.sidebar-collapse .main-footer,
+  .sidebar-mini.sidebar-collapse .main-header {
+    margin-left: 250px !important;
+  }
+  .sidebar-collapse #sidebar-overlay {
+    display: none !important;
+  }
+  /* AdminLTE's collapsed-sidebar state also shrinks each menu label's <p> to ~32px
+     (meant for the icon-only mini mode), which wraps/hides long labels like "CUSTOMER
+     RELATIONSHIP" until hovered. Restore the normal label width so text lays out exactly
+     like the default, fully-expanded sidebar, with no hover needed. */
+  /* .nav-sidebar (<ul>) is itself a column flex container, which makes each <li> a flex
+     item with the default min-width:auto - meaning a long label's natural content width
+     can force the <li> (and its highlighted background) wider than the sidebar, min-width:0
+     is the standard fix for a flex item that needs to shrink below its content's size. */
+  .sidebar-collapse .main-sidebar .nav-sidebar > .nav-item {
+    min-width: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  /* .nav-link is itself display:flex, and a flex container with width:auto sizes to
+     fit its content ("shrink-to-fit") rather than filling its parent <li> - that's what
+     let long labels push the highlighted background past the sidebar's right edge.
+     Force it to actually fill 100% of the row instead. */
+  .sidebar-collapse .main-sidebar .nav-sidebar .nav-link {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin-left: 0 !important;
+    visibility: visible !important;
+    animation: none !important;
+  }
+  .sidebar-collapse .main-sidebar .nav-sidebar .nav-link p,
+  .sidebar-collapse .main-sidebar .brand-text,
+  .sidebar-collapse .main-sidebar .user-panel > .info {
+    width: auto !important;
+    flex: 1 1 auto !important;
+    margin-left: 0 !important;
+    visibility: visible !important;
+    animation: none !important;
+  }
+  /* The submenu toggle arrow (<i class="right">) is absolutely positioned 16px from the
+     nav-link's edge rather than reserved as flex space, so a full-width label can run
+     straight under it (e.g. "CUSTOMER RELATIONSHIP"). Padding on the label itself doesn't
+     help here (it only adds trailing box space, not shrink the text) - the nav-link's own
+     content box has to shrink so the label's flex-grow leaves the icon's corner clear,
+     with ellipsis as a fallback for any label still too long for the space that leaves.
+     Also nudge the arrow itself a bit further from the edge (16px -> 22px) to match the
+     breathing room the leading icon already has on the left (~22px). */
+  .sidebar-collapse .main-sidebar .nav-sidebar .nav-item.has-treeview > .nav-link {
+    padding-right: 42px !important;
+  }
+  .sidebar-collapse .main-sidebar .nav-sidebar .nav-item.has-treeview > .nav-link .right {
+    right: 22px !important;
+  }
+  .sidebar-collapse .main-sidebar .nav-sidebar .nav-item.has-treeview > .nav-link > p {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    display: block !important;
+  }
+</style>
+
+<!-- Iconify Web Component -->
+<script src="{% static 'vendor/iconify/iconify-icon.min.js' %}"></script>
+
+<!-- Chart.js (bar charts) -->
+<script src="{% static 'adminlte/plugins/chart.js/Chart.min.js' %}"></script>
+
+<!-- Leaflet (province map) -->
+<link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">
+<script src="{% static 'vendor/leaflet/leaflet.js' %}"></script>
+
+<!-- Fonts: self-hosted subset (Inter 400/500/700, Archivo 600/700 - the weights this page actually uses) -->
+<link href="{% static 'vendor/fonts/fonts.css' %}" type="text/css" rel="stylesheet">
+
+<style>
+  .hcp-analytics-page {
+    font-family: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-smoothing: grayscale;
+    color: #1e293b;
+  }
+
+  /* Scoped stand-in for Tailwind Preflight (which we intentionally skip above to
+     avoid resetting AdminLTE/Bootstrap chrome). Only neutralizes the browser's
+     default button/input chrome (border, native appearance) - deliberately does
+     NOT touch padding/margin/background, since those are already controlled by
+     each element's own Tailwind utility classes and would otherwise tie with
+     them on specificity and win/lose unpredictably. */
+  .hcp-analytics-page button,
+  .hcp-analytics-page input:not([type="checkbox"]):not([type="radio"]),
+  .hcp-analytics-page select,
+  .hcp-analytics-page textarea {
+    box-sizing: border-box;
+    border: 0 solid transparent;
+    -webkit-appearance: none;
+    appearance: none;
+    font: inherit;
+  }
+
+  /* Checkboxes/radios are excluded above - stripping their native appearance
+     with nothing to replace it leaves an empty, invisible box (this broke the
+     Specialization/Province filter checklists on this page). Keep native
+     rendering for these; accent-[#636AE8] (Tailwind utility on the elements
+     themselves) still tints them correctly. */
+  .hcp-analytics-page input[type="checkbox"],
+  .hcp-analytics-page input[type="radio"] {
+    box-sizing: border-box;
+    font: inherit;
+  }
+
+  .hcp-analytics-page button {
+    cursor: pointer;
+  }
+
+  .hcp-analytics-page table {
+    border-collapse: collapse;
+  }
+
+  .hcp-analytics-page img,
+  .hcp-analytics-page svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  .hcp-analytics-page h1, .hcp-analytics-page h2, .hcp-analytics-page h3, .hcp-analytics-page h4, .hcp-analytics-page h5, .hcp-analytics-page h6 {
+    font-family: "Archivo", ui-sans-serif, system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #0f172a;
+  }
+
+  .hcp-analytics-page .text-display {
+    font-family: "Archivo", sans-serif;
+    font-weight: 700;
+    font-size: 1.875rem;
+    line-height: 1.2;
+  }
+
+  .hcp-analytics-page .table-row-hover:hover {
+    background-color: #f1f5f9;
+  }
+
+  .hcp-analytics-page .dropdown-shadow {
+    box-shadow: 0px 17px 35px 0px rgba(15, 23, 42, 0.1), 0px 0px 2px 0px rgba(15, 23, 42, 0.1);
+  }
+
+  .hcp-analytics-page button, .hcp-analytics-page a, .hcp-analytics-page input, .hcp-analytics-page select {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .hcp-analytics-page .badge-active {
+    background-color: #f2f2fd;
+    color: #636AE8;
+  }
+
+  .hcp-analytics-page .badge-inactive {
+    background-color: #fdf1f5;
+    color: #E8618C;
+  }
+
+  .hcp-analytics-page .custom-scrollbar::-webkit-scrollbar {
+    height: 6px;
+  }
+  .hcp-analytics-page .custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  .hcp-analytics-page .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+{{ block.super }}
+{% get_translations 'hcp_analytics' as t %}
+
+<div class="hcp-analytics-page pt-6 pb-6">
+
+  <div class="bg-white rounded-xl border border-[#eceef1] shadow-sm p-6 space-y-6">
+
+  <h1 class="text-2xl font-bold text-[#171a1f]">{{ t.page_title|default:title }}</h1>
+
+  <form method="get" class="space-y-6">
+
+  <!-- Actions Bar -->
+  <div class="flex flex-col md:flex-row gap-4 items-center justify-start">
+    <div class="flex items-center gap-3 w-full md:w-auto flex-wrap pb-2 md:pb-0">
+      <div class="relative" id="filter-root">
+        <button type="button" id="filter-toggle-btn" class="flex items-center gap-2 px-4 h-11 bg-white border border-[#dee1e6] rounded-md text-sm font-medium text-[#323743] hover:bg-gray-50">
+          <img src="{% static 'custom/crm/analytics_dashboard/assets/IMG_4.svg' %}" alt="Filter" class="w-4 h-4">
+          <span>{{ t.btn_filter|default:'Filter' }}</span>
+          {% if selected_filter_count %}<span class="ml-1 inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#636AE8] text-white text-xs">{{ selected_filter_count }}</span>{% endif %}
+        </button>
+        {% include "html_dashboard/hcp_filter_panel.html" %}
+      </div>
+
+      <div class="relative" id="export-root">
+        <button type="button" id="export-toggle-btn" class="flex items-center gap-2 px-4 h-11 bg-[#DDE1FC] hover:bg-[#C9CFFA] rounded-md text-sm font-medium text-[#4B51D6]">
+          <img src="{% static 'custom/crm/analytics_dashboard/assets/IMG_5.svg' %}" alt="Export" class="w-4 h-4">
+          <span>{{ t.btn_export|default:'Export' }}</span>
+        </button>
+        {% include "html_dashboard/export_menu.html" with csv_url_name="crm:export_csv" excel_url_name="crm:export_excel" %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+    <div class="bg-white p-5 rounded-lg border border-[#f3f4f6] shadow-sm flex flex-col justify-between h-32 relative">
+      <span class="text-sm font-medium text-[#6f7787]">{{ t.stat_total|default:'Total Doctors' }}</span>
+      <span class="text-display text-[#171a1f]">{{ total_count|dotformat }}</span>
+      <div class="absolute top-5 right-5 w-9 h-9 bg-[#f2f2fd] rounded-lg flex items-center justify-center">
+        <img src="{% static 'custom/crm/analytics_dashboard/assets/IMG_10.svg' %}" alt="Users" class="w-[18px] h-[18px]">
+      </div>
+    </div>
+    <div class="bg-white p-5 rounded-lg border border-[#f3f4f6] shadow-sm flex flex-col justify-between h-32 relative">
+      <span class="text-sm font-medium text-[#6f7787]">{{ t.stat_active|default:'Active Licenses' }}</span>
+      <span class="text-display text-[#171a1f]">{{ active_count|dotformat }}</span>
+      <div class="absolute top-5 right-5 w-9 h-9 bg-[#f2f2fd] rounded-lg flex items-center justify-center">
+        <img src="{% static 'custom/crm/analytics_dashboard/assets/IMG_11.svg' %}" alt="Check" class="w-[18px] h-[18px]">
+      </div>
+    </div>
+    <div class="bg-white p-5 rounded-lg border border-[#f3f4f6] shadow-sm flex flex-col justify-between h-32 relative">
+      <span class="text-sm font-medium text-[#6f7787]">{{ t.stat_inactive|default:'Inactive' }}</span>
+      <span class="text-display text-[#171a1f]">{{ inactive_count|dotformat }}</span>
+      <div class="absolute top-5 right-5 w-9 h-9 bg-[#FFF1F2] rounded-lg flex items-center justify-center">
+        <img src="{% static 'custom/crm/analytics_dashboard/assets/IMG_13.svg' %}" alt="Inactive" class="w-[18px] h-[18px]">
+      </div>
+    </div>
+    <div class="bg-white p-5 rounded-lg border border-[#f3f4f6] shadow-sm flex flex-col justify-between h-32 relative">
+      <span class="text-sm font-medium text-[#6f7787]">{{ t.stat_facilities|default:'Practice Facilities' }}</span>
+      <div class="flex items-baseline gap-2">
+        <span class="text-display text-[#171a1f]">{{ facility_count|dotformat }}</span>
+        <span class="text-[13px] text-[#6f7787]">{{ t.stat_across|default:'Across' }} {{ region_count|dotformat }} {{ t.stat_regions|default:'Regions' }}</span>
+      </div>
+      <div class="absolute top-5 right-5 w-9 h-9 bg-[#f2f2fd] rounded-lg flex items-center justify-center">
+        <img src="{% static 'custom/crm/analytics_dashboard/assets/IMG_12.svg' %}" alt="Building" class="w-[18px] h-[18px]">
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Grid -->
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+    <div class="bg-white p-6 rounded-lg border border-[#f3f4f6] shadow-md">
+      <div class="flex items-start justify-between gap-2 flex-wrap mb-2">
+        <div>
+          <h3 class="text-lg font-bold text-[#323743] mb-0">{{ t.chart_province_title|default:'Top Provinces by Doctor Count' }}</h3>
+          <p class="text-xs text-[#9095a1] mt-1 mb-0">{{ t.chart_province_subtitle|default:'Click or hover a province to see how many doctors practice there.' }}</p>
+        </div>
+        {% querystring map_province=None page=None as province_chart_reset_url %}
+        {% include "html_dashboard/chart_filter.html" with key="province" label=t.filter_label_province|default:"Province" field="map_province" options=provinces selected=selected_map_provinces reset_url=province_chart_reset_url %}
+      </div>
+      <div style="position: relative; height: 290px; width: 100%; overflow: hidden; z-index: 0;">
+        {% if province_data %}
+        <div id="province-map" style="position: absolute; inset: 0;" class="rounded-md"></div>
+        {% else %}
+        <div class="h-full w-full flex items-center justify-center text-sm text-[#9095a1]">{{ t.chart_province_empty|default:'No province data available yet.' }}</div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="bg-white p-6 rounded-lg border border-[#f3f4f6] shadow-md">
+      <div class="flex items-center justify-between gap-2 mb-8 flex-wrap">
+        <h3 class="text-lg font-bold text-[#323743]">{{ t.chart_places_title|default:'Top Hospitals / Places of Practice' }}</h3>
+        {% querystring chart_places=None page=None as places_chart_reset_url %}
+        {% include "html_dashboard/chart_filter.html" with key="places" label=t.filter_label_places|default:"Hospital / Place" field="chart_places" options=place_options selected=selected_chart_places reset_url=places_chart_reset_url %}
+      </div>
+      <div class="relative h-[290px] w-full">
+        {% if top_places %}
+        <canvas id="chart-places"></canvas>
+        {% else %}
+        <div class="h-full w-full flex items-center justify-center text-sm text-[#9095a1]">{{ t.chart_places_empty|default:'No place-of-practice data available yet.' }}</div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="bg-white p-6 rounded-lg border border-[#f3f4f6] shadow-md">
+      <div class="flex items-center justify-between gap-2 mb-8 flex-wrap">
+        <h3 class="text-lg font-bold text-[#323743]">{{ t.chart_specialities_title|default:"Doctor's Specialities" }}</h3>
+        {% querystring chart_specialities=None page=None as specialities_chart_reset_url %}
+        {% include "html_dashboard/chart_filter.html" with key="specialities" label=t.filter_label_specialities|default:"Speciality" field="chart_specialities" options=specialities selected=selected_chart_specialities reset_url=specialities_chart_reset_url %}
+      </div>
+      <div class="relative h-[290px] w-full">
+        {% if top_specialities %}
+        <canvas id="chart-specialities"></canvas>
+        {% else %}
+        <div class="h-full w-full flex items-center justify-center text-sm text-[#9095a1]">{{ t.chart_specialities_empty|default:'No speciality data available yet.' }}</div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="bg-white p-6 rounded-lg border border-[#f3f4f6] shadow-md">
+      <div class="flex items-center justify-between gap-2 mb-8 flex-wrap">
+        <h3 class="text-lg font-bold text-[#323743]">{{ t.chart_education_title|default:"Doctor's Education" }}</h3>
+        {% querystring chart_education=None page=None as education_chart_reset_url %}
+        {% include "html_dashboard/chart_filter.html" with key="education" label=t.filter_label_education|default:"Education" field="chart_education" options=education_options selected=selected_chart_education reset_url=education_chart_reset_url %}
+      </div>
+      <div class="relative h-[290px] w-full">
+        {% if top_education %}
+        <canvas id="chart-education"></canvas>
+        {% else %}
+        <div class="h-full w-full flex items-center justify-center text-sm text-[#9095a1]">{{ t.chart_education_empty|default:'No education data available yet.' }}</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var popovers = document.querySelectorAll('[id^="chart-filter-popover-"]');
+
+      document.querySelectorAll('.chart-filter-root').forEach(function (root) {
+        var key = root.dataset.key;
+        var btn = document.getElementById('chart-filter-btn-' + key);
+        var popover = document.getElementById('chart-filter-popover-' + key);
+
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var wasHidden = popover.classList.contains('hidden');
+          popovers.forEach(function (p) { p.classList.add('hidden'); });
+          var mainPopover = document.getElementById('filter-popover');
+          if (mainPopover) { mainPopover.classList.add('hidden'); }
+          if (wasHidden) { popover.classList.remove('hidden'); }
+        });
+      });
+
+      document.addEventListener('click', function (e) {
+        document.querySelectorAll('.chart-filter-root').forEach(function (root) {
+          if (!root.contains(e.target)) {
+            document.getElementById('chart-filter-popover-' + root.dataset.key).classList.add('hidden');
+          }
+        });
+      });
+
+      var mainFilterToggle = document.getElementById('filter-toggle-btn');
+      if (mainFilterToggle) {
+        mainFilterToggle.addEventListener('click', function () {
+          popovers.forEach(function (p) { p.classList.add('hidden'); });
+        });
+      }
+
+      document.querySelectorAll('.chart-filter-search').forEach(function (input) {
+        input.addEventListener('input', function () {
+          var term = input.value.toLowerCase();
+          document.getElementById(input.dataset.list).querySelectorAll('.chart-filter-option').forEach(function (label) {
+            var match = label.textContent.toLowerCase().indexOf(term) !== -1;
+            // Tailwind's "important" build flag marks every utility (including this
+            // label's own "flex" class) !important, which silently beats a plain
+            // inline style.display - setProperty(..., 'important') is required for
+            // the toggle to actually take effect.
+            label.style.setProperty('display', match ? 'flex' : 'none', 'important');
+          });
+        });
+      });
+    })();
+  </script>
+
+  {{ province_data|json_script:"province-data" }}
+  {{ top_places|json_script:"top-places-data" }}
+  {{ top_specialities|json_script:"top-specialities-data" }}
+  {{ top_education|json_script:"top-education-data" }}
+
+  <!-- Table Section -->
+  <div class="space-y-4">
+    <div class="relative w-full">
+      <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+        <img src="{% static 'custom/crm/analytics_dashboard/assets/IMG_3.svg' %}" alt="Search" class="w-4 h-4">
+      </div>
+      <input type="text" id="search-input" name="q" value="{{ query }}" placeholder="{{ t.search_placeholder|default:'Search doctors in this table' }}" autocomplete="off" class="w-full h-11 pl-10 pr-4 bg-white border border-[#dee1e6] rounded-md focus:ring-2 focus:ring-[#636AE8]/20 outline-none text-sm">
+      {% include "html_dashboard/search_suggestions.html" with suggest_url_name="crm:hcp_suggest" recents_key="hcp_recent_searches" %}
+    </div>
+
+    <div id="analytics-table-region">
+      {% include "html_dashboard/analytics_table.html" %}
+    </div>
+  </div>
+
+  </form>
+
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var region = document.getElementById('analytics-table-region');
+
+  function loadPage(url, pushState) {
+    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      .then(function (res) {
+        if (res.redirected || !res.ok) {
+          // Session expired (or some other redirect/error) - the response is
+          // a full page, not our table partial, so navigate there instead of
+          // stuffing it into the table region.
+          window.location.href = res.url || url;
+          return null;
+        }
+        return res.text();
+      })
+      .then(function (html) {
+        if (html === null) {
+          return;
+        }
+        region.innerHTML = html;
+        if (pushState) {
+          window.history.pushState({ analyticsPage: true }, '', url);
+        }
+        region.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      })
+      .catch(function () {
+        // Fall back to a normal navigation if the fetch itself fails.
+        window.location.href = url;
+      });
+  }
+
+  region.addEventListener('click', function (e) {
+    var link = e.target.closest('a[href]');
+    if (!link || !region.contains(link) || !link.closest('[data-pagination]')) {
+      return;
+    }
+    e.preventDefault();
+    loadPage(link.getAttribute('href'), true);
+  });
+
+  region.addEventListener('change', function (e) {
+    var select = e.target.closest('[data-page-size-select]');
+    if (!select || !region.contains(select)) {
+      return;
+    }
+    var params = new URLSearchParams(window.location.search);
+    params.set('page_size', select.value);
+    params.set('page', '1');
+    loadPage(window.location.pathname + '?' + params.toString(), true);
+  });
+
+  window.addEventListener('popstate', function () {
+    loadPage(window.location.href, false);
+  });
+
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('#back-to-top-btn')) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+})();
+</script>
+
+<script>
+  window.addEventListener('load', function () {
+    var provinceData = JSON.parse(document.getElementById('province-data').textContent);
+    var topPlaces = JSON.parse(document.getElementById('top-places-data').textContent);
+    var topSpecialities = JSON.parse(document.getElementById('top-specialities-data').textContent);
+    var topEducation = JSON.parse(document.getElementById('top-education-data').textContent);
+
+    if (provinceData.length && document.getElementById('province-map') && typeof L !== 'undefined') {
+      try {
+        var map = L.map('province-map', { scrollWheelZoom: false }).setView([-2.5, 118], 4.3);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 10,
+        }).addTo(map);
+
+        var maxCount = provinceData.reduce(function (max, p) { return Math.max(max, p.count); }, 1);
+
+        provinceData.forEach(function (p) {
+          var radius = 6 + (p.count / maxCount) * 22;
+          var marker = L.circleMarker([p.lat, p.lng], {
+            radius: radius,
+            color: '#5259d6',
+            weight: 1,
+            fillColor: '#636AE8',
+            fillOpacity: 0.55,
+          }).addTo(map);
+          marker.bindTooltip(p.name + ': ' + p.count + ' doctor(s)');
+          marker.bindPopup('<strong>' + p.name + '</strong><br>' + p.count + ' doctor(s) practicing');
+        });
+
+        // Tailwind's runtime compiler injects layout CSS asynchronously, so the
+        // container's real size may not be settled yet when Leaflet first reads
+        // it - without this it can size itself off the pre-layout box and spill
+        // out of its card. Re-measure once things have actually settled.
+        setTimeout(function () { map.invalidateSize(); }, 250);
+        window.addEventListener('resize', function () { map.invalidateSize(); });
+      } catch (e) {
+        console.error('Province map failed to initialize:', e);
+      }
+    }
+
+    function horizontalBar(canvasId, rows, color) {
+      var el = document.getElementById(canvasId);
+      if (!el || !rows.length) {
+        return;
+      }
+      new Chart(el.getContext('2d'), {
+        type: 'horizontalBar',
+        data: {
+          labels: rows.map(function (r) { return r.label; }),
+          datasets: [{
+            data: rows.map(function (r) { return r.count; }),
+            backgroundColor: color,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          legend: { display: false },
+          scales: {
+            xAxes: [{ ticks: { beginAtZero: true, precision: 0 } }],
+          },
+        },
+      });
+    }
+
+    horizontalBar('chart-places', topPlaces, '#636AE8');
+    horizontalBar('chart-specialities', topSpecialities, '#22c55e');
+    horizontalBar('chart-education', topEducation, '#f59e0b');
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,136 @@
+{# Sellingout filter partial (Period View / Region View). #}
+<form method="get" id="{% if selected_model == 'cibg' %}cibg-report-form{% else %}report-filter-form{% endif %}" class="form-row align-items-end mb-3" data-report-ready="{{ report_ready|yesno:'true,false' }}">
+  <input type="hidden" name="model" value="{{ selected_model }}">
+  <input type="hidden" name="display" value="1">
+
+  <div class="form-group col-md-3">
+    <label for="report-year">Year</label>
+    <select id="report-year" name="year" class="form-control">
+      {% for year in years %}
+        <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="form-group col-md-3">
+    <label for="report-business">Business</label>
+    <select id="report-business" name="business_id" class="form-control">
+      {% if businesses|length > 1 %}
+        <option value="">All Business</option>
+      {% endif %}
+      {% for business in businesses %}
+        <option value="{{ business.id }}" {% if business.id|stringformat:"s" == selected_business %}selected{% endif %}>{{ business.label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="form-group col-md-3">
+    <label for="report-from-month">From Month</label>
+    <select id="report-from-month" name="from_month" class="form-control">
+      {% for month in month_options %}
+        <option value="{{ month.number }}" {% if month.number == selected_from_month %}selected{% endif %}>{{ month.label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="form-group col-md-3">
+    <label for="report-to-month">To Month</label>
+    <select id="report-to-month" name="to_month" class="form-control">
+      {% for month in month_options %}
+        <option value="{{ month.number }}" {% if month.number == selected_to_month %}selected{% endif %}>{{ month.label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  {% if selected_model == "cibg" %}
+    <div class="optional-filter-card">
+      <div class="card-header">
+        <button type="button" class="btn btn-outline-primary btn-sm optional-filter-toggle" data-toggle="collapse" data-target="#cibgOptionalProductFilter" aria-expanded="false" aria-controls="cibgOptionalProductFilter">
+          <i class="fas fa-filter mr-1"></i>
+          Show Optional Product Filter
+          <span id="cibg-filter-count" class="badge badge-primary optional-filter-count" style="display:none;"></span>
+        </button>
+        <div class="optional-filter-help mt-1">
+          Leave empty to include all products. Select multiple products to open them as separate report sheets.
+        </div>
+      </div>
+
+      <div id="cibgOptionalProductFilter" class="collapse">
+        <div class="report-column-filters">
+          <div class="row">
+            <div class="form-group col-md-12 mb-2">
+              <label for="report-product">Product / Variant</label>
+              <select id="report-product" name="product_ids" class="form-control" multiple data-placeholder="Select one or more products">
+                {% for product in product_options %}
+                  <option value="{{ product.id }}" {% if product.id|stringformat:"s" in selected_products %}selected{% endif %}>{{ product.label }}</option>
+                {% endfor %}
+              </select>
+              <small id="cibg-filter-feedback" class="form-text text-muted">
+                Product options update when Business changes.
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="optional-filter-card">
+      <div class="card-header">
+        <button type="button" class="btn btn-outline-primary btn-sm optional-filter-toggle" data-toggle="collapse" data-target="#optionalProductFilters" aria-expanded="false" aria-controls="optionalProductFilters">
+          <i class="fas fa-filter mr-1"></i>
+          Show Optional Product Filters
+          <span id="optional-filter-count" class="badge badge-primary optional-filter-count">0 selected</span>
+        </button>
+        <div class="optional-filter-help mt-1">
+          Leave these filters empty to include all product groups, subgroups, and products.
+        </div>
+      </div>
+
+      <div id="optionalProductFilters" class="collapse">
+        <div class="report-column-filters">
+          <div class="row">
+            <div class="form-group col-md-4 mb-2">
+              <label for="report-group">Product Group</label>
+              <select id="report-group" name="group_ids" class="form-control report-filter-select" multiple data-placeholder="All Product Groups">
+                {% for group in groups %}
+                  <option value="{{ group.id }}" {% if group.id|stringformat:"s" in selected_groups %}selected{% endif %}>{{ group.label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group col-md-4 mb-2">
+              <label for="report-subgroup">Subgroup</label>
+              <select id="report-subgroup" name="subgroup_ids" class="form-control report-filter-select" multiple data-placeholder="All Subgroups">
+                {% for subgroup in subgroups %}
+                  <option value="{{ subgroup.id }}" {% if subgroup.id|stringformat:"s" in selected_subgroups %}selected{% endif %}>{{ subgroup.label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group col-md-4 mb-2">
+              <label for="report-product">Product / Variant</label>
+              <select id="report-product" name="product_ids" class="form-control report-filter-select" multiple data-placeholder="All Products / Variants">
+                {% for product in product_options %}
+                  <option value="{{ product.id }}" {% if product.id|stringformat:"s" in selected_products %}selected{% endif %}>{{ product.label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <small id="report-filter-feedback" class="form-text text-muted">
+            Product filters update automatically when a parent filter changes.
+          </small>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="form-group col-md-12 mb-0 mt-3">
+    <button type="submit" class="btn btn-primary">
+      <i class="fas fa-table"></i> Display Report
+    </button>
+  </div>
+</form>
+
+{% if not report_ready %}
+  <div id="report-result-content"></div>
+{% endif %}

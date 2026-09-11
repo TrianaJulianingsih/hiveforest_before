@@ -1,0 +1,16 @@
+{% extends "components/datatable_base.html" %}
+
+{% block table_columns %}
+  <th>{{ t.col_no_order|default:'No Order' }}</th>
+  <th>{{ t.col_name|default:'Name' }}</th>
+  <th>{{ t.col_nm_prod|default:'Product Name' }}</th>
+  <th>{{ t.col_whse|default:'WHSE' }}</th>
+  <th>{{ t.col_nodokji|default:'NODOKJI' }}</th>
+  <th>{{ t.col_hrdok|default:'HRDOK' }}</th>
+  <th>{{ t.col_banyak|default:'Amount' }}</th>
+  <th>{{ t.col_hna|default:'HNA' }}</th>
+  <th>{{ t.col_thna|default:'THNA' }}</th>
+  <th>{{ t.col_harga|default:'Price' }}</th>
+  <th>{{ t.col_tharga|default:'T Price' }}</th>
+  <th>{{ t.col_almtlang|default:'Address' }}</th>
+{% endblock %}

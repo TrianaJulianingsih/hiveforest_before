@@ -1,0 +1,29 @@
+<!-- templates/home.html -->
+{% extends 'main.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Home" %}{% endblock %}
+
+{% block content_header %}
+    {% block nav-breadcrumbs %}
+        {{ block.super }}
+    {% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-center">
+<div class="text-center">
+    <div style="padding: 20px; text-align: center;">
+    <!-- Line 1 -->
+    <div style="font-size: 29px; font-weight: bold; font-family: sans-serif;">
+        <span style="color: #ffc107; background-color: #000000;">HIVE</span><span style="color: black; background-color: #ffc107;">FOREST</span>
+        <span style="color: black; font-weight: normal;"> Enterprise</span>
+    </div>
+    <!-- Line 2 -->
+    <div style="font-weight: bold; font-size: 14px; color: #000000; font-family: sans-serif;">
+        {% trans "A Living Network of Intelligence, Work &amp; Wisdom" %}
+    </div>
+    </div>
+</div>
+</div>
+{% endblock %}

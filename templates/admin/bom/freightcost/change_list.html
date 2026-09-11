@@ -1,0 +1,23 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls %}
+
+{% block object-tools-items %}
+  {% if has_add_permission %}
+  <li>
+    {% url cl.opts|admin_urlname:'add' as add_url %}
+    <a href="{% add_preserved_filters add_url is_popup to_field %}" class="addlink">
+      <i class="fas fa-plus btn btn-sm btn-primary hiveforest" style="margin-right: 5px;"></i>{% translate "Add" %}
+    </a>
+  </li>
+  {% endif %}
+  <li>
+    <a href="{{ background_import_url }}" class="import_link">
+      <i class="fas fa-upload btn btn-sm btn-primary hiveforest" style="margin-right: 5px;"></i>{% translate "Import Data" %}
+    </a>
+  </li>
+  <li>
+    <a href="{{ template_download_url }}" class="historylink">
+      <i class="fas fa-download btn btn-sm btn-primary hiveforest" style="margin-right: 5px;"></i>{% translate "Template Download" %}
+    </a>
+  </li>
+{% endblock %}
