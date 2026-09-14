@@ -121,6 +121,16 @@
     <script src="{% static 'adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'adminlte/js/adminlte.min.js' %}"></script>
     <script>
+      // If this page is restored from the browser's back/forward cache
+      // (e.g. hitting Back after logging in), its CSRF token was minted
+      // before Django rotated the token on that login, so any resubmit
+      // from here fails CSRF verification. Force a real reload instead.
+      window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+          window.location.reload();
+        }
+      });
+
       $(document).ready(function() {
         $('#username').focus();
         const togglePassword = $('#togglePassword');
