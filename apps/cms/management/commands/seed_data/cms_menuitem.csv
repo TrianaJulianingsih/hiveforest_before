@@ -1,0 +1,75 @@
+"uat","id","name","description","remark","status","slug","cat","dat","deleted","code","initial","shortname","icon","url","order","cby_id","dby_id","parent_id","uby_id","module_id","application_id","iframe_url"
+2026-08-31 08:24:24.273 +0700,81,Healthcare Professionals Dashboard,,,1,healthcare-professionals-dashboard,2026-08-20 11:57:26.297 +0700,,false,CR202,HCPDashboard,Doctor Dashboard,fas fa-chart-pie menu-icon,/crm/dashboard/analytics/,2,1,,,166,12,3,""
+,94,Sub-Distributor Dashboard,"",,1,sub-distributor-dashboard,2026-09-09 09:50:30.479 +0700,,false,BOM-SD-DASH,SDD,Sub-Dist Dashboard,nav-icon fas fa-chart-pie,/bom/customer-maintenance/sub-distributor/dashboard/,1,,,,,15,5,
+,96,Sub-Distributor Maintenance,"",,1,,2026-09-09 11:14:49.338 +0700,,false,BOM-SD-LIST,SDM,Sub-Distributor,nav-icon fas fa-truck-loading,/bom/customer-maintenance/sub-distributor/,2,,,,,15,5,
+,80,Healthcare Professionals,"",,1,healthcare-professionals-list,2026-08-20 11:57:26.266 +0700,,false,CR201,HCPList,Doctor List,fas fa-user-md menu-icon,/crm/dashboard/hcp/,1,1,,,,12,3,
+2026-08-18 11:08:35.347 +0700,74,Company,,,1,market-company,2026-08-14 13:44:31.902 +0700,,false,CMS-MENU-CRM-C,Company,Company,nav-icon fas fa-circle,/crm/market-company,0,152,,,152,34,3,""
+,75,Market Product,,,1,market-product,2026-08-18 11:36:14.098 +0700,,false,,Product,Product,,/crm/market-product,1,152,,,,34,3,""
+2026-09-09 11:26:26.641 +0700,97,Branch Stock Summary Dashboard,"",,1,branch-stock-summary-dashboard,2026-09-09 11:15:03.801 +0700,,false,BO905-DASH,BSS Dash,Stock Dashboard,nav-icon fas fa-chart-pie,/bom/branchstocksummary/dashboard/,0,,,,,17,5,
+2026-08-19 13:53:38.287 +0700,76,Sellingout Reports,Sellingout Reports,,1,sellingout-reports,2026-08-19 13:25:24.238 +0700,,false,CMS-MENU-SM-SR,SO Reports,Sellingout Reports,fas fa-chart-line,/sales/reports/selling-out,0,162,,,162,3,2,""
+2026-07-29 11:25:19.137 +0700,50,Performance Models,"",,1,,2026-05-19 14:27:04.400 +0700,,false,kpi-models,"",Models,fas fa-tags menu-icon,/performance/kpi/models/,5,,,,,33,8,
+2026-07-29 11:25:19.137 +0700,49,Performance Groups,"",,1,,2026-05-19 14:27:04.234 +0700,,false,kpi-groups,"",Groups,fas fa-layer-group menu-icon,/performance/kpi/groups/,6,,,,,33,8,
+2026-07-29 11:25:19.137 +0700,52,Performance Data Sources,"",,1,,2026-06-10 13:26:09.884 +0700,,false,kpi-data-sources,"",Data Sources,fas fa-database menu-icon,/performance/kpi/data-sources/,7,,,,,33,8,
+2026-07-29 11:25:19.137 +0700,53,Performance Goals,"",,1,,2026-06-10 13:26:10.438 +0700,,false,kpi-goals,"",Goals,fas fa-bullseye menu-icon,/performance/kpi/goals/,8,,,,,33,8,
+2026-07-29 14:10:18.053 +0700,12,Employee Assignment,,,1,employee-assignment,2025-05-27 08:34:53.706 +0700,,false,CMS-MENU-HCD-EA,ASIGN,Employee Assignment,fas fa-chalkboard-teacher menu-icon,/humancapital/assignment,0,1,,,150,8,8,""
+2026-07-29 14:12:02.685 +0700,11,Positions,,,1,positions,2025-05-21 08:28:17.749 +0700,,false,CMS-MENU-HCD-P,POS,Positions,fas fa-briefcase menu-icon,/humancapital/position,0,1,,,150,8,8,""
+2026-07-29 14:17:15.769 +0700,10,Organizations,,,1,organizations,2025-05-05 13:59:27.777 +0700,,false,CMS-MENU-HCD-O1,ORG,Organizations,fas fa-sitemap menu-icon,/humancapital/organization,0,1,,,150,8,8,""
+2026-09-10 11:22:37.416 +0700,98,Freight Cost Dashboard,"",,1,freight-cost-dashboard,2026-09-10 10:33:57.188 +0700,,false,BO904-DASH,FC Dash,Freight Dashboard,nav-icon fas fa-chart-pie,/bom/freight-cost/freightcost/dashboard/,0,,,,,21,5,
+2025-06-04 08:59:55.462 +0700,9,Employees,"","",1,employees,2025-04-29 14:40:58.304 +0700,,false,HC100,Emp,Employees,fas fa-user menu-icon,/humancapital/employee,0,1,,,1,7,,
+2025-06-04 09:00:04.705 +0700,7,Outlet Data,"","",1,outlet-data,2025-04-16 07:26:00.387 +0700,,false,BA100,Outlets,Outlets,fas fa-server menu-icon,"",0,1,,,1,6,,
+2025-06-04 08:59:05.778 +0700,8,Outlet List,"","",1,outlet-list,2025-04-16 07:27:09.183 +0700,,false,BA101,Outlets,Outlet List,fas fa-server menu-icon,/sales/outlets,0,1,,7,1,6,,
+2025-06-04 08:59:17.087 +0700,13,Human Capital Application Home,"","",1,human-capital-application-home,2025-06-03 11:27:02.691 +0700,,false,HC000,HC,Home,fas fa-users menu-icon,/humancapital,0,1,,,1,,8,
+2025-06-09 07:24:36.076 +0700,1,Distributor Orders,"","",1,distributor-orders,2025-01-02 13:18:56.833 +0700,,false,SC100,DistOrder,Orders,fas fa-truck-loading menu-icon,/supplychain/orders/,0,1,,,1,1,,
+2025-07-05 13:18:47.754 +0700,15,Region Province Matrix,"","",1,region-province-matrix,2025-07-05 13:18:47.754 +0700,,false,SM100,RegionMtx,Region Matrix,fas fa-border-none menu-icon,/sales/territory/region-matrix,0,1,,,,10,2,
+2026-06-17 14:54:22.083 +0700,16,Area Regency Matrix,,,1,area-regency-matrix,2025-07-11 13:39:19.930 +0700,,false,CMS-MENU-SM-ARM,AreaMtx,Area Regency Matrix,fas fa-border-none menu-icon,/sales/territory/area-matrix,1,1,,,150,10,2,
+2026-08-20 11:22:43.728 +0700,79,Growth,,,1,growth,2026-08-20 09:39:38.983 +0700,,false,CMS-MENU-AA-G,,Growth,fas fa-chart-area,/analytics/iqvia/growth,3,167,,,167,35,16,""
+2026-08-20 11:23:52.769 +0700,77,Trendline,,,1,trendline,2026-08-20 09:38:03.662 +0700,,false,CMS-MENU-AA-T,,Trendline,fas fa-chart-line,/analytics/iqvia/trendline,1,167,,,167,35,16,""
+2026-08-27 15:05:08.118 +0700,86,Import Menu,,,1,raw-data-import,2026-08-27 13:59:22.192 +0700,,false,,,Import Menu,fas fa-file-import,/analytics/iqvia/import-menu,4,167,,,167,35,16,""
+2026-07-20 09:35:10.111 +0700,40,KPDM Progress,,,1,kpdm-progress,2026-05-06 08:49:26.020 +0700,,false,,Progress,Progress,,/crm/kpdm-progress/,3,152,,70,152,5,3,""
+2026-07-20 09:37:17.160 +0700,38,KPDM Title,,,1,kpdm-title,2026-05-05 11:40:39.596 +0700,,false,,Title,Title,,/crm/kpdm-title/,3,152,,71,152,5,3,""
+,23,Business Operation Customer Maintenance,,,1,business-operation-customer-maintenance,2026-01-05 14:27:37.288 +0700,,false,BO902,SubDist,Sub Distributor,fas fa-truck-loading menu-icon,/bom/customer-maintenance/sub-distributor,0,1,,,,15,5,
+2026-07-20 09:53:48.046 +0700,39,KPDM Contact,,,1,kpdm-contact,2026-05-05 13:26:02.974 +0700,,false,,Contact,Contact,,/crm/kpdm-contact/,5,152,,71,152,5,3,""
+2026-02-19 10:26:30.730 +0700,29,Stock Daily Distributor,,,1,stock-daily-distributor,2026-02-09 15:24:13.026 +0700,,false,SM902,StDailyDist,Stock Daily Distributor,fas fa-shopping-cart menu-icon,/sales/sales-module/stock-daily-distributor,1,1,,,1,20,2,
+2026-07-29 11:34:53.376 +0700,45,KPI home,"",,0,,2026-05-19 14:25:59.818 +0700,2026-07-29 11:34:53.376 +0700,true,kpi-dashboard,"",Home,fas fa-home menu-icon,/performance/kpi/,1,,,,,33,8,
+2026-07-29 11:34:53.376 +0700,43,KPI View,"",,0,,2026-05-19 14:25:59.533 +0700,2026-07-29 11:34:53.376 +0700,true,kpi-individual,"",KPI View,fas fa-bullseye menu-icon,/performance/kpi/individual/,2,,,,,33,8,
+,26,Business Operation Warehouse Palettes,,'-,1,business-operation-warehouse-palettes,2026-02-02 08:54:13.202 +0700,,false,BO903,Warehouse,Warehouse Palettes,fas fa-server menu-icon,/bom/warehouse-palettes,0,1,,,,18,5,
+2026-07-29 14:16:21.945 +0700,34,Organogram,,,1,organogram,2026-04-14 09:21:02.797 +0700,,false,CMS-MENU-HCD-O,ORG,Organogram,fas fa-project-diagram menu-icon,/humancapital/organogram,0,149,,,150,8,8,""
+2026-02-03 08:41:23.959 +0700,27,Products,,'-,1,products,2026-02-03 08:39:05.522 +0700,,false,,Products,Products,fas fa-server module-icon,/sales/product-module/product,1,1,,,1,19,2,
+2026-07-29 11:25:19.137 +0700,54,My KPI,"",,1,,2026-06-10 13:26:11.179 +0700,,false,kpi-my,"",My KPI,fas fa-clipboard-list menu-icon,/performance/kpi/my/,2,,,,,33,8,
+2026-05-04 14:13:49.200 +0700,28,Branches,,,1,branches,2026-02-05 16:06:30.879 +0700,,false,,Branches,Branches,fa fa-bars,/supplychain/distribution/branches,1,1,,,1,1,6,""
+2026-07-29 11:25:19.137 +0700,46,KPI,"",,0,,2026-05-19 14:26:00.021 +0700,2026-07-29 11:25:19.137 +0700,true,kpi-menu,"",KPI,fas fa-chart-line,#,48,,,,,,8,
+2026-02-19 12:47:34.414 +0700,30,Raw MUP-SO,,,1,raw-mup-so,2026-02-19 12:45:36.655 +0700,,false,SM903,RawMUSO,Raw MUP-SO,fas fa-server module-icon,/sales/sales-module/raw-mu-so,2,1,,,1,20,2,
+,31,Raw APL-SO,,,1,raw-apl-so,2026-02-25 09:54:25.926 +0700,,false,SM904,RawAPLSO,Raw APL-SO,fas fa-server module-icon,/sales/sales-module/raw-apl-so,3,1,,,,20,2,
+2026-08-04 11:38:18.816 +0700,41,KPDM Assignment,,,1,kpdm-assignment,2026-05-06 13:09:26.454 +0700,,false,,KPDM Assign,Assignment,,/crm/kpdm-assignment/,1,152,,68,152,5,3,""
+2026-08-04 11:36:45.464 +0700,51,KAM Actual Visit,,,1,kam-actual-visit,2026-06-10 09:22:01.318 +0700,,false,,KAM Actual,Actual Visit,,/crm/kam-actual-visit/,0,152,,66,152,5,3,""
+2026-08-04 11:37:28.252 +0700,32,KAM Visit Plan,,,1,kam-pre-visit-planning,2026-02-27 14:29:33.530 +0700,,false,CR400,KAMVisitPlan,Visit Plan,fas fa-file-alt menu-icon,/crm/kam-visit-plan,1,1,,66,152,5,3,""
+2026-08-04 11:38:45.220 +0700,42,KPDM Validation,,,1,kpdm-validation,2026-05-07 11:18:10.754 +0700,,false,,KPDMValidate,Validation,,/crm/kpdm-validation,5,152,,68,152,5,3,""
+2026-08-04 11:44:47.318 +0700,36,KPDM Department,,,1,kpdm-service-area,2026-05-05 09:06:07.074 +0700,,false,,Department,Department,,/crm/kpdm-department/,1,152,,72,152,5,3,""
+2026-08-04 11:45:05.455 +0700,37,KPDM Program,,,1,kpdm-program,2026-05-05 11:05:55.068 +0700,,false,,KPDM Program,Program,,/crm/kpdm-program/,2,152,,72,152,5,3,""
+2026-09-10 11:22:37.427 +0700,33,Freight Cost,,,1,freight-cost,2026-04-09 11:02:30.645 +0700,,false,BO904,FreightCost,Freight Cost,fas fa-truck module-icon,/bom/freight-cost/freightcost/,1,1,,,,21,5,
+2026-07-16 09:47:22.302 +0700,25,Branch Stock Summary,,,1,branch-stock-summary,2026-01-26 10:18:52.706 +0700,,false,BO905,BS Summary,Branch Stock Summary,fas fa-chart-line menu-icon,/bom/branchstocksummary/user,1,1,,,150,17,5,""
+2026-07-20 09:32:33.232 +0700,35,KPDM Visit Target,,,1,visit-target,2026-04-27 16:31:20.938 +0700,,false,VT,Visit Target,Visit Target,fa fa-folder,/crm/kpdm-visit-target/,1,152,,68,152,5,3,""
+2026-07-29 11:34:53.376 +0700,47,Manual entry,"",,0,,2026-05-19 14:26:00.328 +0700,2026-07-29 11:34:53.376 +0700,true,kpi-manual,"",Manual,fas fa-edit menu-icon,/performance/kpi/period/new/,3,,,,,33,8,
+,58,Territory Assignment,,,1,territory-assignment,2026-06-17 14:54:53.187 +0700,,false,CMS-MENU-SM-TA,TA,Territory Assignment,nav-icon fas fa-circle,/sales/territory/territory-assignment,2,150,,,,10,2,
+2026-07-20 09:38:33.809 +0700,70,Key Account Activity,,,1,key-account-activity,2026-07-20 09:24:53.220 +0700,,false,,Activity,Activity,fas fa-chevron-right,,0,152,,69,152,5,3,""
+2026-07-20 09:39:28.546 +0700,71,Key Account KPDM,,,1,key-account-kpdm,2026-07-20 09:27:10.898 +0700,,false,,KPDM,KPDM,fas fa-chevron-right,,2,152,,69,152,5,3,""
+2026-07-20 09:41:43.243 +0700,72,Key Account Institution,,,1,key-account-institution,2026-07-20 09:28:25.102 +0700,,false,,Institution,Institution,fas fa-chevron-right,,3,152,,69,152,5,3,""
+2026-07-20 09:42:21.560 +0700,73,Key Account Competitor,,,1,key-account-competitor,2026-07-20 09:29:20.806 +0700,,false,,Competitor,Competitor,fas fa-chevron-right,,4,152,,69,152,5,3,""
+2026-07-20 10:53:29.705 +0700,67,Actual Visit Review,,,1,actual-visit-review,2026-07-17 11:16:43.518 +0700,,false,,Actual Visit,Actual Visit Review,,/crm/kam-actual-visit/review-summary,0,152,,66,152,5,3,""
+2026-07-16 09:46:23.289 +0700,60,Cycle Targets,,,1,cycle-targets,2026-07-06 13:21:26.381 +0700,,false,BO907,CycleTargets,Cycle Targets,fas fa-bullseye,/bom/cycle-targets,2,150,,,150,25,5,""
+2026-07-16 09:47:30.475 +0700,59,Best Estimate,,,1,best-estimate,2026-06-29 10:37:26.869 +0700,,false,BO906,BestEstimate,Best Estimate,fas fa-calculator,/bom/best-estimate,0,150,,,150,25,5,""
+2026-08-20 11:24:14.987 +0700,78,Market Share,,,1,market-share,2026-08-20 09:38:53.296 +0700,,false,CMS-MENU-AA-MS,,Market Share,fas fa-chart-pie,/analytics/iqvia/market-share,2,167,,,167,35,16,""
+2026-07-17 10:54:13.056 +0700,63,Key Account Management,,,1,key-account-management,2026-07-17 10:41:19.427 +0700,,false,,Management,Management,fas fa-tasks,,1,152,,,152,5,,""
+2026-07-17 10:57:54.386 +0700,64,Dashboards,,,1,dashboards,2026-07-17 10:55:07.846 +0700,,false,,Dashboards,Dashboards,,,0,152,,63,152,5,3,""
+,65,Reports,,,1,reports,2026-07-17 11:06:58.979 +0700,,false,,Reports,Reports,,,0,152,,63,,5,3,""
+2026-07-17 11:18:46.419 +0700,66,Key Account Operation,,,1,key-account-operation,2026-07-17 11:15:24.660 +0700,,false,,Operation,Operation,fas fa-cogs,,2,152,,,152,5,,""
+,68,Key Account Administration,,,1,key-account-administration,2026-07-17 13:29:12.448 +0700,,false,,Admin,Administration,fas fa-users,,3,152,,,,5,,""
+2026-07-17 13:32:58.207 +0700,69,Key Account Master Data,,,1,key-account-master-data,2026-07-17 13:31:18.852 +0700,,false,,Master Data,Master Data,fas fa-database,,4,152,,,152,5,,""
+2026-07-29 11:25:19.137 +0700,55,KPI Levels,"",,1,,2026-06-10 13:26:17.250 +0700,,false,kpi-levels,"",KPI Levels,fas fa-layer-group menu-icon,/performance/kpi/kpi-levels/,15,,,,,33,8,
+2026-07-29 11:25:19.137 +0700,56,Level Mapping,"",,1,,2026-06-10 13:26:17.266 +0700,,false,kpi-level-mapping,"",Level Mapping,fas fa-exchange-alt menu-icon,/performance/kpi/level-mapping/,16,,,,,33,8,
+2026-07-29 11:25:19.137 +0700,57,PA Overall Weights,"",,1,,2026-06-10 13:26:20.508 +0700,,false,kpi-pa-weights,"",PA Weights,fas fa-balance-scale menu-icon,/performance/kpi/pa-weights/,17,,,,,33,8,
+2026-07-29 11:25:19.137 +0700,48,All periods,"",,0,,2026-05-19 14:26:00.334 +0700,2026-07-29 11:25:19.137 +0700,true,kpi-periods,"",Periods,fas fa-table menu-icon,/performance/kpi/periods/,4,,,,,33,8,
+2026-07-29 11:25:19.137 +0700,44,Import,"",,0,,2026-05-19 14:25:59.601 +0700,2026-07-29 11:25:19.137 +0700,true,kpi-import,"",Import,fas fa-file-upload menu-icon,/performance/kpi/import/,5,,,,,33,8,
+2026-08-04 11:45:30.981 +0700,62,KPDM Competitor,,,1,kpdm-competitor,2026-07-13 10:40:42.751 +0700,,false,,Competitor,Competitor,,/crm/kpdm-competitor/,0,152,,73,152,5,3,""
+,84,Hospital List,"",,1,hospital-profile-dashboard-page,2026-08-26 11:35:37.641 +0700,,false,CR101,HSPDashV2,Hospital List,fas fa-hospital menu-icon,/crm/dashboard/hospital/,1,1,,,,11,3,
+2026-09-04 13:18:51.107 +0700,89,Item Price,,,1,item-price,2026-09-02 17:04:27.867 +0700,,false,CMS-MENU-F&AM-IP,ItemPrice,Item Price,fas fa-tags menu-icon,/en/finance/price-module/itemprice/,0,,,,162,39,7,""

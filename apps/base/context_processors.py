@@ -47,18 +47,25 @@ def has_access(request):
     if not request.user.is_authenticated:
         return {"apps_access": [], "mods_access": {}, "menu_access": {}}
     user = request.user
-    groups = Group.objects.filter(user=user)
-    roles = Role.objects.filter(user=user) | Role.objects.filter(group__in=groups)
+
+    if user.is_superuser:
+        # Superusers automatically get every active application/module/menu -
+        # no per-user Role/CMSPermission grant needed.
+        allowed_app_ids = allowed_mod_ids = allowed_menu_ids = None
+    else:
+        groups = Group.objects.filter(user=user)
+        roles = Role.objects.filter(user=user) | Role.objects.filter(group__in=groups)
+        allowed_app_ids = _resolve_allowed_ids(roles, "apps", "application")
+        allowed_mod_ids = _resolve_allowed_ids(roles, "mods", "module")
+        allowed_menu_ids = _resolve_allowed_ids(roles, "menu", "menu")
 
     # Application permissions
-    allowed_app_ids = _resolve_allowed_ids(roles, "apps", "application")
     apps_access = ApplicationList.objects.filter(status=1)
     if allowed_app_ids is not None:
         apps_access = apps_access.filter(id__in=allowed_app_ids)
     apps_access = apps_access.order_by("order").distinct()
 
     # Module permissions
-    allowed_mod_ids = _resolve_allowed_ids(roles, "mods", "module")
     modules = ModuleList.objects.filter(status=1)
     if allowed_mod_ids is not None:
         modules = modules.filter(id__in=allowed_mod_ids)
@@ -70,7 +77,6 @@ def has_access(request):
         mods_access[module.application_id].append(module)
 
     # Menus permissions
-    allowed_menu_ids = _resolve_allowed_ids(roles, "menu", "menu")
     menus = MenuItem.objects.filter(status=1)
     if allowed_menu_ids is not None:
         menus = menus.filter(id__in=allowed_menu_ids)

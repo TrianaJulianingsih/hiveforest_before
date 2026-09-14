@@ -5,14 +5,10 @@ from django.urls import path, reverse
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, JsonResponse
 from django.template.response import TemplateResponse
-import pandas as pd
-import dbfread
-from dbfread import DBF
 import csv
 import io
 import os
 import tempfile
-import chardet
 from django.forms import Textarea, TextInput
 
 
@@ -96,6 +92,9 @@ class BaseModelAdmin(admin.ModelAdmin):
 
 class PandasImportMixin:
     def _read_csv_file(self, uploaded_file, dtype_mapping):
+        import chardet
+        import pandas as pd
+
         raw_bytes = uploaded_file.read()
         uploaded_file.seek(0)
 
@@ -166,6 +165,10 @@ class PandasImportMixin:
         raise ValueError("Unable to parse CSV file. " + " | ".join(errors[:3]))
 
     def pandas_import(self, request):
+        import chardet
+        import dbfread
+        import pandas as pd
+
         if request.method == "POST":
             uploaded_file = request.FILES.get("file")
             if not uploaded_file:
