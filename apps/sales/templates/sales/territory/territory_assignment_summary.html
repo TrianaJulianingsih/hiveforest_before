@@ -1,0 +1,397 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block datatable_css %}
+  {{  block.super  }}
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap-multiselect/bootstrap-multiselect.css' %}">
+  <style>
+    /* Scrollable body with a header that stays put — a superadmin sees every
+       assignment in the system here, so the page must not grow unbounded. */
+    .assignment-summary-scroll {
+      max-height: 65vh;
+      overflow-x: auto;
+      overflow-y: auto;
+    }
+    .assignment-summary-table thead th {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      box-shadow: inset 0 -2px 0 #d5dbe0;
+    }
+
+    /* Multiselect widgets sized to the filter row, matching Area Matrix. */
+    .assignment-summary-filter .btn-group,
+    .assignment-summary-filter .multiselect { width: 100% !important; }
+    .assignment-summary-filter .multiselect {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 36px;
+      overflow: hidden;
+      text-align: left;
+    }
+    .assignment-summary-filter .multiselect-selected-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .assignment-summary-filter .multiselect-container { min-width: 100%; }
+  </style>
+  <style>
+    .assignment-summary-heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .assignment-summary-heading h1 { margin-bottom: 2px; }
+    .assignment-summary-heading p { margin: 0; color: #6c757d; }
+    .assignment-summary-heading-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .assignment-summary-filter {
+      margin-bottom: 18px;
+      border: 1px solid #e1e5ea;
+      box-shadow: 0 2px 8px rgba(33, 37, 41, .04);
+    }
+    .assignment-summary-filter .card-header {
+      padding: 10px 14px;
+      background: #ffffff;
+      border-bottom: 1px solid #edf0f2;
+    }
+    /* No overflow here on purpose. Setting overflow on one axis forces the
+       other to auto as well, which produced a stray vertical scrollbar AND
+       clipped the multiselect dropdowns inside the card. The fields shrink
+       to fit instead, and wrap only when the window is genuinely too narrow. */
+    .assignment-summary-filter .card-body {
+      padding: 12px 14px 14px;
+    }
+    .assignment-summary-filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 10px;
+    }
+    .assignment-summary-filter .form-group {
+      flex: 1 1 160px;
+      min-width: 0;
+      margin-bottom: 0;
+    }
+    .assignment-summary-filter .filter-search { flex: 2 1 220px; }
+    .assignment-summary-filter .filter-medrep { flex: 1 1 190px; }
+    .assignment-summary-filter .filter-actions {
+      display: flex;
+      flex: 0 0 auto;
+      gap: 7px;
+      white-space: nowrap;
+    }
+    .assignment-summary-filter label {
+      display: block;
+      margin-bottom: 4px;
+      color: #343a40;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+    .assignment-summary-filter .form-control,
+    .assignment-summary-filter .custom-select,
+    .assignment-summary-filter .btn {
+      min-height: 36px;
+    }
+    .assignment-summary-card {
+      border: 1px solid #dfe3e7;
+      box-shadow: 0 2px 8px rgba(33, 37, 41, .04);
+    }
+    .assignment-summary-card > .card-header {
+      padding: 10px 14px;
+      background: #ffffff;
+      border-bottom: 1px solid #e6e9ec;
+    }
+    .assignment-summary-meta { color: #6c757d; font-size: 12px; }
+    .assignment-summary-table th {
+      border-top: 0;
+      background: #f3f5f7;
+      color: #4b545c;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .assignment-summary-table td { vertical-align: middle; }
+    .assignment-customer-name { color: #2f363d; font-weight: 600; }
+    .assignment-customer-code { color: #6c757d; font-size: 11.5px; }
+    .assignment-period { white-space: nowrap; }
+    .assignment-status {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+    .assignment-status-active { background: #e8f5ec; color: #23763c; }
+    .assignment-status-upcoming { background: #fff4d6; color: #8a6200; }
+    .assignment-status-ended { background: #eef0f2; color: #646d75; }
+    .assignment-detail-row td {
+      padding: 13px 44px;
+      background: #f8fbfd;
+      border-top: 0;
+    }
+    .assignment-detail-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 18px;
+    }
+    .assignment-detail-label {
+      margin-bottom: 2px;
+      color: #6c757d;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+    .assignment-detail-value { color: #343a40; font-size: 12.5px; }
+    .assignment-summary-pager {
+      padding: 10px 14px;
+      background: #fafbfc;
+      border-top: 1px solid #e6e9ec;
+    }
+    .assignment-readonly-note {
+      margin-top: 10px;
+      color: #6c757d;
+      font-size: 12px;
+    }
+    @media (max-width: 991.98px) {
+      .assignment-summary-heading { align-items: flex-start; }
+      .assignment-detail-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 575.98px) {
+      .assignment-summary-heading { display: block; }
+      .assignment-summary-heading-actions { margin-top: 10px; }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="assignment-summary-heading">
+    <div>
+      <h1>{{  page_title  }}</h1>
+      <p>{{  page_subtitle  }}</p>
+    </div>
+    <div class="assignment-summary-heading-actions">
+      {% if can_manage %}
+        <a href="{% url 'sales:territory_assignment' %}" class="btn btn-primary">
+          <i class="fas fa-th mr-1"></i> Manage Assignments
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card assignment-summary-filter">
+    <div class="card-header">
+      <strong><i class="fas fa-filter text-muted mr-2"></i>Assignment Filters</strong>
+    </div>
+    <div class="card-body">
+      <form method="get">
+        <div class="assignment-summary-filter-row">
+          <div class="form-group filter-search">
+            <label for="assignmentSearch">Customer</label>
+            <input type="search" id="assignmentSearch" name="q" value="{{  search  }}" class="form-control form-control-sm" placeholder="Name, code, or location">
+          </div>
+          <div class="form-group">
+            <label for="assignmentCusttype">Customer Type</label>
+            <select id="assignmentCusttype" name="custtype" class="custom-select custom-select-sm" multiple>
+              {% for option in custtype_options %}
+                <option value="{{  option.customer__custtype_id  }}" {% if option.customer__custtype_id|stringformat:'s' in selected_custtype_ids %}selected{% endif %}>{{  option.customer__custtype__name|default:'-'  }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="assignmentRegency">Regency</label>
+            <select id="assignmentRegency" name="regency" class="custom-select custom-select-sm" multiple>
+              {% for option in regency_options %}
+                <option value="{{  option.customer__regency_id  }}" {% if option.customer__regency_id|stringformat:'s' in selected_regency_ids %}selected{% endif %}>{{  option.customer__regency__name|default:'-'  }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          {% if show_medrep %}
+            <div class="form-group filter-medrep">
+              <label for="assignmentMedrep">MedRep</label>
+              <select id="assignmentMedrep" name="position" class="custom-select custom-select-sm" multiple>
+                {% for option in medrep_options %}
+                  <option value="{{  option.id  }}" {% if option.id|stringformat:'s' in selected_position_ids %}selected{% endif %}>{{  option.name  }} — {{  option.position  }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          {% endif %}
+          <div class="form-group">
+            <label for="assignmentStatus">Status</label>
+            <select id="assignmentStatus" name="status" class="custom-select custom-select-sm">
+              <option value="active" {% if selected_status == 'active' %}selected{% endif %}>Current Assignments</option>
+              <option value="upcoming" {% if selected_status == 'upcoming' %}selected{% endif %}>Scheduled</option>
+              <option value="ended" {% if selected_status == 'ended' %}selected{% endif %}>Assignment History</option>
+              <option value="all" {% if selected_status == 'all' %}selected{% endif %}>All Records</option>
+            </select>
+          </div>
+          <div class="filter-actions">
+            <button type="submit" class="btn btn-sm btn-primary px-3"><i class="fas fa-search mr-1"></i> Apply</button>
+            <a href="{% url 'sales:territory_assignment_summary' %}" class="btn btn-sm btn-light">Reset</a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card assignment-summary-card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <strong>Territory Assignments</strong>
+      <span class="assignment-summary-meta">
+        {{  page_obj.paginator.count  }} assignment{{  page_obj.paginator.count|pluralize  }}
+      </span>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive assignment-summary-scroll">
+        <table class="table table-hover mb-0 assignment-summary-table">
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>Customer Type</th>
+              <th>Regency</th>
+              {% if show_medrep %}
+                <th>MedRep</th>
+              {% endif %}
+              <th>Effective Period</th>
+              <th>Status</th>
+              <th class="text-right">Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr>
+                <td>
+                  <div class="assignment-customer-name">{{  row.customer.name|default:'-'  }}</div>
+                  <div class="assignment-customer-code">{{  row.customer.code|default:'No customer code'  }}</div>
+                </td>
+                <td>{{  row.customer.custtype.name|default:'-'  }}</td>
+                <td>{{  row.customer.regency.name|default:'-'  }}</td>
+                {% if show_medrep %}
+                  <td>
+                    <div class="assignment-customer-name">{{  row.display_assignment.employee.name|default:row.display_assignment.name|default:'-'  }}</div>
+                    <div class="assignment-customer-code">{{  row.display_assignment.position.name|default:'-'  }}</div>
+                  </td>
+                {% endif %}
+                <td class="assignment-period">
+                  {{  row.record.effective|date:'d M Y'|default:'-'  }}
+                  &ndash;
+                  {% if row.record.terminated %}{{  row.record.terminated|date:'d M Y'  }}{% else %}Ongoing{% endif %}
+                </td>
+                <td>
+                  <span class="assignment-status assignment-status-{{  row.status  }}">{{  row.status|title  }}</span>
+                </td>
+                <td class="text-right">
+                  <button type="button" class="btn btn-sm btn-link assignment-detail-toggle" data-target="#assignmentDetail{{  row.record.id  }}" aria-expanded="false">
+                    View details
+                  </button>
+                </td>
+              </tr>
+              <tr id="assignmentDetail{{  row.record.id  }}" class="assignment-detail-row" style="display:none;">
+                <td colspan="{% if show_medrep %}7{% else %}6{% endif %}">
+                  <div class="assignment-detail-grid">
+                    <div>
+                      <div class="assignment-detail-label">Full address</div>
+                      <div class="assignment-detail-value">{{  row.address  }}</div>
+                    </div>
+                    <div>
+                      <div class="assignment-detail-label">Province / Regency</div>
+                      <div class="assignment-detail-value">{{  row.customer.province.name|default:'-'  }} / {{  row.customer.regency.name|default:'-'  }}</div>
+                    </div>
+                    <div>
+                      <div class="assignment-detail-label">Position</div>
+                      <div class="assignment-detail-value">{{  row.display_assignment.position.name|default:'-'  }}</div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="{% if show_medrep %}7{% else %}6{% endif %}" class="text-center text-muted py-5">
+                  No territory assignments found for the selected filters.
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% if page_obj.paginator.num_pages > 1 %}
+        <div class="assignment-summary-pager d-flex justify-content-between align-items-center">
+          <span class="assignment-summary-meta">
+            Showing {{  page_obj.start_index  }}&ndash;{{  page_obj.end_index  }} of {{  page_obj.paginator.count  }} assignments
+          </span>
+          <nav aria-label="Assignment summary pages">
+            <ul class="pagination pagination-sm mb-0">
+              {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?{% if filter_query %}{{  filter_query  }}&amp;{% endif %}page={{  page_obj.previous_page_number  }}">Previous</a></li>
+              {% else %}
+                <li class="page-item disabled"><span class="page-link">Previous</span></li>
+              {% endif %}
+              <li class="page-item disabled"><span class="page-link">Page {{  page_obj.number  }} of {{  page_obj.paginator.num_pages  }}</span></li>
+              {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?{% if filter_query %}{{  filter_query  }}&amp;{% endif %}page={{  page_obj.next_page_number  }}">Next</a></li>
+              {% else %}
+                <li class="page-item disabled"><span class="page-link">Next</span></li>
+              {% endif %}
+            </ul>
+          </nav>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="assignment-readonly-note">
+    <i class="fas fa-lock mr-1"></i>
+    Read-only access. Assignment changes are managed by the responsible Area Manager, Regional Manager, or administrator.
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  {{  block.super  }}
+  <script src="{% static 'vendor/bootstrap-multiselect/bootstrap-multiselect.min.js' %}"></script>
+  <script>
+    $(document).ready(function () {
+      // Keep filter values out of the address bar, same as the assignment
+      // matrix. Pagination links are built server-side from filter_query, so
+      // they keep working after the URL is cleaned.
+      if (window.location.search) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      // Same searchable multiselect widgets as Area Matrix and the assignment
+      // matrix. The view already reads these with getlist(), so multiple
+      // values work without any backend change.
+      const initMultiselect = (id, allText) => {
+        const $el = $(id);
+        if (!$el.length) { return; }
+        $el.multiselect({
+          includeSelectAllOption: true,
+          enableFiltering: true,
+          enableCaseInsensitiveFiltering: true,
+          buttonWidth: '100%',
+          maxHeight: 300,
+          nonSelectedText: allText,
+          allSelectedText: allText,
+          numberDisplayed: 1,
+        });
+      };
+      initMultiselect('#assignmentCusttype', 'All Customer Types');
+      initMultiselect('#assignmentRegency', 'All Regencies');
+      initMultiselect('#assignmentMedrep', 'All MedReps');
+
+      $('.assignment-detail-toggle').on('click', function () {
+        const $button = $(this);
+        const $detail = $($button.data('target'));
+        const isOpen = $button.attr('aria-expanded') === 'true';
+        $button.attr('aria-expanded', isOpen ? 'false' : 'true');
+        $button.text(isOpen ? 'View details' : 'Hide details');
+        $detail.toggle(!isOpen);
+      });
+    });
+  </script>
+{% endblock %}

@@ -1,0 +1,943 @@
+{% extends 'main.html' %}
+{% comment %}
+Territory Assignment matrix. Rows = customer, columns = MedRep (Assignment)
+within the logged-in user's own position subtree. Click a cell to assign,
+click the active cell to unassign — same click-a-cell interaction as Region
+Matrix / Area Matrix, plus a bulk icon per column head mirroring Area
+Matrix's .select-all-col.
+
+Sizing deliberately matches Region/Area Matrix: toggle icons inherit their
+size rather than being enlarged, the regency band reuses table-secondary,
+and type stays at the app's normal scale. An earlier pass scaled everything
+up for legibility and read as heavy-handed next to the sibling pages.
+
+Regencies become boxed tabs when more than one is in play (client-side —
+every row is already rendered). Columns can be hidden individually from the
+Columns dropdown, spreadsheet-style, remembered per browser.
+{% endcomment %}
+{% load static %}
+
+{% block datatable_css %}
+  {{  block.super  }}
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap-multiselect/bootstrap-multiselect.css' %}">
+  <style>
+    .territory-page-heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .territory-page-heading h1 { margin-bottom: 2px; }
+    .territory-page-heading p { margin: 0; color: #6c757d; }
+
+    .territory-filter-card {
+      border: 1px solid #e1e5ea;
+      box-shadow: 0 2px 8px rgba(33, 37, 41, .04);
+      margin-bottom: 18px;
+    }
+    .territory-filter-card .card-header {
+      background: #ffffff;
+      border-bottom: 1px solid #edf0f2;
+      padding: 12px 16px;
+    }
+    .territory-filter-card .card-body { padding: 14px 16px 16px; }
+    .territory-filter-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(145px, 1fr)) auto;
+      align-items: end;
+      gap: 12px;
+    }
+    .territory-filter-card label {
+      display: block;
+      margin-bottom: 5px;
+      color: #343a40;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .territory-filter-card .form-group { margin-bottom: 0; }
+    .territory-filter-card .btn-group,
+    .territory-filter-card .multiselect { width: 100% !important; }
+    .territory-filter-card .multiselect {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 38px;
+      overflow: hidden;
+      text-align: left;
+    }
+    .territory-filter-card .multiselect-selected-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .territory-filter-card .multiselect-container { min-width: 100%; }
+    .filter-step {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      margin-right: 5px;
+      border-radius: 50%;
+      background: #e9f2fb;
+      color: #246ba5;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .filter-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+      white-space: nowrap;
+    }
+    .filter-actions .btn { min-height: 38px; }
+
+    .territory-empty-state {
+      padding: 42px 20px;
+      border: 1px dashed #cfd6dc;
+      border-radius: 4px;
+      background: #fbfcfd;
+      color: #6c757d;
+      text-align: center;
+    }
+    .territory-empty-state i {
+      display: block;
+      margin-bottom: 10px;
+      color: #9aa5af;
+      font-size: 28px;
+    }
+    .territory-empty-state strong {
+      display: block;
+      margin-bottom: 3px;
+      color: #343a40;
+      font-size: 15px;
+    }
+
+    .territory-result-card {
+      border: 1px solid #dfe3e7;
+      box-shadow: 0 2px 8px rgba(33, 37, 41, .04);
+    }
+    .territory-result-card > .card-header {
+      min-height: 50px;
+      padding: 10px 14px;
+      background: #ffffff;
+      border-bottom: 1px solid #e6e9ec;
+    }
+    .result-title { color: #2f363d; font-size: 14px; font-weight: 600; }
+    .result-meta { margin-top: 2px; color: #6c757d; font-size: 12px; }
+    .matrix-pager {
+      padding: 10px 14px;
+      background: #fafbfc;
+      border-top: 1px solid #e6e9ec;
+    }
+    .pager-info { color: #6c757d; font-size: 12px; }
+
+    .territory-matrix-wrapper {
+      max-height: 70vh;
+      overflow-y: auto;
+      overflow-x: auto;
+      position: relative;
+    }
+    .territory-matrix-wrapper table {
+      border-collapse: separate !important;
+      border-spacing: 0;
+      table-layout: auto;
+    }
+    .territory-matrix-wrapper thead th {
+      background: #f3f5f7 !important;
+      position: sticky !important;
+      top: 0;
+      z-index: 30;
+      white-space: nowrap;
+      text-align: center;
+      vertical-align: middle;
+      padding: 8px 10px;
+      border-bottom: 2px solid #d5dbe0 !important;
+    }
+    .territory-matrix-wrapper td {
+      text-align: center;
+      vertical-align: middle;
+      padding: 7px 10px;
+    }
+    .territory-matrix-wrapper .hv-sticky-col {
+      position: sticky !important;
+      left: 0;
+      width: 280px;
+      min-width: 280px;
+      max-width: 280px;
+      background: #ffffff !important;
+      z-index: 20;
+      box-shadow: 2px 0 0 #dfe3e7;
+      text-align: left;
+    }
+    .territory-matrix-wrapper thead th.hv-sticky-col {
+      z-index: 40;
+      background: #f3f5f7 !important;
+    }
+    .territory-matrix-wrapper .customer-row:hover td { background: #f8fbfd; }
+    .territory-matrix-wrapper .customer-row:hover .hv-sticky-col { background: #f8fbfd !important; }
+
+    .customer-name {
+      display: block;
+      overflow: hidden;
+      color: #2f363d;
+      font-weight: 600;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .mr-name { font-weight: 600; }
+    .mr-seat {
+      display: block;
+      max-width: 155px;
+      margin: 2px auto 0;
+      overflow: hidden;
+      font-size: 11.5px;
+      font-weight: 400;
+      color: #6c757d;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .cust-sub { font-size: 11.5px; color: #6c757d; }
+
+    .matrix-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      font-size: 15px;
+      transition: background-color .12s ease, color .12s ease;
+    }
+    .matrix-toggle.on  { color: #28a745 !important; }
+    .matrix-toggle.off { color: #adb5bd !important; }
+    .matrix-toggle.off:hover { background: #eef2f5; color: #6c757d !important; }
+    .matrix-toggle.on:hover { background: #e8f5ec; }
+    .matrix-toggle.is-busy { opacity: .35; pointer-events: none; }
+    .bulk-col {
+      display: inline-block;
+      margin-top: 4px;
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-size: 11px;
+    }
+    .bulk-col:hover { background: #e6f5f8; }
+
+    .regency-head td {
+      padding: 6px 10px;
+      background: #e9ecef !important;
+      color: #4b545c;
+      font-size: 12px;
+      letter-spacing: .02em;
+      text-align: left;
+      text-transform: uppercase;
+    }
+
+    .regency-tab-strip {
+      overflow-x: auto;
+      padding: 10px 14px;
+      background: #fafbfc;
+      border-bottom: 1px solid #e3e7ea;
+    }
+    #regencyTabs {
+      flex-wrap: nowrap;
+      min-width: max-content;
+      border-bottom: 0;
+    }
+    #regencyTabs .nav-link {
+      margin-right: 6px;
+      padding: 7px 11px;
+      border: 1px solid #d8dde2;
+      border-radius: 4px;
+      background: #ffffff;
+      color: #5f6871;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    #regencyTabs .nav-link:hover {
+      border-color: #9fbdd5;
+      color: #245f91;
+    }
+    #regencyTabs .nav-link.active {
+      background: #eaf3fa;
+      border-color: #75a8ce;
+      color: #245f91;
+      font-weight: 400;
+    }
+    #regencyTabs .nav-link .badge { margin-left: .35rem; font-weight: 400; }
+
+    #colMenu {
+      min-width: 310px;
+      padding: 0;
+    }
+    .column-picker-btn {
+      min-width: 0;
+      min-height: 38px;
+      background-color: #ffffff !important;
+      border: 1px solid #ced4da !important;
+      color: #495057 !important;
+      font-size: 14px;
+      font-weight: 400;
+      text-align: left;
+    }
+    .column-picker-btn:hover,
+    .column-picker-btn:focus,
+    .column-picker-btn[aria-expanded="true"] {
+      background-color: #ffffff !important;
+      border-color: #80bdff !important;
+      color: #495057 !important;
+      box-shadow: 0 0 0 .15rem rgba(0, 123, 255, .15) !important;
+    }
+    #colMenuList {
+      max-height: 270px;
+      overflow-y: auto;
+      padding: 5px 0;
+    }
+    #colMenu .col-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      padding: 6px 14px;
+      margin: 0;
+      cursor: pointer;
+      font-weight: 400;
+    }
+    #colMenu .col-item:hover { background: #f1f3f5; }
+    #colMenu .col-item input { margin-top: 3px; flex-shrink: 0; }
+    #colMenu .col-item .seat { display: block; font-size: 11.5px; color: #6c757d; }
+    #colMenu .column-tools { padding: 10px 12px 8px; border-bottom: 1px solid #e9ecef; }
+    #colMenu .select-all-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      padding: 8px 12px;
+      border-top: 1px solid #e9ecef;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    #colMenu .select-all-item:hover { background: #f1f3f5; }
+
+    #matrixToast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 1080;
+      min-width: 230px;
+      display: none;
+    }
+
+    @media (max-width: 991.98px) {
+      .territory-filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .filter-submit-group { grid-column: 1 / -1; }
+    }
+
+    @media (max-width: 991.98px) {
+      .territory-filter-card .form-group { margin-bottom: 12px; }
+      .filter-actions { min-height: auto; }
+      .territory-matrix-wrapper .hv-sticky-col {
+        width: 220px;
+        min-width: 220px;
+        max-width: 220px;
+      }
+    }
+
+    @media (max-width: 575.98px) {
+      .territory-filter-grid { grid-template-columns: minmax(0, 1fr); }
+      .filter-submit-group { grid-column: auto; }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="territory-page-heading">
+    <div>
+      <h1>{{  page_title|default:"Territory Assignment"  }}</h1>
+      <p>Assign customers to the MedReps in your territory.</p>
+    </div>
+    <a href="{{  summary_url  }}" class="btn btn-primary">
+      <i class="fas fa-list-alt mr-1"></i> Assignment Summary
+    </a>
+  </div>
+
+  <div class="card territory-filter-card">
+    <div class="card-header">
+      <strong><i class="fas fa-filter text-muted mr-2"></i>Matrix Filters</strong>
+    </div>
+    <div class="card-body">
+      <form method="get" id="filter-form">
+        <div class="territory-filter-grid">
+          <div class="form-group">
+            <label for="provinceFilter"><span class="filter-step">1</span>Province</label>
+            <select id="provinceFilter" name="province" class="form-control" multiple>
+              {% for province in province_options %}
+                <option value="{{  province.id  }}" {% if province.id|stringformat:"s" in selected_province_ids %}selected{% endif %}>{{  province.name  }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="regencyFilter"><span class="filter-step">2</span>Regency</label>
+            <select id="regencyFilter" name="regency" class="form-control" multiple>
+              {% for regency in regency_options %}
+                <option value="{{  regency.id  }}" {% if regency.id|stringformat:"s" in selected_regency_ids %}selected{% endif %}>{{  regency.name  }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="custtypeFilter"><span class="filter-step">3</span>Customer Type</label>
+            <select id="custtypeFilter" name="custtype" class="form-control" multiple>
+              {% for custtype in custtype_options %}
+                <option value="{{  custtype.id  }}" {% if custtype.id|stringformat:"s" in selected_custtype_ids %}selected{% endif %}>{{  custtype.name  }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="colBtn"><span class="filter-step">4</span>MedReps</label>
+            {% if medrep_options %}
+              <div class="dropdown w-100">
+                <button class="custom-select column-picker-btn w-100" type="button" id="colBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Select MedReps
+                </button>
+                <div class="dropdown-menu dropdown-menu-right" id="colMenu" aria-labelledby="colBtn">
+                  <div class="column-tools">
+                    <input type="search" class="form-control form-control-sm mb-2" id="colSearch" placeholder="Search MedRep..." autocomplete="off">
+                    <label class="select-all-item">
+                      <input type="checkbox" id="colSelectAll">
+                      <span>Select all MedReps</span>
+                    </label>
+                  </div>
+                  <div id="colMenuList">
+                    {% for option in medrep_options %}
+                      <label class="col-item" data-search="{{  option.employee.name|default:option.name  }} {{  option.position.name|default:''  }}">
+                        {% if selected_medrep_ids %}
+                          <input type="checkbox" class="col-check" name="medrep" value="{{  option.id  }}" {% if option.id|stringformat:"s" in selected_medrep_ids %}checked{% endif %}>
+                        {% else %}
+                          <input type="checkbox" class="col-check" name="medrep" value="{{  option.id  }}" checked>
+                        {% endif %}
+                        <span>
+                          {{  option.employee.name|default:option.name  }}
+                          <span class="seat">{{  option.position.name|default:"-"  }}</span>
+                        </span>
+                      </label>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            {% else %}
+              <button type="button" class="custom-select column-picker-btn w-100" disabled>No MedReps available</button>
+            {% endif %}
+          </div>
+
+          <div class="form-group filter-submit-group">
+            <div class="filter-actions">
+              <button type="submit" class="btn btn-primary px-3" id="showMatrixBtn" {% if not matrix_ready %}disabled{% endif %}>
+                <i class="fas fa-table mr-1"></i> Show Matrix
+              </button>
+              {% if selected_regency_ids or selected_custtype_ids %}
+                <a href="{% url 'sales:territory_assignment' %}" class="btn btn-light">Reset</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% if not matrix_ready %}
+    <div class="territory-empty-state">
+      <i class="fas fa-filter"></i>
+      <strong>Complete the filters to begin</strong>
+      Select a Province, Regency, and Customer Type, then click Show Matrix.
+    </div>
+  {% else %}
+    {% if not assignment_options %}
+      <div class="alert alert-warning">No active MedRep was found in your position scope.</div>
+    {% endif %}
+
+    <div class="card territory-result-card">
+      <div class="card-header d-flex justify-content-between align-items-center py-2">
+        <div>
+          <div class="result-title">{{  card_title_text  }}</div>
+          <div class="result-meta">
+            {{  total_customer_count  }} customer{{  total_customer_count|pluralize  }}
+            &middot; {{  regency_groups|length  }} regency{{  regency_groups|length|pluralize  }}
+            &middot; {{  assignment_options|length  }} MedRep{{  assignment_options|length|pluralize  }}
+            {% if page_obj and page_obj.paginator.num_pages > 1 %}
+              &middot; page {{  page_obj.number  }} of {{  page_obj.paginator.num_pages  }}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% if regency_groups|length > 1 %}
+        <div class="regency-tab-strip">
+          <ul class="nav nav-tabs" id="regencyTabs">
+            <li class="nav-item">
+              <a class="nav-link active" data-regency="all">All <span class="badge badge-light">{{  total_customer_count  }}</span></a>
+            </li>
+            {% for group in regency_groups %}
+              <li class="nav-item">
+                <a class="nav-link" data-regency="{{  group.regency.id|default:'none'  }}">
+                  {{  group.regency.name|default:"(No Regency)"  }}
+                  <span class="badge badge-light">{{  group.rows|length  }}</span>
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+      <div class="card-body p-0">
+        <div class="table-responsive territory-matrix-wrapper">
+          <table class="table table-bordered mb-0" id="matrixTable">
+            <thead>
+              <tr>
+                <th class="hv-sticky-col">Customer</th>
+                {% for option in assignment_options %}
+                  <th class="mrcol mrcol-{{  option.id  }}" style="min-width:130px;">
+                    <span class="mr-name">{{  option.employee.name|default:option.name  }}</span>
+                    <span class="mr-seat">{{  option.position.name|default:"-"  }}</span>
+                    <i class="fas fa-check-square text-info bulk-col"
+                       title="Assign all currently visible customers to {{  option.employee.name|default:option.name  }}"
+                       aria-label="Assign visible customers to {{  option.employee.name|default:option.name  }}"
+                       style="cursor:pointer;"
+                       data-assignment-id="{{  option.id  }}"
+                       data-assignment-name="{{  option.employee.name|default:option.name  }}"></i>
+                  </th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for group in regency_groups %}
+                <tr class="table-secondary font-weight-bold regency-head" data-regency="{{  group.regency.id|default:'none'  }}">
+                  <td colspan="{{  assignment_options|length|add:1  }}">
+                    {{  group.regency.name|default:"(No Regency)"  }}
+                  </td>
+                </tr>
+                {% for row in group.rows %}
+                  <tr class="customer-row" data-regency="{{  group.regency.id|default:'none'  }}">
+                    <td class="hv-sticky-col">
+                      <span class="customer-name" title="{{  row.customer.name  }}">{{  row.customer.name  }}</span>
+                      <span class="cust-sub">{{  row.customer.district.name|default:row.customer.regency.name|default:"-"  }}{% if row.customer.custtype %} &middot; {{  row.customer.custtype.name  }}{% endif %}</span>
+                    </td>
+                    {% for option in assignment_options %}
+                      <td class="mrcol mrcol-{{  option.id  }}">
+                        <i class="matrix-toggle {% if option.id in row.active_option_ids %}fas fa-check-circle on{% else %}far fa-circle off{% endif %}"
+                           data-customer-id="{{  row.customer.id  }}"
+                           data-customer-name="{{  row.customer.name  }}"
+                           data-assignment-id="{{  option.id  }}"
+                           data-assignment-name="{{  option.employee.name|default:option.name  }}"
+                           data-active="{% if option.id in row.active_option_ids %}1{% else %}0{% endif %}"
+                           style="cursor:pointer;"></i>
+                      </td>
+                    {% endfor %}
+                  </tr>
+                {% endfor %}
+              {% empty %}
+                <tr><td colspan="{{  assignment_options|length|add:1  }}" class="text-center text-muted py-4">{{  empty_message_text  }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        {% if page_obj and page_obj.paginator.num_pages > 1 %}
+          <div class="matrix-pager d-flex justify-content-between align-items-center">
+            <span class="pager-info">
+              Showing {{  page_obj.start_index  }}&ndash;{{  page_obj.end_index  }}
+              of {{  page_obj.paginator.count  }} customers
+            </span>
+            <nav aria-label="Matrix pages">
+              {# previous_page_number/next_page_number raise EmptyPage at the edges, and a |default filter cannot catch that — only read them inside has_previous/has_next. #}
+              <ul class="pagination pagination-sm mb-0">
+                {% if page_obj.has_previous %}
+                  <li class="page-item">
+                    <a class="page-link" href="?{{  base_query  }}&amp;page={{  page_obj.previous_page_number  }}">Previous</a>
+                  </li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                {% endif %}
+
+                <li class="page-item disabled">
+                  <span class="page-link">Page {{  page_obj.number  }} of {{  page_obj.paginator.num_pages  }}</span>
+                </li>
+
+                {% if page_obj.has_next %}
+                  <li class="page-item">
+                    <a class="page-link" href="?{{  base_query  }}&amp;page={{  page_obj.next_page_number  }}">Next</a>
+                  </li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link">Next</span></li>
+                {% endif %}
+              </ul>
+            </nav>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+
+  <div id="matrixToast" class="alert alert-success shadow" role="status" aria-live="polite"></div>
+
+  <!-- Modal: Assign / Unassign (single cell) -->
+  <div class="modal fade" id="assignModal" tabindex="-1" role="dialog" aria-labelledby="assignModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="assignModalLabel">Territory Assignment</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-1">Customer: <strong id="modalCustomerName"></strong></p>
+          <p class="mb-1">MedRep: <strong id="modalAssignmentName"></strong></p>
+          <input type="hidden" id="modalCustomerId" />
+          <input type="hidden" id="modalAssignmentId" />
+          <div id="modalActionSection" class="mb-2 text-info small"></div>
+          <div class="form-group mb-0">
+            <label for="modalEffective">Effective Date</label>
+            <input type="date" class="form-control form-control-sm" id="modalEffective"
+              {% if not can_edit_effective_date %}readonly{% endif %} />
+          </div>
+        </div>
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{  csrf_token  }}" />
+        <div class="modal-footer d-flex justify-content-between">
+          <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Cancel</button>
+          <div>
+            <button type="button" class="btn btn-sm btn-danger" id="matrixUnassign" style="display:none;">Unassign</button>
+            <button type="button" class="btn btn-sm btn-success" id="matrixAssign">Assign</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Bulk assign one whole column -->
+  <div class="modal fade" id="bulkAssignModal" tabindex="-1" role="dialog" aria-labelledby="bulkAssignModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="bulkAssignModalLabel">Assign Many at Once</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-1">MedRep: <strong id="bulkAssignmentName"></strong></p>
+          <input type="hidden" id="bulkAssignmentId" />
+          <div class="alert alert-info p-2 mb-2 small">
+            Assigns <strong><span id="bulkCustomerCount">0</span></strong> customer(s) currently shown to this MedRep.
+            Customers already assigned to them stay as they are.
+          </div>
+          <div class="form-group mb-0">
+            <label for="bulkEffective">Effective Date</label>
+            <input type="date" class="form-control form-control-sm" id="bulkEffective"
+              {% if not can_edit_effective_date %}readonly{% endif %} />
+          </div>
+        </div>
+        <div class="modal-footer d-flex justify-content-between">
+          <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-sm btn-success" id="bulkAssignConfirm">Assign All</button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  {{  block.super  }}
+  <script src="{% static 'vendor/bootstrap-multiselect/bootstrap-multiselect.min.js' %}"></script>
+  <script>
+    $(document).ready(function () {
+      if (window.location.search) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      setTimeout(function () {
+        $('#matrixLimitAlert').fadeOut(250, function () {
+          $(this).remove();
+        });
+      }, 5000);
+
+      // ── Filters: searchable multiselect (same plugin as Area Matrix) ──
+      const initMultiselect = (id, width, allText) => {
+        $(id).multiselect({
+          includeSelectAllOption: true,
+          enableFiltering: true,
+          enableCaseInsensitiveFiltering: true,
+          buttonWidth: width,
+          maxHeight: 300,
+          nonSelectedText: allText,
+          allSelectedText: allText,
+          numberDisplayed: 1,
+        });
+      };
+      initMultiselect('#provinceFilter', '100%', 'Select Province');
+      initMultiselect('#regencyFilter', '100%', 'Select Regency');
+      initMultiselect('#custtypeFilter', '100%', 'Select Customer Type');
+
+      function filtersReady() {
+        return ($('#provinceFilter').val() || []).length > 0
+          && ($('#regencyFilter').val() || []).length > 0
+          && ($('#custtypeFilter').val() || []).length > 0;
+      }
+
+      function syncFilterState() {
+        $('#showMatrixBtn').prop('disabled', !filtersReady());
+      }
+
+      function syncRegencyState() {
+        const hasProvince = ($('#provinceFilter').val() || []).length > 0;
+        $('#regencyFilter').multiselect(hasProvince ? 'enable' : 'disable');
+        syncFilterState();
+      }
+
+      syncRegencyState();
+
+      // Live Province -> Regency cascade. Must bind AFTER initMultiselect —
+      // calling .multiselect('rebuild') on an uninitialised select breaks it.
+      $('#provinceFilter').on('change', function () {
+        const provinceIds = $(this).val() || [];
+        const $regency = $('#regencyFilter');
+        $regency.empty();
+        syncFilterState();
+        if (provinceIds.length === 0) {
+          $regency.multiselect('rebuild');
+          syncRegencyState();
+          return;
+        }
+        $regency.multiselect('disable');
+        $.ajax({
+          url: "{{  regency_ajax_url  }}",
+          data: { 'province_ids[]': provinceIds },
+          traditional: true,
+          success: function (data) {
+            data.forEach(function (item) {
+              $regency.append(`<option value="${item.id}">${item.name}</option>`);
+            });
+            $regency.multiselect('rebuild');
+            syncRegencyState();
+          },
+          error: function () {
+            $regency.multiselect('rebuild');
+            syncRegencyState();
+          },
+        });
+      });
+
+      $('#regencyFilter, #custtypeFilter').on('change', syncFilterState);
+      syncFilterState();
+
+      $('#filter-form').on('submit', function (event) {
+        if (!filtersReady()) {
+          event.preventDefault();
+          return;
+        }
+        $('#showMatrixBtn')
+          .prop('disabled', true)
+          .html('<i class="fas fa-spinner fa-spin mr-1"></i> Loading...');
+      });
+
+      // ── Regency tabs (client-side; every row is already rendered) ──
+      $('#regencyTabs').on('click', '.nav-link', function () {
+        const target = String($(this).data('regency'));
+        $('#regencyTabs .nav-link').removeClass('active');
+        $(this).addClass('active');
+
+        if (target === 'all') {
+          $('.customer-row, .regency-head').show();
+        } else {
+          $('.regency-head').hide();
+          $('.customer-row').each(function () {
+            $(this).toggle(String($(this).data('regency')) === target);
+          });
+        }
+      });
+
+      // ── MedRep filter: staged until Show Matrix ──
+      function syncMedrepFilter() {
+        const total = $('.col-check').length;
+        const selected = $('.col-check:checked').length;
+        $('#colSelectAll')
+          .prop('checked', total > 0 && selected === total)
+          .prop('indeterminate', selected > 0 && selected < total);
+
+        let label = 'All MedReps';
+        if (selected > 0 && selected < total) {
+          label = selected + ' MedRep' + (selected > 1 ? 's' : '') + ' selected';
+        }
+        $('#colBtn').text(label);
+      }
+
+      $('#colMenu').on('click', function (e) { e.stopPropagation(); });
+
+      $('#colSearch').on('input', function () {
+        const query = String($(this).val() || '').trim().toLowerCase();
+        $('#colMenuList .col-item').each(function () {
+          const haystack = String($(this).data('search') || '').toLowerCase();
+          $(this).toggle(haystack.indexOf(query) !== -1);
+        });
+      });
+
+      $('.col-check').on('change', function () {
+        syncMedrepFilter();
+      });
+
+      $('#colSelectAll').on('change', function () {
+        $('.col-check').prop('checked', this.checked);
+        syncMedrepFilter();
+      });
+
+      syncMedrepFilter();
+
+      // ── Toast ──
+      let toastTimer = null;
+      function toast(message, ok) {
+        const $t = $('#matrixToast');
+        $t.removeClass('alert-success alert-danger')
+          .addClass(ok === false ? 'alert-danger' : 'alert-success')
+          .text(message)
+          .fadeIn(120);
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => $t.fadeOut(300), 3400);
+      }
+
+      // ── Repaint only the selected customer + MedRep cell ──
+      // Other active MedReps in the same customer row must stay active.
+      function paintCell($row, assignmentId, isActive) {
+        const $cell = $row.find(
+          `.matrix-toggle[data-assignment-id="${assignmentId}"]`
+        );
+        $cell
+          .removeClass('fas fa-check-circle on far fa-circle off')
+          .addClass(isActive ? 'fas fa-check-circle on' : 'far fa-circle off')
+          .data('active', isActive ? 1 : 0);
+      }
+
+      function rowFor(customerId) {
+        return $(`.customer-row:has(.matrix-toggle[data-customer-id="${customerId}"])`);
+      }
+
+      function postAssignment(action, customerIds, assignmentId, effectiveDate) {
+        const payload = {
+          csrfmiddlewaretoken: $('[name="csrfmiddlewaretoken"]').val(),
+          action: action,
+          effective: effectiveDate,
+          'customer_ids[]': customerIds,
+        };
+        payload.assignment_id = assignmentId;
+        return $.ajax({
+          url: "{{  save_url  }}",
+          type: 'POST',
+          data: payload,
+          traditional: true,
+        });
+      }
+
+      // ── Single cell: assign / unassign one customer ──
+      // Delegated: with hundreds of cells, one handler per icon made the page
+      // slow to load and slow to leave.
+      $('.territory-matrix-wrapper').on('click', '.matrix-toggle', function () {
+        const $el = $(this);
+        $('#modalCustomerName').text($el.data('customer-name'));
+        $('#modalAssignmentName').text($el.data('assignment-name'));
+        $('#modalCustomerId').val($el.data('customer-id'));
+        $('#modalAssignmentId').val($el.data('assignment-id'));
+        $('#modalEffective').val(new Date().toISOString().slice(0, 10));
+
+        if ($el.data('active') == 1) {
+          $('#modalActionSection').text('This customer is currently assigned to this MedRep.');
+          $('#matrixUnassign').show();
+          $('#matrixAssign').hide();
+        } else {
+          $('#modalActionSection').text('Assign this customer to this MedRep.');
+          $('#matrixUnassign').hide();
+          $('#matrixAssign').show();
+        }
+        $('#assignModal').modal('show');
+      });
+
+      function runSingle(action, $btn, label) {
+        const customerId = $('#modalCustomerId').val();
+        const assignmentId = $('#modalAssignmentId').val();
+        const $row = rowFor(customerId);
+
+        $btn.prop('disabled', true).text('Saving...');
+        $row.find('.matrix-toggle').addClass('is-busy');
+
+        postAssignment(action, [customerId], assignmentId, $('#modalEffective').val())
+          .done(function (response) {
+            if (response.changed > 0) {
+              paintCell($row, assignmentId, action === 'assign');
+            }
+            $('#assignModal').modal('hide');
+            if (response.changed > 0) {
+              toast(action === 'assign' ? 'Customer assigned.' : 'Customer unassigned.');
+            } else {
+              toast('No change. This customer is already in that assignment state.');
+            }
+          })
+          .fail(function (xhr) {
+            toast(xhr.responseText || 'Failed to save.', false);
+          })
+          .always(function () {
+            $row.find('.matrix-toggle').removeClass('is-busy');
+            $btn.prop('disabled', false).text(label);
+          });
+      }
+
+      $('#matrixAssign').on('click', function () { runSingle('assign', $(this), 'Assign'); });
+      $('#matrixUnassign').on('click', function () { runSingle('unassign', $(this), 'Unassign'); });
+
+      // ── Bulk: one icon per column head ──
+      // Acts on whichever customers are visible right now, so the filters
+      // above and the active regency tab both narrow what it touches.
+      function visibleRows() {
+        return $('.customer-row').filter(':visible');
+      }
+      function visibleCustomerIds() {
+        const ids = new Set();
+        visibleRows().find('.matrix-toggle').each(function () {
+          ids.add(String($(this).data('customer-id')));
+        });
+        return Array.from(ids);
+      }
+
+      $('.territory-matrix-wrapper').on('click', '.bulk-col', function (e) {
+        e.stopPropagation();
+        const $el = $(this);
+        $('#bulkAssignmentId').val($el.data('assignment-id'));
+        $('#bulkAssignmentName').text($el.data('assignment-name'));
+        $('#bulkCustomerCount').text(visibleCustomerIds().length);
+        $('#bulkEffective').val(new Date().toISOString().slice(0, 10));
+        $('#bulkAssignModal').modal('show');
+      });
+
+      $('#bulkAssignConfirm').on('click', function () {
+        const ids = visibleCustomerIds();
+        if (ids.length === 0) { return; }
+
+        const assignmentId = $('#bulkAssignmentId').val();
+        const $rows = visibleRows();
+        const $btn = $(this).prop('disabled', true).text('Assigning...');
+        $rows.find('.matrix-toggle').addClass('is-busy');
+
+        postAssignment('assign', ids, assignmentId, $('#bulkEffective').val())
+          .done(function (response) {
+            (response.changed_customer_ids || []).forEach(function (customerId) {
+              paintCell(rowFor(customerId), assignmentId, true);
+            });
+            $('#bulkAssignModal').modal('hide');
+            toast(`${response.changed} assigned, ${response.skipped} already assigned.`);
+          })
+          .fail(function (xhr) {
+            toast(xhr.responseText || 'Failed to save.', false);
+          })
+          .always(function () {
+            $rows.find('.matrix-toggle').removeClass('is-busy');
+            $btn.prop('disabled', false).text('Assign All');
+          });
+      });
+    });
+  </script>
+{% endblock %}

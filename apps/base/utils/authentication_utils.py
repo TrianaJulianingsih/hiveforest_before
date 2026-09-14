@@ -59,9 +59,10 @@ def parse_user_agent(user_agent):
 
     os_map = [
         ("windows", "Windows"),
-        ("mac os", "macOS"),
-        ("android", "Android"),
         ("iphone", "iOS"),
+        ("ipad", "iOS"),
+        ("android", "Android"),
+        ("mac os", "macOS"),
         ("linux", "Linux"),
     ]
     for key, label in os_map:

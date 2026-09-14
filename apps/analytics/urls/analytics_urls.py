@@ -19,30 +19,32 @@ from apps.analytics.views.iqvia_trendlineviews import (
     iqvia_trendline,
 )
 
-# Unfinished / pending import module
-# from apps.analytics.views.iqvia_importviews import (
-#     iqvia_import_cancel,
-#     iqvia_import_commit,
-#     iqvia_import_data,
-#     iqvia_import_export,
-#     iqvia_import_history,
-#     iqvia_import_menu,
-#     iqvia_import_upload,
-# )
+from apps.analytics.views.iqvia_importviews import (
+    iqvia_import_cancel,
+    iqvia_import_commit,
+    iqvia_import_data,
+    iqvia_import_discard,
+    iqvia_import_export,
+    iqvia_import_history,
+    iqvia_import_menu,
+    iqvia_import_upload,
+)
 
 app_name = "analytics"
 
 urlpatterns = [
-    # <!-- Akram | IQVIA Report Module URLs -->
-    # <!-- Akram | IQVIA Import Module URLs (Pending implementation) -->
-    # path("iqvia/import-menu", iqvia_import_menu, name="iqvia_import_menu"),
-    # path("iqvia/import-data", iqvia_import_data, name="iqvia_import_data"),
-    # path("iqvia/import-upload", iqvia_import_upload, name="iqvia_import_upload"),
-    # path("iqvia/import-commit", iqvia_import_commit, name="iqvia_import_commit"),
-    # path("iqvia/import-cancel", iqvia_import_cancel, name="iqvia_import_cancel"),
-    # path("iqvia/import-history", iqvia_import_history, name="iqvia_import_history"),
-    # path("iqvia/import-export", iqvia_import_export, name="iqvia_import_export"),
+    # <!-- Akram | IQVIA Import Module URLs -->
+    path("iqvia/import-menu", iqvia_import_menu, name="iqvia_import_menu"),
+    path("iqvia/import-data", iqvia_import_data, name="iqvia_import_data"),
+    path("iqvia/import-upload", iqvia_import_upload, name="iqvia_import_upload"),
+    path("iqvia/import-commit", iqvia_import_commit, name="iqvia_import_commit"),
+    path("iqvia/import-cancel", iqvia_import_cancel, name="iqvia_import_cancel"),
+    path("iqvia/import-discard", iqvia_import_discard, name="iqvia_import_discard"),
+    path("iqvia/import-history", iqvia_import_history, name="iqvia_import_history"),
+    path("iqvia/import-export", iqvia_import_export, name="iqvia_import_export"),
     # <!-- // Akram | IQVIA Import Module URLs -->
+
+    # <!-- Akram | IQVIA Report Module URLs -->
     path("iqvia/trendline", iqvia_trendline, name="iqvia_trendline"),
     path("iqvia/options", iqvia_options, name="iqvia_options"),
     path("iqvia/trend-data", iqvia_trend_data, name="iqvia_trend_data"),

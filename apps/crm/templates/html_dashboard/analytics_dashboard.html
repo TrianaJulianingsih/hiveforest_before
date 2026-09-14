@@ -2,7 +2,7 @@
 {% load i18n static translation_tags custom_filters %}
 
 {% block extra_head %}
-{{ block.super }}
+{{  block.super  }}
 <!-- Tailwind CSS v4. AdminLTE/Bootstrap's plain (unlayered) CSS otherwise beats Tailwind's
      own utilities on shared tags like <a> regardless of specificity, since Tailwind wraps
      its utilities in a CSS cascade layer and unlayered rules always win over layered ones. -->
@@ -214,14 +214,14 @@
 {% endblock %}
 
 {% block content %}
-{{ block.super }}
+{{  block.super  }}
 {% get_translations 'hcp_analytics' as t %}
 
 <div class="hcp-analytics-page pt-6 pb-6">
 
   <div class="bg-white rounded-xl border border-[#eceef1] shadow-sm p-6 space-y-6">
 
-  <h1 class="text-2xl font-bold text-[#171a1f]">{{ t.page_title|default:title }}</h1>
+  <h1 class="text-2xl font-bold text-[#171a1f]">{{  t.page_title|default:title  }}</h1>
 
   <form method="get" class="space-y-6">
 
@@ -231,8 +231,8 @@
       <div class="relative" id="filter-root">
         <button type="button" id="filter-toggle-btn" class="flex items-center gap-2 px-4 h-11 bg-white border border-[#dee1e6] rounded-md text-sm font-medium text-[#323743] hover:bg-gray-50">
           <img src="{% static 'custom/crm/analytics_dashboard/assets/IMG_4.svg' %}" alt="Filter" class="w-4 h-4">
-          <span>{{ t.btn_filter|default:'Filter' }}</span>
-          {% if selected_filter_count %}<span class="ml-1 inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#636AE8] text-white text-xs">{{ selected_filter_count }}</span>{% endif %}
+          <span>{{  t.btn_filter|default:'Filter'  }}</span>
+          {% if selected_filter_count %}<span class="ml-1 inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#636AE8] text-white text-xs">{{  selected_filter_count  }}</span>{% endif %}
         </button>
         {% include "html_dashboard/hcp_filter_panel.html" %}
       </div>
@@ -240,7 +240,7 @@
       <div class="relative" id="export-root">
         <button type="button" id="export-toggle-btn" class="flex items-center gap-2 px-4 h-11 bg-[#DDE1FC] hover:bg-[#C9CFFA] rounded-md text-sm font-medium text-[#4B51D6]">
           <img src="{% static 'custom/crm/analytics_dashboard/assets/IMG_5.svg' %}" alt="Export" class="w-4 h-4">
-          <span>{{ t.btn_export|default:'Export' }}</span>
+          <span>{{  t.btn_export|default:'Export'  }}</span>
         </button>
         {% include "html_dashboard/export_menu.html" with csv_url_name="crm:export_csv" excel_url_name="crm:export_excel" %}
       </div>
@@ -250,31 +250,31 @@
   <!-- Stats Grid -->
   <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
     <div class="bg-white p-5 rounded-lg border border-[#f3f4f6] shadow-sm flex flex-col justify-between h-32 relative">
-      <span class="text-sm font-medium text-[#6f7787]">{{ t.stat_total|default:'Total Doctors' }}</span>
-      <span class="text-display text-[#171a1f]">{{ total_count|dotformat }}</span>
+      <span class="text-sm font-medium text-[#6f7787]">{{  t.stat_total|default:'Total Doctors'  }}</span>
+      <span class="text-display text-[#171a1f]">{{  total_count|dotformat  }}</span>
       <div class="absolute top-5 right-5 w-9 h-9 bg-[#f2f2fd] rounded-lg flex items-center justify-center">
         <img src="{% static 'custom/crm/analytics_dashboard/assets/IMG_10.svg' %}" alt="Users" class="w-[18px] h-[18px]">
       </div>
     </div>
     <div class="bg-white p-5 rounded-lg border border-[#f3f4f6] shadow-sm flex flex-col justify-between h-32 relative">
-      <span class="text-sm font-medium text-[#6f7787]">{{ t.stat_active|default:'Active Licenses' }}</span>
-      <span class="text-display text-[#171a1f]">{{ active_count|dotformat }}</span>
+      <span class="text-sm font-medium text-[#6f7787]">{{  t.stat_active|default:'Active Licenses'  }}</span>
+      <span class="text-display text-[#171a1f]">{{  active_count|dotformat  }}</span>
       <div class="absolute top-5 right-5 w-9 h-9 bg-[#f2f2fd] rounded-lg flex items-center justify-center">
         <img src="{% static 'custom/crm/analytics_dashboard/assets/IMG_11.svg' %}" alt="Check" class="w-[18px] h-[18px]">
       </div>
     </div>
     <div class="bg-white p-5 rounded-lg border border-[#f3f4f6] shadow-sm flex flex-col justify-between h-32 relative">
-      <span class="text-sm font-medium text-[#6f7787]">{{ t.stat_inactive|default:'Inactive' }}</span>
-      <span class="text-display text-[#171a1f]">{{ inactive_count|dotformat }}</span>
+      <span class="text-sm font-medium text-[#6f7787]">{{  t.stat_inactive|default:'Inactive'  }}</span>
+      <span class="text-display text-[#171a1f]">{{  inactive_count|dotformat  }}</span>
       <div class="absolute top-5 right-5 w-9 h-9 bg-[#FFF1F2] rounded-lg flex items-center justify-center">
         <img src="{% static 'custom/crm/analytics_dashboard/assets/IMG_13.svg' %}" alt="Inactive" class="w-[18px] h-[18px]">
       </div>
     </div>
     <div class="bg-white p-5 rounded-lg border border-[#f3f4f6] shadow-sm flex flex-col justify-between h-32 relative">
-      <span class="text-sm font-medium text-[#6f7787]">{{ t.stat_facilities|default:'Practice Facilities' }}</span>
+      <span class="text-sm font-medium text-[#6f7787]">{{  t.stat_facilities|default:'Practice Facilities'  }}</span>
       <div class="flex items-baseline gap-2">
-        <span class="text-display text-[#171a1f]">{{ facility_count|dotformat }}</span>
-        <span class="text-[13px] text-[#6f7787]">{{ t.stat_across|default:'Across' }} {{ region_count|dotformat }} {{ t.stat_regions|default:'Regions' }}</span>
+        <span class="text-display text-[#171a1f]">{{  facility_count|dotformat  }}</span>
+        <span class="text-[13px] text-[#6f7787]">{{  t.stat_across|default:'Across'  }} {{  region_count|dotformat  }} {{  t.stat_regions|default:'Regions'  }}</span>
       </div>
       <div class="absolute top-5 right-5 w-9 h-9 bg-[#f2f2fd] rounded-lg flex items-center justify-center">
         <img src="{% static 'custom/crm/analytics_dashboard/assets/IMG_12.svg' %}" alt="Building" class="w-[18px] h-[18px]">
@@ -287,8 +287,8 @@
     <div class="bg-white p-6 rounded-lg border border-[#f3f4f6] shadow-md">
       <div class="flex items-start justify-between gap-2 flex-wrap mb-2">
         <div>
-          <h3 class="text-lg font-bold text-[#323743] mb-0">{{ t.chart_province_title|default:'Top Provinces by Doctor Count' }}</h3>
-          <p class="text-xs text-[#9095a1] mt-1 mb-0">{{ t.chart_province_subtitle|default:'Click or hover a province to see how many doctors practice there.' }}</p>
+          <h3 class="text-lg font-bold text-[#323743] mb-0">{{  t.chart_province_title|default:'Top Provinces by Doctor Count'  }}</h3>
+          <p class="text-xs text-[#9095a1] mt-1 mb-0">{{  t.chart_province_subtitle|default:'Click or hover a province to see how many doctors practice there.'  }}</p>
         </div>
         {% querystring map_province=None page=None as province_chart_reset_url %}
         {% include "html_dashboard/chart_filter.html" with key="province" label=t.filter_label_province|default:"Province" field="map_province" options=provinces selected=selected_map_provinces reset_url=province_chart_reset_url %}
@@ -297,13 +297,13 @@
         {% if province_data %}
         <div id="province-map" style="position: absolute; inset: 0;" class="rounded-md"></div>
         {% else %}
-        <div class="h-full w-full flex items-center justify-center text-sm text-[#9095a1]">{{ t.chart_province_empty|default:'No province data available yet.' }}</div>
+        <div class="h-full w-full flex items-center justify-center text-sm text-[#9095a1]">{{  t.chart_province_empty|default:'No province data available yet.'  }}</div>
         {% endif %}
       </div>
     </div>
     <div class="bg-white p-6 rounded-lg border border-[#f3f4f6] shadow-md">
       <div class="flex items-center justify-between gap-2 mb-8 flex-wrap">
-        <h3 class="text-lg font-bold text-[#323743]">{{ t.chart_places_title|default:'Top Hospitals / Places of Practice' }}</h3>
+        <h3 class="text-lg font-bold text-[#323743]">{{  t.chart_places_title|default:'Top Hospitals / Places of Practice'  }}</h3>
         {% querystring chart_places=None page=None as places_chart_reset_url %}
         {% include "html_dashboard/chart_filter.html" with key="places" label=t.filter_label_places|default:"Hospital / Place" field="chart_places" options=place_options selected=selected_chart_places reset_url=places_chart_reset_url %}
       </div>
@@ -311,13 +311,13 @@
         {% if top_places %}
         <canvas id="chart-places"></canvas>
         {% else %}
-        <div class="h-full w-full flex items-center justify-center text-sm text-[#9095a1]">{{ t.chart_places_empty|default:'No place-of-practice data available yet.' }}</div>
+        <div class="h-full w-full flex items-center justify-center text-sm text-[#9095a1]">{{  t.chart_places_empty|default:'No place-of-practice data available yet.'  }}</div>
         {% endif %}
       </div>
     </div>
     <div class="bg-white p-6 rounded-lg border border-[#f3f4f6] shadow-md">
       <div class="flex items-center justify-between gap-2 mb-8 flex-wrap">
-        <h3 class="text-lg font-bold text-[#323743]">{{ t.chart_specialities_title|default:"Doctor's Specialities" }}</h3>
+        <h3 class="text-lg font-bold text-[#323743]">{{  t.chart_specialities_title|default:"Doctor's Specialities"  }}</h3>
         {% querystring chart_specialities=None page=None as specialities_chart_reset_url %}
         {% include "html_dashboard/chart_filter.html" with key="specialities" label=t.filter_label_specialities|default:"Speciality" field="chart_specialities" options=specialities selected=selected_chart_specialities reset_url=specialities_chart_reset_url %}
       </div>
@@ -325,13 +325,13 @@
         {% if top_specialities %}
         <canvas id="chart-specialities"></canvas>
         {% else %}
-        <div class="h-full w-full flex items-center justify-center text-sm text-[#9095a1]">{{ t.chart_specialities_empty|default:'No speciality data available yet.' }}</div>
+        <div class="h-full w-full flex items-center justify-center text-sm text-[#9095a1]">{{  t.chart_specialities_empty|default:'No speciality data available yet.'  }}</div>
         {% endif %}
       </div>
     </div>
     <div class="bg-white p-6 rounded-lg border border-[#f3f4f6] shadow-md">
       <div class="flex items-center justify-between gap-2 mb-8 flex-wrap">
-        <h3 class="text-lg font-bold text-[#323743]">{{ t.chart_education_title|default:"Doctor's Education" }}</h3>
+        <h3 class="text-lg font-bold text-[#323743]">{{  t.chart_education_title|default:"Doctor's Education"  }}</h3>
         {% querystring chart_education=None page=None as education_chart_reset_url %}
         {% include "html_dashboard/chart_filter.html" with key="education" label=t.filter_label_education|default:"Education" field="chart_education" options=education_options selected=selected_chart_education reset_url=education_chart_reset_url %}
       </div>
@@ -339,7 +339,7 @@
         {% if top_education %}
         <canvas id="chart-education"></canvas>
         {% else %}
-        <div class="h-full w-full flex items-center justify-center text-sm text-[#9095a1]">{{ t.chart_education_empty|default:'No education data available yet.' }}</div>
+        <div class="h-full w-full flex items-center justify-center text-sm text-[#9095a1]">{{  t.chart_education_empty|default:'No education data available yet.'  }}</div>
         {% endif %}
       </div>
     </div>
@@ -396,10 +396,10 @@
     })();
   </script>
 
-  {{ province_data|json_script:"province-data" }}
-  {{ top_places|json_script:"top-places-data" }}
-  {{ top_specialities|json_script:"top-specialities-data" }}
-  {{ top_education|json_script:"top-education-data" }}
+  {{  province_data|json_script:"province-data"  }}
+  {{  top_places|json_script:"top-places-data"  }}
+  {{  top_specialities|json_script:"top-specialities-data"  }}
+  {{  top_education|json_script:"top-education-data"  }}
 
   <!-- Table Section -->
   <div class="space-y-4">
@@ -407,7 +407,7 @@
       <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
         <img src="{% static 'custom/crm/analytics_dashboard/assets/IMG_3.svg' %}" alt="Search" class="w-4 h-4">
       </div>
-      <input type="text" id="search-input" name="q" value="{{ query }}" placeholder="{{ t.search_placeholder|default:'Search doctors in this table' }}" autocomplete="off" class="w-full h-11 pl-10 pr-4 bg-white border border-[#dee1e6] rounded-md focus:ring-2 focus:ring-[#636AE8]/20 outline-none text-sm">
+      <input type="text" id="search-input" name="q" value="{{  query  }}" placeholder="{{  t.search_placeholder|default:'Search doctors in this table'  }}" autocomplete="off" class="w-full h-11 pl-10 pr-4 bg-white border border-[#dee1e6] rounded-md focus:ring-2 focus:ring-[#636AE8]/20 outline-none text-sm">
       {% include "html_dashboard/search_suggestions.html" with suggest_url_name="crm:hcp_suggest" recents_key="hcp_recent_searches" %}
     </div>
 

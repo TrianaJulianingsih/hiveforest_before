@@ -6,6 +6,7 @@ from apps.base.models.locations import (
     District,
     Village,
 )
+from apps.base.models.sites import Sites
 from apps.base.models.entities import CompanyOwner, CompanyOwnership, Company
 from apps.base.models.reports import PeriodTemplate
 from apps.base.models.people import Gender, Salutation, Person
@@ -42,3 +43,5 @@ from apps.base.models.warehouse import (
     # CalculationFormula,
     # CalculationVariable,
 )
+from apps.base.models.system_log import SystemLog, LogAction, LogStatus
+

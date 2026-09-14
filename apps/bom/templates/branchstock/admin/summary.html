@@ -2,7 +2,7 @@
 {% load static custom_filters %}
 
 {% block extrastyle %}
-{{ block.super }}
+{{  block.super  }}
 <link rel="stylesheet" href="{% static 'vendor/bootstrap-multiselect/bootstrap-multiselect.css' %}">
 <style>
   #branchStockFilters .multiselect-container>li>a>label,
@@ -163,7 +163,7 @@
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">
-  <a href="{% url 'admin:index' %}">Home</a> &rsaquo; {% if breadcrumbs_url %}<a href="{{ breadcrumbs_url }}">{{ breadcrumbs }}</a>{% else %}<span>{{ breadcrumbs }}</span>{% endif %} &gt; <span>{{ title }}</span>
+  <a href="{% url 'admin:index' %}">Home</a> &rsaquo; {% if breadcrumbs_url %}<a href="{{  breadcrumbs_url  }}">{{  breadcrumbs  }}</a>{% else %}<span>{{  breadcrumbs  }}</span>{% endif %} &gt; <span>{{  title  }}</span>
 </div>
 {% endblock %}
 
@@ -176,17 +176,17 @@
         <label for="branch_id" class="form-label mb-1">Branch</label>
         <select id="branch_id" name="branch_id[]" class="form-select form-select-sm" multiple>
           {% for option in branch_options %}
-          <option value="{{ option.value }}" data-branch-ids="{{ option.ids|join:',' }}" {% if option.selected %}selected{% endif %}>{{ option.label }}</option>
+          <option value="{{  option.value  }}" data-branch-ids="{{  option.ids|join:','  }}" {% if option.selected %}selected{% endif %}>{{  option.label  }}</option>
           {% endfor %}
         </select>
       </div>
       <div class="col-auto">
         <label for="start_date" class="form-label mb-1">Start</label>
-        <input id="start_date" name="start_date" type="date" class="form-control form-control-sm" value="{{ start_date|date:'Y-m-d' }}">
+        <input id="start_date" name="start_date" type="date" class="form-control form-control-sm" value="{{  start_date|date:'Y-m-d'  }}">
       </div>
       <div class="col-auto">
         <label for="end_date" class="form-label mb-1">End</label>
-        <input id="end_date" name="end_date" type="date" class="form-control form-control-sm" value="{{ end_date|date:'Y-m-d' }}">
+        <input id="end_date" name="end_date" type="date" class="form-control form-control-sm" value="{{  end_date|date:'Y-m-d'  }}">
       </div>
       <div class="col-auto mt-1 mt-md-0 d-flex align-items-center gap-2">
         <button type="submit" class="btn btn-primary btn-sm btn-branch-action">Apply</button>
@@ -208,7 +208,7 @@
               <th scope="col" class="hf-freeze hf-freeze-col-1 text-center" colspan="2">Branch</th>
               <th scope="col" class="hf-freeze hf-freeze-col-3 text-center">Warehouse Capacity</th>
               {% for group in date_groups %}
-              <th scope="col" class="text-center" colspan="{{ group.dates|length }}">{{ group.label }}</th>
+              <th scope="col" class="text-center" colspan="{{  group.dates|length  }}">{{  group.label  }}</th>
               {% endfor %}
             </tr>
             <tr>
@@ -217,7 +217,7 @@
               <th scope="col" class="hf-freeze hf-freeze-col-3 text-center">Pallet</th>
               {% for group in date_groups %}
               {% for day in group.dates %}
-              <th scope="col" class="text-center">{{ day|date:"j" }}</th>
+              <th scope="col" class="text-center">{{  day|date:"j"  }}</th>
               {% endfor %}
               {% endfor %}
             </tr>
@@ -227,7 +227,7 @@
               <th scope="col" class="hf-freeze hf-freeze-col-2 text-center" rowspan="2">Description</th>
               <th scope="col" class="hf-freeze hf-freeze-col-3 text-center" rowspan="2">Pallet</th>
               {% for day in date_columns %}
-              <th scope="col" class="text-center">{{ day|date:"d M Y" }}</th>
+              <th scope="col" class="text-center">{{  day|date:"d M Y"  }}</th>
               {% endfor %}
             </tr>
             <tr></tr>
@@ -236,19 +236,19 @@
           <tbody>
             {% for row in percentage_rows %}
             <tr>
-              <td class="hf-freeze hf-freeze-col-1">{{ row.branch_code }}</td>
-              <td class="hf-freeze hf-freeze-col-2">{{ row.branch_description }}</td>
-              <td class="hf-freeze hf-freeze-col-3 text-end">{{ row.warehouse_capacity|default:0 }}</td>
+              <td class="hf-freeze hf-freeze-col-1">{{  row.branch_code  }}</td>
+              <td class="hf-freeze hf-freeze-col-2">{{  row.branch_description  }}</td>
+              <td class="hf-freeze hf-freeze-col-3 text-end">{{  row.warehouse_capacity|default:0  }}</td>
               {% for item in row.values %}
               {% with percent=item.percent value=item.value %}
               {% if percent < 30 %}
-              <td class="hf-capacity-low" align="right">{{ value }} | {{ percent|floatformat:1 }} %</td>
+              <td class="hf-capacity-low" align="right">{{  value  }} | {{  percent|floatformat:1  }} %</td>
               {% elif percent >= 70 and percent < 100 %}
-              <td class="hf-capacity-medium" align="right">{{ value }} | {{ percent|floatformat:1 }} %</td>
+              <td class="hf-capacity-medium" align="right">{{  value  }} | {{  percent|floatformat:1  }} %</td>
               {% elif percent >= 100 %}
-              <td class="hf-capacity-high" align="right">{{ value }} | {{ percent|floatformat:1 }} %</td>
+              <td class="hf-capacity-high" align="right">{{  value  }} | {{  percent|floatformat:1  }} %</td>
               {% else %}
-              <td class="hf-capacity-standard" align="right">{{ value }} | {{ percent|floatformat:1 }} %</td>
+              <td class="hf-capacity-standard" align="right">{{  value  }} | {{  percent|floatformat:1  }} %</td>
               {% endif %}
               {% endwith %}
               {% endfor %}
@@ -262,7 +262,7 @@
       <div class="alert alert-warning mt-3 mb-0">
         Tanggal berikut tidak ditampilkan karena semua branch bernilai 0 / 0%:
         {% for day in omitted_zero_dates %}
-        {% if not forloop.first %}, {% endif %}{{ day|date:"d M Y" }}
+        {% if not forloop.first %}, {% endif %}{{  day|date:"d M Y"  }}
         {% endfor %}
       </div>
       {% endif %}

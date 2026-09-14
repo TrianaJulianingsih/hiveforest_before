@@ -75,3 +75,140 @@ class BatchFieldMixin:
     def get_batch_fields(self):
         # Allow views to override or extend this
         return self.batch_fields
+
+
+from django.db import models
+
+class SystemLogMixin:
+    log_module = None
+    log_feature = None
+
+    def log_action(
+        self,
+        action,
+        description=None,
+        obj=None,
+        old_data=None,
+        new_data=None,
+        status="SUCCESS",
+        response_code=None,
+        response_data=None,
+        error_message=None,
+        stack_trace=None,
+        metadata=None,
+        module=None,
+        feature=None,
+        user=None,
+    ):
+        """Allows Views, APIs, and Services to log specific events easily."""
+        from apps.base.services.system_log_service import SystemLogService
+        
+        mod = module or self.log_module or getattr(self, 'module', getattr(self.__class__, '__name__', None))
+        feat = feature or self.log_feature or getattr(self, 'feature', None)
+        request = getattr(self, 'request', None)
+
+        return SystemLogService.log(
+            request=request,
+            action=action,
+            module=mod,
+            feature=feat,
+            obj=obj,
+            description=description,
+            old_data=old_data,
+            new_data=new_data,
+            status=status,
+            response_code=response_code,
+            response_data=response_data,
+            error_message=error_message,
+            stack_trace=stack_trace,
+            metadata=metadata,
+            user=user,
+        )
+
+
+class SystemLogModelMixin:
+    """Automatically logs CREATE, UPDATE, and DELETE operations for mixed-in Models."""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._original_values = self._get_instance_dict()
+
+    def _get_instance_dict(self):
+        if not self.pk:
+            return {}
+        data = {}
+        for field in self._meta.fields:
+            if isinstance(field, models.ForeignKey):
+                data[field.name] = getattr(self, field.attname)
+            else:
+                data[field.name] = getattr(self, field.name)
+        return data
+
+    def save(self, *args, **kwargs):
+        is_new = not self.pk
+        old_data = {}
+        if not is_new:
+            if hasattr(self, '_original_values') and self._original_values:
+                old_data = self._original_values
+            else:
+                try:
+                    original = self.__class__.objects.get(pk=self.pk)
+                    old_data = original._get_instance_dict()
+                except self.__class__.DoesNotExist:
+                    old_data = {}
+
+        super().save(*args, **kwargs)
+        new_data = self._get_instance_dict()
+
+        from apps.base.services.system_log_service import SystemLogService, get_changes
+        from apps.base.models.system_log import LogAction
+        
+        module_name = self._meta.app_label.title()
+        feature_name = self._meta.verbose_name.title()
+
+        if is_new:
+            SystemLogService.log(
+                action=LogAction.CREATE,
+                module=module_name,
+                feature=feature_name,
+                obj=self,
+                description=f"Created {self._meta.verbose_name} record.",
+                new_data=new_data,
+                status="SUCCESS"
+            )
+        else:
+            changes = get_changes(old_data, new_data)
+            if changes:
+                SystemLogService.log(
+                    action=LogAction.UPDATE,
+                    module=module_name,
+                    feature=feature_name,
+                    obj=self,
+                    description=f"Updated {self._meta.verbose_name} record.",
+                    old_data=old_data,
+                    new_data=new_data,
+                    metadata={"changes": changes},
+                    status="SUCCESS"
+                )
+
+        self._original_values = self._get_instance_dict()
+
+    def delete(self, *args, **kwargs):
+        old_data = self._get_instance_dict()
+        super().delete(*args, **kwargs)
+
+        from apps.base.services.system_log_service import SystemLogService
+        from apps.base.models.system_log import LogAction
+        
+        module_name = self._meta.app_label.title()
+        feature_name = self._meta.verbose_name.title()
+
+        SystemLogService.log(
+            action=LogAction.DELETE,
+            module=module_name,
+            feature=feature_name,
+            obj=self,
+            description=f"Deleted {self._meta.verbose_name} record.",
+            old_data=old_data,
+            status="SUCCESS"
+        )
+

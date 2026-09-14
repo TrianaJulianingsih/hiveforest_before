@@ -1,5 +1,5 @@
 from modeltranslation.translator import register, TranslationOptions
-from apps.cms.models.appmanagers import ApplicationList
+from apps.cms.models.app_managers_models import ApplicationList
 
 # ╔════════════════════════════════════════════════════════════╗
 # ║  Name: ApplicationListTranslation                          ║

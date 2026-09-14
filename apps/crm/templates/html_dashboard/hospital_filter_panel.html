@@ -9,28 +9,28 @@
     <button type="button" class="filter-nav-row w-full flex items-center justify-between py-2.5 px-2 rounded-md hover:bg-gray-50" data-target="type">
       <span class="text-sm text-[#323743]">Type</span>
       <span class="flex items-center gap-2">
-        <span id="type-count" class="text-xs text-[#636AE8] font-semibold {% if not selected_types %}hidden{% endif %}">{{ selected_types|length }} selected</span>
+        <span id="type-count" class="text-xs text-[#636AE8] font-semibold {% if not selected_types %}hidden{% endif %}">{{  selected_types|length  }} selected</span>
         <span class="text-[#9095a1]">&#8250;</span>
       </span>
     </button>
     <button type="button" class="filter-nav-row w-full flex items-center justify-between py-2.5 px-2 rounded-md hover:bg-gray-50" data-target="class">
       <span class="text-sm text-[#323743]">Class</span>
       <span class="flex items-center gap-2">
-        <span id="class-count" class="text-xs text-[#636AE8] font-semibold {% if not selected_classes %}hidden{% endif %}">{{ selected_classes|length }} selected</span>
+        <span id="class-count" class="text-xs text-[#636AE8] font-semibold {% if not selected_classes %}hidden{% endif %}">{{  selected_classes|length  }} selected</span>
         <span class="text-[#9095a1]">&#8250;</span>
       </span>
     </button>
     <button type="button" class="filter-nav-row w-full flex items-center justify-between py-2.5 px-2 rounded-md hover:bg-gray-50" data-target="province">
       <span class="text-sm text-[#323743]">Province</span>
       <span class="flex items-center gap-2">
-        <span id="province-count" class="text-xs text-[#636AE8] font-semibold {% if not selected_provinces %}hidden{% endif %}">{{ selected_provinces|length }} selected</span>
+        <span id="province-count" class="text-xs text-[#636AE8] font-semibold {% if not selected_provinces %}hidden{% endif %}">{{  selected_provinces|length  }} selected</span>
         <span class="text-[#9095a1]">&#8250;</span>
       </span>
     </button>
     <button type="button" class="filter-nav-row w-full flex items-center justify-between py-2.5 px-2 rounded-md hover:bg-gray-50" data-target="regency">
       <span class="text-sm text-[#323743]">Regency</span>
       <span class="flex items-center gap-2">
-        <span id="regency-count" class="text-xs text-[#636AE8] font-semibold {% if not selected_regencies %}hidden{% endif %}">{{ selected_regencies|length }} selected</span>
+        <span id="regency-count" class="text-xs text-[#636AE8] font-semibold {% if not selected_regencies %}hidden{% endif %}">{{  selected_regencies|length  }} selected</span>
         <span class="text-[#9095a1]">&#8250;</span>
       </span>
     </button>
@@ -49,8 +49,8 @@
     <div id="type-options" class="max-h-[220px] overflow-y-auto space-y-1">
       {% for t in types %}
       <label class="filter-option font-normal flex items-center justify-between py-1.5 px-2 rounded-md hover:bg-gray-50 cursor-pointer">
-        <span class="text-sm text-[#323743]">{{ t }}</span>
-        <input type="checkbox" name="type" value="{{ t }}" {% if t in selected_types %}checked{% endif %} class="w-4 h-4 rounded accent-[#636AE8]">
+        <span class="text-sm text-[#323743]">{{  t  }}</span>
+        <input type="checkbox" name="type" value="{{  t  }}" {% if t in selected_types %}checked{% endif %} class="w-4 h-4 rounded accent-[#636AE8]">
       </label>
       {% endfor %}
     </div>
@@ -68,8 +68,8 @@
     <div id="class-options" class="max-h-[220px] overflow-y-auto space-y-1">
       {% for c in classes %}
       <label class="filter-option font-normal flex items-center justify-between py-1.5 px-2 rounded-md hover:bg-gray-50 cursor-pointer">
-        <span class="text-sm text-[#323743]">{{ c }}</span>
-        <input type="checkbox" name="class" value="{{ c }}" {% if c in selected_classes %}checked{% endif %} class="w-4 h-4 rounded accent-[#636AE8]">
+        <span class="text-sm text-[#323743]">{{  c  }}</span>
+        <input type="checkbox" name="class" value="{{  c  }}" {% if c in selected_classes %}checked{% endif %} class="w-4 h-4 rounded accent-[#636AE8]">
       </label>
       {% endfor %}
     </div>
@@ -87,8 +87,8 @@
     <div id="province-options" class="max-h-[220px] overflow-y-auto space-y-1">
       {% for p in provinces %}
       <label class="filter-option font-normal flex items-center justify-between py-1.5 px-2 rounded-md hover:bg-gray-50 cursor-pointer">
-        <span class="text-sm text-[#323743]">{{ p }}</span>
-        <input type="checkbox" name="province" value="{{ p }}" {% if p in selected_provinces %}checked{% endif %} class="w-4 h-4 rounded accent-[#636AE8]">
+        <span class="text-sm text-[#323743]">{{  p  }}</span>
+        <input type="checkbox" name="province" value="{{  p  }}" {% if p in selected_provinces %}checked{% endif %} class="w-4 h-4 rounded accent-[#636AE8]">
       </label>
       {% endfor %}
     </div>
@@ -106,8 +106,8 @@
     <div id="regency-options" class="max-h-[220px] overflow-y-auto space-y-1">
       {% for r in regencies %}
       <label class="filter-option font-normal flex items-center justify-between py-1.5 px-2 rounded-md hover:bg-gray-50 cursor-pointer">
-        <span class="text-sm text-[#323743]">{{ r }}</span>
-        <input type="checkbox" name="regency" value="{{ r }}" {% if r in selected_regencies %}checked{% endif %} class="w-4 h-4 rounded accent-[#636AE8]">
+        <span class="text-sm text-[#323743]">{{  r  }}</span>
+        <input type="checkbox" name="regency" value="{{  r  }}" {% if r in selected_regencies %}checked{% endif %} class="w-4 h-4 rounded accent-[#636AE8]">
       </label>
       {% endfor %}
     </div>

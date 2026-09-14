@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from apps.cms.models.menusystem import MenuItem
+from apps.cms.models import MenuItem
 
 @login_required
 def home(request):

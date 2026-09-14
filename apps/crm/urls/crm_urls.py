@@ -1,6 +1,6 @@
 from django.urls import include, path
-from apps.crm.views.dash_kamviews import dash_kamactivity
-from apps.crm.views.dash_crmviews import dash_hospital, dash_doctor
+from apps.crm.views.dashboard_kam_views import dash_kamactivity
+from apps.crm.views.dashboard_crm_views import dash_hospital, dash_doctor
 app_name = 'crm'  # Optional: Namespace for the app
 
 urlpatterns = [

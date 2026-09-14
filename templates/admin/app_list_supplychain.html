@@ -3,157 +3,187 @@
     <h6 class="list-group hiveforest">Modules</h6>
   </li>
   <li class="list-group-item hiveforest">
-    <a href="{% url 'admin:supplychain_podetail_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Order Details</a> |
-    <a href="{% url 'admin:supplychain_dodetail_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Delivery Details</a>
-    <form id="sync-form" action="{% url 'supplychain:matching_orders' %}" method="post" class="d-inline swal-ajax-form">
-        {% csrf_token %}
-        <button class="btn btn-primary btn-sm">Match</button>
+    <a href="{% url 'admin:supplychain_podetail_changelist' %}" class="track-click"
+      data-feature="SupplyChain PO Details Admin Link" data-description="User navigated to PO Details changelist" {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Order Details</a> |
+    <a href="{% url 'admin:supplychain_dodetail_changelist' %}" class="track-click"
+      data-feature="SupplyChain DO Details Admin Link" data-description="User navigated to DO Details changelist" {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Delivery Details</a>
+    <form id="sync-form-match" action="{% url 'supplychain:matching_orders' %}" method="post"
+      class="d-inline swal-ajax-form track-form" data-feature="Match Orders Form"
+      data-description="User triggered Match Orders action">
+      {% csrf_token %}
+      <button class="btn btn-primary btn-sm track-click" data-feature="Match Orders Button"
+        data-description="User clicked Match button">Match</button>
     </form>
   </li>
   <li class="list-group-item hiveforest">
     <h6 class="list-group hiveforest">Distribution</h6>
   </li>
   <li class="list-group-item hiveforest">
-    <a href="{% url 'admin:supplychain_distributor_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Distributors</a> |
-    <a href="{% url 'admin:supplychain_branchtype_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Branch Types</a> |
-    <a href="{% url 'admin:supplychain_branch_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Branches</a>    
+    <a href="{% url 'admin:supplychain_distributor_changelist' %}" class="track-click"
+      data-feature="SupplyChain Distributors Admin Link" data-description="User navigated to Distributors changelist" {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Distributors</a> |
+    <a href="{% url 'admin:supplychain_branchtype_changelist' %}" class="track-click"
+      data-feature="SupplyChain Branch Types Admin Link" data-description="User navigated to Branch Types changelist" {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Branch Types</a> |
+    <a href="{% url 'admin:supplychain_branch_changelist' %}" class="track-click"
+      data-feature="SupplyChain Branches Admin Link" data-description="User navigated to Branches changelist" {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Branches</a>
   </li>
   <li class="list-group-item hiveforest">
     <b>Stocks:</b>
-    <form id="sync-form" action="{% url 'supplychain:sync_stocks' %}" method="post" class="d-inline swal-ajax-form">
-                {% csrf_token %}
-                <button class="btn btn-primary btn-sm">Sync</button>
+    <form id="sync-form-stocks" action="{% url 'supplychain:sync_stocks' %}" method="post"
+      class="d-inline swal-ajax-form track-form" data-feature="Sync Stocks Form"
+      data-description="User triggered Sync Stocks action">
+      {% csrf_token %}
+      <button class="btn btn-primary btn-sm track-click" data-feature="Sync Stocks Button"
+        data-description="User clicked Sync button">Sync</button>
     </form>
     <br>
-    <a href="{% url 'admin:supplychain_stdistdaily_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Daily Stock</a> |
-    <a href="{% url 'admin:supplychain_branchstock_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Branch Stock Data</a> |
-    <a href="{% url 'bom:branchstock_summary' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Branch Stock Summary</a>
+    <a href="{% url 'admin:supplychain_stdistdaily_changelist' %}" class="track-click"
+      data-feature="SupplyChain Daily Stock Admin Link" data-description="User navigated to Daily Stock changelist" {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Daily Stock</a> |
+    <a href="{% url 'admin:supplychain_branchstock_changelist' %}" class="track-click"
+      data-feature="SupplyChain Branch Stock Data Admin Link"
+      data-description="User navigated to Branch Stock Data changelist" {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Branch Stock Data</a> |
+    <a href="{% url 'bom:branchstock_summary' %}" class="track-click"
+      data-feature="SupplyChain Branch Stock Summary Link" data-description="User navigated to Branch Stock Summary" {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Branch Stock Summary</a>
   </li>
   <li class="list-group-item hiveforest">
     <b>Stock FTP:</b>
     <button type="button" id="btn-import-stftp" class="btn btn-primary btn-sm"
-            data-url="{% url 'supplychain:import_stftp' %}">Import FTP</button>
+      data-url="{% url 'supplychain:import_stftp' %}">Import FTP</button>
   </li>
   <li class="list-group-item hiveforest">
     <b>Products:</b>
-    <a href="{% url 'admin:supplychain_distributoritem_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Items</a> |
-    <a href="{% url 'admin:supplychain_distributoritemgroup_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Groups</a>    
+    <a href="{% url 'admin:supplychain_distributoritem_changelist' %}" class="track-click"
+      data-feature="SupplyChain Distributor Items Admin Link"
+      data-description="User navigated to Distributor Items changelist" {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Items</a> |
+    <a href="{% url 'admin:supplychain_distributoritemgroup_changelist' %}" class="track-click"
+      data-feature="SupplyChain Distributor Groups Admin Link"
+      data-description="User navigated to Distributor Groups changelist" {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Groups</a>
   </li>
   <li class="list-group-item hiveforest">
     <b>Orders:</b>
-    <a href="{% url 'admin:supplychain_ordertype_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Types</a> |
-    <a href="{% url 'admin:supplychain_orderstatus_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Status</a>    
+    <a href="{% url 'admin:supplychain_ordertype_changelist' %}" class="track-click"
+      data-feature="SupplyChain Order Types Admin Link" data-description="User navigated to Order Types changelist" {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Types</a> |
+    <a href="{% url 'admin:supplychain_orderstatus_changelist' %}" class="track-click"
+      data-feature="SupplyChain Order Status Admin Link" data-description="User navigated to Order Status changelist" {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Status</a>
   </li>
   <li class="list-group-item hiveforest">
     <h6 class="list-group hiveforest">Manufacturing</h6>
   </li>
   <li class="list-group-item hiveforest">
     <b>Products:</b>
-    <a href="{% url 'admin:supplychain_manufacturingitem_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Items</a> |
-    <a href="{% url 'admin:supplychain_manufacturingitemgroup_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Groups</a> |
-    <a href="{% url 'admin:supplychain_manufacturingitemsubgroup_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Subgroups</a>
+    <a href="{% url 'admin:supplychain_manufacturingitem_changelist' %}" class="track-click"
+      data-feature="SupplyChain Manufacturing Items Admin Link"
+      data-description="User navigated to Manufacturing Items changelist" {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Items</a> |
+    <a href="{% url 'admin:supplychain_manufacturingitemgroup_changelist' %}" class="track-click"
+      data-feature="SupplyChain Manufacturing Groups Admin Link"
+      data-description="User navigated to Manufacturing Groups changelist" {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Groups</a> |
+    <a href="{% url 'admin:supplychain_manufacturingitemsubgroup_changelist' %}" class="track-click"
+      data-feature="SupplyChain Manufacturing Subgroups Admin Link"
+      data-description="User navigated to Manufacturing Subgroups changelist" {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Subgroups</a>
   </li>
   <li class="list-group-item hiveforest">
     <b>Stocks:</b>
-    <a href="{% url 'admin:supplychain_stockstatus_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Statuses</a> |
-    <a href="{% url 'admin:supplychain_stmfgots_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Stock</a>    
+    <a href="{% url 'admin:supplychain_stockstatus_changelist' %}" class="track-click"
+      data-feature="SupplyChain Stock Statuses Admin Link"
+      data-description="User navigated to Stock Statuses changelist" {% if model.admin_url in request.path|urlencode %}
+      aria-current="page" {% endif %}>Statuses</a> |
+    <a href="{% url 'admin:supplychain_stmfgots_changelist' %}" class="track-click"
+      data-feature="SupplyChain Stock OTS Admin Link" data-description="User navigated to Stock OTS changelist" {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Stock</a>
   </li>
 </ul>
-<!-- <script>
-document.addEventListener('DOMContentLoaded', function () {
-  // Select all forms with class "swal-ajax-form"
-  document.querySelectorAll('.swal-ajax-form').forEach(form => {
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
 
-      const csrfToken = this.querySelector('[name=csrfmiddlewaretoken]').value;
-      const formAction = this.action;
+<script>
+  function logSupplyChainClick(feature, description, metadata) {
+    const url = '/api/log-click/';
+    const body = JSON.stringify({
+      module: 'SupplyChain',
+      feature: feature,
+      description: description,
+      metadata: metadata || {}
+    });
 
-      Swal.fire({
-        title: 'Processing...',
-        text: 'Please wait while we process your request.',
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{  csrf_token  }}'
+      },
+      body: body,
+      keepalive: true
+    }).catch(err => console.error('Click logging failed', err));
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.track-click').forEach(function (el) {
+      el.addEventListener('click', function () {
+        const feature = this.getAttribute('data-feature');
+        const desc = this.getAttribute('data-description');
+        const meta = JSON.parse(this.getAttribute('data-metadata') || '{}');
+        if (feature) {
+          logSupplyChainClick(feature, desc, meta);
         }
       });
+    });
 
-      fetch(formAction, {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': csrfToken,
-          'Accept': 'application/json'
+    document.querySelectorAll('.track-form').forEach(function (form) {
+      form.addEventListener('submit', function () {
+        const feature = this.getAttribute('data-feature');
+        const desc = this.getAttribute('data-description');
+        const meta = JSON.parse(this.getAttribute('data-metadata') || '{}');
+        if (feature) {
+          logSupplyChainClick(feature, desc, meta);
         }
-      })
-      .then(res => res.json())
-      .then(data => {
-        Swal.close();
-        Swal.fire({
-          icon: data.status === 'success' ? 'success' : 'error',
-          title: data.status === 'success' ? 'Success' : 'Failed',
-          text: data.message || 'Something happened.'
-        });
-      })
-      .catch(err => {
-        Swal.close();
-        Swal.fire({
-          icon: 'error',
-          title: 'Network Error',
-          text: 'Please try again.'
-        });
       });
     });
   });
-});
-</script> -->
+</script>
 
 <!-- Utandra | Stock FTP import modal (upload CSV -> RawMUST) -->
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-  const btn = document.getElementById('btn-import-stftp');
-  if (!btn) return;
+  document.addEventListener('DOMContentLoaded', function () {
+    const btn = document.getElementById('btn-import-stftp');
+    if (!btn) return;
 
-  btn.addEventListener('click', function () {
-    const url = this.dataset.url;
-    Swal.fire({
-      title: 'Import Stock FTP',
-      html: `<input type="file" id="stftp-file" accept=".csv,.xlsx,.xls" class="form-control">
-             <label class="mt-2 d-block"><input type="checkbox" id="stftp-dry"> Dry-run</label>`,
-      showCancelButton: true,
-      confirmButtonText: 'Upload',
-      preConfirm: () => {
-        const f = document.getElementById('stftp-file').files[0];
-        if (!f) { Swal.showValidationMessage('Pilih file CSV dulu'); return false; }
-        return { file: f, dry: document.getElementById('stftp-dry').checked };
-      }
-    }).then(res => {
-      if (!res.isConfirmed) return;
-      const fd = new FormData();
-      fd.append('file', res.value.file);
-      if (res.value.dry) fd.append('dry_run', '1');
-
+    btn.addEventListener('click', function () {
+      const url = this.dataset.url;
       Swal.fire({
-        title: 'Processing...',
-        text: 'Please wait while we process your request.',
-        allowOutsideClick: false,
-        didOpen: () => { Swal.showLoading(); }
-      });
+        title: 'Import Stock FTP',
+        html: `<input type="file" id="stftp-file" accept=".csv,.xlsx,.xls" class="form-control">
+             <label class="mt-2 d-block"><input type="checkbox" id="stftp-dry"> Dry-run</label>`,
+        showCancelButton: true,
+        confirmButtonText: 'Upload',
+        preConfirm: () => {
+          const f = document.getElementById('stftp-file').files[0];
+          if (!f) { Swal.showValidationMessage('Pilih file CSV dulu'); return false; }
+          return { file: f, dry: document.getElementById('stftp-dry').checked };
+        }
+      }).then(res => {
+        if (!res.isConfirmed) return;
+        const fd = new FormData();
+        fd.append('file', res.value.file);
+        if (res.value.dry) fd.append('dry_run', '1');
 
-      fetch(url, { method: 'POST', body: fd, headers: { 'Accept': 'application/json' } })
-        .then(r => r.json())
-        .then(d => {
-          Swal.close();
-          Swal.fire({
-            icon: d.status === 'success' ? 'success' : 'error',
-            title: d.status === 'success' ? 'Success' : 'Failed',
-            text: d.message || 'Something happened.'
-          });
-        })
-        .catch(() => {
-          Swal.close();
-          Swal.fire({ icon: 'error', title: 'Network Error', text: 'Please try again.' });
+        Swal.fire({
+          title: 'Processing...',
+          text: 'Please wait while we process your request.',
+          allowOutsideClick: false,
+          didOpen: () => { Swal.showLoading(); }
         });
+
+        fetch(url, { method: 'POST', body: fd, headers: { 'Accept': 'application/json' } })
+          .then(r => r.json())
+          .then(d => {
+            Swal.close();
+            Swal.fire({
+              icon: d.status === 'success' ? 'success' : 'error',
+              title: d.status === 'success' ? 'Success' : 'Failed',
+              text: d.message || 'Something happened.'
+            });
+          })
+          .catch(() => {
+            Swal.close();
+            Swal.fire({ icon: 'error', title: 'Network Error', text: 'Please try again.' });
+          });
+      });
     });
   });
-});
 </script>

@@ -2,7 +2,7 @@
 {% load static translation_tags %}
 
 {% block extra_head %}
-{{ block.super }}
+{{  block.super  }}
 <!-- Tailwind CSS v4. AdminLTE/Bootstrap's plain (unlayered) CSS otherwise beats Tailwind's
      own utilities on shared tags like <a> regardless of specificity, since Tailwind wraps
      its utilities in a CSS cascade layer and unlayered rules always win over layered ones. -->
@@ -95,7 +95,7 @@
 {% endblock %}
 
 {% block content %}
-{{ block.super }}
+{{  block.super  }}
 {% get_translations 'hospital_profile' as t %}
 
 <div class="hospital-profile-page pt-6 pb-6">
@@ -103,10 +103,10 @@
   <div class="relative overflow-hidden bg-white rounded-xl border border-[#eceef1] shadow-sm p-6 pb-20">
 
   <div class="flex items-center justify-between mb-4">
-    <h1 class="text-2xl font-bold text-[#171a1f]">{{ t.page_title|default:'Hospitals' }}</h1>
-    <a id="back-link" href="{{ back_url }}" class="flex items-center gap-2 h-10 px-4 bg-[#636AE8] hover:bg-[#5259d6] text-white text-sm font-medium rounded-md">
+    <h1 class="text-2xl font-bold text-[#171a1f]">{{  t.page_title|default:'Hospitals'  }}</h1>
+    <a id="back-link" href="{{  back_url  }}" class="flex items-center gap-2 h-10 px-4 bg-[#636AE8] hover:bg-[#5259d6] text-white text-sm font-medium rounded-md">
       <i class="fas fa-arrow-left" aria-hidden="true"></i>
-      <span>{{ t.btn_back|default:'Back' }}</span>
+      <span>{{  t.btn_back|default:'Back'  }}</span>
     </a>
   </div>
 
@@ -139,9 +139,9 @@
           </div>
         </div>
         <div class="pt-[85px] pb-8 px-6 text-center">
-          <h2 class="text-[20px] font-bold text-[#636AE8] mb-1">{{ hospital.display_name }}</h2>
-          <p class="text-[14px] text-[#171a1f] mb-1">{{ t.label_director|default:'Director' }}: {{ hospital.raw_director|default:"-" }}</p>
-          <p class="text-[14px] text-[#171a1f]">{{ t.label_phone|default:'Phone' }}: {{ hospital.raw_phone|default:"-" }}</p>
+          <h2 class="text-[20px] font-bold text-[#636AE8] mb-1">{{  hospital.display_name  }}</h2>
+          <p class="text-[14px] text-[#171a1f] mb-1">{{  t.label_director|default:'Director'  }}: {{  hospital.raw_director|default:"-"  }}</p>
+          <p class="text-[14px] text-[#171a1f]">{{  t.label_phone|default:'Phone'  }}: {{  hospital.raw_phone|default:"-"  }}</p>
         </div>
       </section>
 
@@ -151,11 +151,11 @@
         <div class="flex flex-col gap-3">
           <span class="badge-info w-full flex items-center gap-2.5 px-4 py-3 rounded-[10px] text-sm font-medium">
             <i class="fas fa-landmark" aria-hidden="true"></i>
-            {{ hospital.ownership.name|default:hospital.raw_ownership|default:"-" }}
+            {{  hospital.ownership.name|default:hospital.raw_ownership|default:"-"  }}
           </span>
           <span class="badge-info w-full flex items-center gap-2.5 px-4 py-3 rounded-[10px] text-sm font-medium">
             <i class="fas fa-shield-alt" aria-hidden="true"></i>
-            {{ hospital.raw_blustat|default:"-" }}
+            {{  hospital.raw_blustat|default:"-"  }}
           </span>
         </div>
       </section>
@@ -170,7 +170,7 @@
           <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
             <img src="{% static 'custom/crm/hospital_profile/assets/IMG_2.svg' %}" alt="Search" class="w-4 h-4 opacity-40">
           </div>
-          <input type="text" name="q" placeholder="{{ t.search_placeholder|default:'Search Hospital' }}" autocomplete="off" class="w-full h-11 pl-10 pr-4 bg-white border border-[#dee1e6] rounded-md text-sm text-[#171a1f] outline-none focus:ring-2 focus:ring-[#636AE8]/20 placeholder:text-[#bdc1ca]">
+          <input type="text" name="q" placeholder="{{  t.search_placeholder|default:'Search Hospital'  }}" autocomplete="off" class="w-full h-11 pl-10 pr-4 bg-white border border-[#dee1e6] rounded-md text-sm text-[#171a1f] outline-none focus:ring-2 focus:ring-[#636AE8]/20 placeholder:text-[#bdc1ca]">
         </div>
       </form>
 
@@ -183,15 +183,15 @@
           <!-- Hospital Location -->
           <div>
             <div class="mb-6">
-              <h2 class="text-[20px] font-bold text-[#171a1f]">{{ t.section_hospital_location|default:'Hospital Location' }}</h2>
+              <h2 class="text-[20px] font-bold text-[#171a1f]">{{  t.section_hospital_location|default:'Hospital Location'  }}</h2>
               <p class="text-[14px] text-[#171a1f]">
-                {{ hospital.raw_address|default:"-" }}
+                {{  hospital.raw_address|default:"-"  }}
               </p>
             </div>
             {% if hospital.map_search_query %}
             <div class="rounded-[6px] custom-shadow border border-[#dee1e6] overflow-hidden" style="height: 260px; width: 100%;">
               <iframe
-                src="https://maps.google.com/maps?q={{ hospital.map_search_query|urlencode }}&output=embed"
+                src="https://maps.google.com/maps?q={{  hospital.map_search_query|urlencode  }}&output=embed"
                 style="border: 0; width: 100%; height: 100%;"
                 loading="lazy"
                 referrerpolicy="no-referrer-when-downgrade"
@@ -206,7 +206,7 @@
           <div>
             <div data-client-table>
               <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
-                <h2 class="text-[20px] font-bold text-[#171a1f]">{{ t.section_doctors|default:'Doctors' }}</h2>
+                <h2 class="text-[20px] font-bold text-[#171a1f]">{{  t.section_doctors|default:'Doctors'  }}</h2>
                 {% if doctors %}
                 {% include "html_dashboard/client_table_entries.html" with filter_column=3 filter_label=t.filter_label_specialties|default:"Specialties" %}
                 {% endif %}
@@ -215,27 +215,27 @@
                 <table class="w-full min-w-[620px] text-center text-[14px] table-fixed">
                   <thead class="table-header-tint">
                     <tr class="h-[55px]">
-                      <th class="w-[7%] border-r border-[#dee1e6] whitespace-normal">{{ t.col_no|default:'NO' }}</th>
-                      <th class="w-[25%] border-r border-[#dee1e6] whitespace-normal">{{ t.col_name|default:'NAME' }}</th>
-                      <th class="w-[16%] border-r border-[#dee1e6] whitespace-normal">{{ t.col_license|default:'LICENSE' }}</th>
-                      <th class="w-[32%] border-r border-[#dee1e6] whitespace-normal">{{ t.col_specialties|default:'SPECIALTIES' }}</th>
-                      <th class="w-[20%] whitespace-normal">{{ t.col_start_date|default:'START DATE' }}</th>
+                      <th class="w-[7%] border-r border-[#dee1e6] whitespace-normal">{{  t.col_no|default:'NO'  }}</th>
+                      <th class="w-[25%] border-r border-[#dee1e6] whitespace-normal">{{  t.col_name|default:'NAME'  }}</th>
+                      <th class="w-[16%] border-r border-[#dee1e6] whitespace-normal">{{  t.col_license|default:'LICENSE'  }}</th>
+                      <th class="w-[32%] border-r border-[#dee1e6] whitespace-normal">{{  t.col_specialties|default:'SPECIALTIES'  }}</th>
+                      <th class="w-[20%] whitespace-normal">{{  t.col_start_date|default:'START DATE'  }}</th>
                     </tr>
                   </thead>
                   <tbody class="text-[#171a1f]">
                     {% for doctor in doctors %}
                     <tr data-row class="h-[56px] border-t border-[#dee1e6] {% cycle '' 'bg-[#fafafb]' %}">
-                      <td class="border-r border-[#dee1e6] whitespace-normal break-words">{{ forloop.counter }}</td>
+                      <td class="border-r border-[#dee1e6] whitespace-normal break-words">{{  forloop.counter  }}</td>
                       <td class="border-r border-[#dee1e6] whitespace-normal break-words">
-                        <a href="{% url 'crm:hcp_profile' doctor.pk %}" class="text-[#636AE8] hover:underline">{{ doctor.name }}</a>
+                        <a href="{% url 'crm:hcp_profile' doctor.pk %}" class="text-[#636AE8] hover:underline">{{  doctor.name  }}</a>
                       </td>
-                      <td class="border-r border-[#dee1e6] whitespace-normal break-words">{{ doctor.license|default:"-" }}</td>
-                      <td class="border-r border-[#dee1e6] whitespace-normal break-words">{{ doctor.specialities_display }}</td>
-                      <td class="whitespace-normal break-words">{{ doctor.start_period }}</td>
+                      <td class="border-r border-[#dee1e6] whitespace-normal break-words">{{  doctor.license|default:"-"  }}</td>
+                      <td class="border-r border-[#dee1e6] whitespace-normal break-words">{{  doctor.specialities_display  }}</td>
+                      <td class="whitespace-normal break-words">{{  doctor.start_period  }}</td>
                     </tr>
                     {% empty %}
                     <tr class="border-t border-[#dee1e6]">
-                      <td class="py-3 text-[#9095a1]" colspan="5">{{ t.empty_doctors|default:'No doctors linked to this hospital.' }}</td>
+                      <td class="py-3 text-[#9095a1]" colspan="5">{{  t.empty_doctors|default:'No doctors linked to this hospital.'  }}</td>
                     </tr>
                     {% endfor %}
                   </tbody>
@@ -253,7 +253,7 @@
           <div>
             <div data-client-table>
               <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
-                <h2 class="text-[20px] font-bold text-[#171a1f]">{{ t.section_bed_count|default:'Bed Count' }}</h2>
+                <h2 class="text-[20px] font-bold text-[#171a1f]">{{  t.section_bed_count|default:'Bed Count'  }}</h2>
                 {% if beds %}
                 {% include "html_dashboard/client_table_entries.html" with filter_column=1 filter_label=t.filter_label_class|default:"Class" %}
                 {% endif %}
@@ -262,21 +262,21 @@
                 <table class="w-full min-w-[320px] text-center text-[14px] table-fixed">
                   <thead class="table-header-tint">
                     <tr class="h-[54px]">
-                      <th class="w-[15%] border-r border-[#dee1e6] whitespace-normal">{{ t.col_no|default:'NO' }}</th>
-                      <th class="w-[60%] border-r border-[#dee1e6] whitespace-normal">{{ t.col_class|default:'CLASS' }}</th>
-                      <th class="w-[25%] whitespace-normal">{{ t.col_count|default:'COUNT' }}</th>
+                      <th class="w-[15%] border-r border-[#dee1e6] whitespace-normal">{{  t.col_no|default:'NO'  }}</th>
+                      <th class="w-[60%] border-r border-[#dee1e6] whitespace-normal">{{  t.col_class|default:'CLASS'  }}</th>
+                      <th class="w-[25%] whitespace-normal">{{  t.col_count|default:'COUNT'  }}</th>
                     </tr>
                   </thead>
                   <tbody class="text-[#171a1f]">
                     {% for bed in beds %}
                     <tr data-row class="h-[56px] border-t border-[#dee1e6] {% cycle '' 'bg-[#fafafb]' %}">
-                      <td class="border-r border-[#dee1e6] whitespace-normal break-words">{{ forloop.counter }}</td>
-                      <td class="border-r border-[#dee1e6] whitespace-normal break-words">{{ bed.raw_bedclass|default:"-" }}</td>
-                      <td class="whitespace-normal break-words">{{ bed.raw_beds|default:"-" }}</td>
+                      <td class="border-r border-[#dee1e6] whitespace-normal break-words">{{  forloop.counter  }}</td>
+                      <td class="border-r border-[#dee1e6] whitespace-normal break-words">{{  bed.raw_bedclass|default:"-"  }}</td>
+                      <td class="whitespace-normal break-words">{{  bed.raw_beds|default:"-"  }}</td>
                     </tr>
                     {% empty %}
                     <tr class="border-t border-[#dee1e6]">
-                      <td class="py-3 text-[#9095a1]" colspan="3">{{ t.empty_beds|default:'No bed data on file.' }}</td>
+                      <td class="py-3 text-[#9095a1]" colspan="3">{{  t.empty_beds|default:'No bed data on file.'  }}</td>
                     </tr>
                     {% endfor %}
                   </tbody>
@@ -295,7 +295,7 @@
           <div class="flex flex-col gap-6">
             <div data-client-table>
               <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
-                <h2 class="text-[20px] font-bold text-[#171a1f]">{{ t.section_professional_group|default:'Professional Group' }}</h2>
+                <h2 class="text-[20px] font-bold text-[#171a1f]">{{  t.section_professional_group|default:'Professional Group'  }}</h2>
                 {% if professionals %}
                 {% include "html_dashboard/client_table_entries.html" with filter_column=1 filter_label=t.filter_label_professional|default:"Professional" %}
                 {% endif %}
@@ -304,21 +304,21 @@
                 <table class="w-full min-w-[420px] text-center text-[14px] table-fixed">
                   <thead class="table-header-tint">
                     <tr class="h-[55px]">
-                      <th class="w-[15%] border-r border-[#dee1e6] whitespace-normal">{{ t.col_no|default:'NO' }}</th>
-                      <th class="w-[55%] border-r border-[#dee1e6] whitespace-normal">{{ t.col_professional|default:'PROFESSIONAL' }}</th>
-                      <th class="w-[30%] whitespace-normal">{{ t.col_count|default:'COUNT' }}</th>
+                      <th class="w-[15%] border-r border-[#dee1e6] whitespace-normal">{{  t.col_no|default:'NO'  }}</th>
+                      <th class="w-[55%] border-r border-[#dee1e6] whitespace-normal">{{  t.col_professional|default:'PROFESSIONAL'  }}</th>
+                      <th class="w-[30%] whitespace-normal">{{  t.col_count|default:'COUNT'  }}</th>
                     </tr>
                   </thead>
                   <tbody class="text-[#171a1f]">
                     {% for professional in professionals %}
                     <tr data-row class="h-[57px] border-t border-[#dee1e6] {% cycle '' 'bg-[#fafafb]' %}">
-                      <td class="border-r border-[#dee1e6] whitespace-normal break-words">{{ forloop.counter }}</td>
-                      <td class="border-r border-[#dee1e6] whitespace-normal break-words">{{ professional.raw_profgroup|default:"-" }}</td>
-                      <td class="whitespace-normal break-words">{{ professional.raw_profs|default:"-" }}</td>
+                      <td class="border-r border-[#dee1e6] whitespace-normal break-words">{{  forloop.counter  }}</td>
+                      <td class="border-r border-[#dee1e6] whitespace-normal break-words">{{  professional.raw_profgroup|default:"-"  }}</td>
+                      <td class="whitespace-normal break-words">{{  professional.raw_profs|default:"-"  }}</td>
                     </tr>
                     {% empty %}
                     <tr class="border-t border-[#dee1e6]">
-                      <td class="py-3 text-[#9095a1]" colspan="3">{{ t.empty_professionals|default:'No professional group data on file.' }}</td>
+                      <td class="py-3 text-[#9095a1]" colspan="3">{{  t.empty_professionals|default:'No professional group data on file.'  }}</td>
                     </tr>
                     {% endfor %}
                   </tbody>
@@ -335,7 +335,7 @@
             <div>
               <div data-client-table>
                 <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
-                  <h2 class="text-[20px] font-bold text-[#171a1f]">{{ t.section_services|default:'Services' }}</h2>
+                  <h2 class="text-[20px] font-bold text-[#171a1f]">{{  t.section_services|default:'Services'  }}</h2>
                   {% if services %}
                   {% include "html_dashboard/client_table_entries.html" with filter_column=1 filter_label=t.filter_label_service|default:"Service" %}
                   {% endif %}
@@ -344,19 +344,19 @@
                   <table class="w-full min-w-[280px] text-center text-[14px] table-fixed">
                     <thead class="table-header-tint">
                       <tr class="h-[54px]">
-                        <th class="w-[15%] border-r border-[#dee1e6] whitespace-normal">{{ t.col_no|default:'NO' }}</th>
-                        <th class="w-[85%] whitespace-normal">{{ t.col_service|default:'SERVICE' }}</th>
+                        <th class="w-[15%] border-r border-[#dee1e6] whitespace-normal">{{  t.col_no|default:'NO'  }}</th>
+                        <th class="w-[85%] whitespace-normal">{{  t.col_service|default:'SERVICE'  }}</th>
                       </tr>
                     </thead>
                     <tbody class="text-[#171a1f]">
                       {% for service in services %}
                       <tr data-row class="h-[56px] border-t border-[#dee1e6] {% cycle '' 'bg-[#fafafb]' %}">
-                        <td class="border-r border-[#dee1e6] whitespace-normal break-words">{{ forloop.counter }}</td>
-                        <td class="whitespace-normal break-words">{{ service.raw_service|default:"-" }}</td>
+                        <td class="border-r border-[#dee1e6] whitespace-normal break-words">{{  forloop.counter  }}</td>
+                        <td class="whitespace-normal break-words">{{  service.raw_service|default:"-"  }}</td>
                       </tr>
                       {% empty %}
                       <tr class="border-t border-[#dee1e6]">
-                        <td class="py-3 text-[#9095a1]" colspan="2">{{ t.empty_services|default:'No service data on file.' }}</td>
+                        <td class="py-3 text-[#9095a1]" colspan="2">{{  t.empty_services|default:'No service data on file.'  }}</td>
                       </tr>
                       {% endfor %}
                     </tbody>
@@ -384,11 +384,11 @@
 <script>
 (function () {
   var CLIENT_TABLE_I18N = {
-    showing: "{{ t.label_showing|default:'Showing'|escapejs }}",
-    to: "{{ t.label_to|default:'to'|escapejs }}",
-    of: "{{ t.label_of|default:'of'|escapejs }}",
-    entries: "{{ t.label_entries|default:'entries'|escapejs }}",
-    noMatching: "{{ t.empty_no_matching|default:'No matching entries found'|escapejs }}"
+    showing: "{{  t.label_showing|default:'Showing'|escapejs  }}",
+    to: "{{  t.label_to|default:'to'|escapejs  }}",
+    of: "{{  t.label_of|default:'of'|escapejs  }}",
+    entries: "{{  t.label_entries|default:'entries'|escapejs  }}",
+    noMatching: "{{  t.empty_no_matching|default:'No matching entries found'|escapejs  }}"
   };
 
   function initClientTable(root) {

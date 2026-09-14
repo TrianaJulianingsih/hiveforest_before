@@ -1,7 +1,7 @@
 from datetime import timedelta
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.timezone import now
-from apps.sales.models.sales import RawMUSO
+from apps.sales.models.sales_models import RawMUSO
 from apps.base.models.entities import Company
 import mysql.connector
 from mysql.connector import errors as mysql_errors

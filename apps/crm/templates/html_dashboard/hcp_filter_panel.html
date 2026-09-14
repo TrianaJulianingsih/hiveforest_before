@@ -9,14 +9,14 @@
     <button type="button" class="filter-nav-row w-full flex items-center justify-between py-2.5 px-2 rounded-md hover:bg-gray-50" data-target="specialization">
       <span class="text-sm text-[#323743]">Specialization</span>
       <span class="flex items-center gap-2">
-        <span id="specialization-count" class="text-xs text-[#636AE8] font-semibold {% if not selected_specialities %}hidden{% endif %}">{{ selected_specialities|length }} selected</span>
+        <span id="specialization-count" class="text-xs text-[#636AE8] font-semibold {% if not selected_specialities %}hidden{% endif %}">{{  selected_specialities|length  }} selected</span>
         <span class="text-[#9095a1]">&#8250;</span>
       </span>
     </button>
     <button type="button" class="filter-nav-row w-full flex items-center justify-between py-2.5 px-2 rounded-md hover:bg-gray-50" data-target="province">
       <span class="text-sm text-[#323743]">Province</span>
       <span class="flex items-center gap-2">
-        <span id="province-count" class="text-xs text-[#636AE8] font-semibold {% if not selected_provinces %}hidden{% endif %}">{{ selected_provinces|length }} selected</span>
+        <span id="province-count" class="text-xs text-[#636AE8] font-semibold {% if not selected_provinces %}hidden{% endif %}">{{  selected_provinces|length  }} selected</span>
         <span class="text-[#9095a1]">&#8250;</span>
       </span>
     </button>
@@ -35,8 +35,8 @@
     <div id="specialization-options" class="max-h-[220px] overflow-y-auto space-y-1">
       {% for s in specialities %}
       <label class="filter-option font-normal flex items-center justify-between py-1.5 px-2 rounded-md hover:bg-gray-50 cursor-pointer">
-        <span class="text-sm text-[#323743]">{{ s }}</span>
-        <input type="checkbox" name="specialization" value="{{ s }}" {% if s in selected_specialities %}checked{% endif %} class="w-4 h-4 rounded accent-[#636AE8]">
+        <span class="text-sm text-[#323743]">{{  s  }}</span>
+        <input type="checkbox" name="specialization" value="{{  s  }}" {% if s in selected_specialities %}checked{% endif %} class="w-4 h-4 rounded accent-[#636AE8]">
       </label>
       {% endfor %}
     </div>
@@ -54,8 +54,8 @@
     <div id="province-options" class="max-h-[220px] overflow-y-auto space-y-1">
       {% for p in provinces %}
       <label class="filter-option font-normal flex items-center justify-between py-1.5 px-2 rounded-md hover:bg-gray-50 cursor-pointer">
-        <span class="text-sm text-[#323743]">{{ p }}</span>
-        <input type="checkbox" name="province" value="{{ p }}" {% if p in selected_provinces %}checked{% endif %} class="w-4 h-4 rounded accent-[#636AE8]">
+        <span class="text-sm text-[#323743]">{{  p  }}</span>
+        <input type="checkbox" name="province" value="{{  p  }}" {% if p in selected_provinces %}checked{% endif %} class="w-4 h-4 rounded accent-[#636AE8]">
       </label>
       {% endfor %}
     </div>

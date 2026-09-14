@@ -105,4 +105,10 @@
         <a href="{% url 'admin:base_userauthentication_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>User Authentication Setup</a> |
         <a href="{% url 'admin:base_authenticationlog_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Authentication Logs</a>
     </li>
+    <li class="list-group-item hiveforest">
+        <h6 class="list-group hiveforest">Sites</h6>
+    </li>
+    <li class="list-group-item hiveforest">
+        <a href="{% url 'admin:base_sites_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Sites</a> 
+    </li>
 </ul>

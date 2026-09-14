@@ -35,13 +35,13 @@
         <div class="image">
             <a href="{% url 'profile' %}">
                 {% if user.userprofile.profile_picture %}
-                    <img src="{{ user.userprofile.profile_picture.url }}" class="img-circle elevation-2" alt="User Image">
+                    <img src="{{  user.userprofile.profile_picture.url  }}" class="img-circle elevation-2" alt="User Image">
                 {% else %}
                     <img src="media/profile_pictures/default-user.png" alt="PP" class="img-circle elevation-2">
                 {% endif %}
             </a>
         </div>
-        <div class="info"><a href="{% url 'profile' %}" class="d-block">{{ user.get_full_name }}</a></div>
+        <div class="info"><a href="{% url 'profile' %}" class="d-block">{{  user.get_full_name  }}</a></div>
     </div>
     {% endif %}
     <div class="form-inline">
@@ -59,36 +59,36 @@
                 {% with modules=mods_access|dict_key:app.id %}
                     {% menu_group_open app_level_menus modules as app_open %}
                     {% menu_group_active app_level_menus modules as app_active %}
-                    <li id="app-{{ app.code }}" class="nav-item {% if app_level_menus or modules %}has-treeview{% endif %} {{ app_open }}" role="none">
-                        <a href="{{ app.url|default:'#' }}" class="nav-link {% safe_menu_active app.url %} {{ app_active }}" role="menuitem" {% if app_level_menus or modules %}aria-haspopup="true" aria-expanded="{{ app_open|yesno:'true,false' }}"{% endif %}>
-                            <i class="nav-icon {{ app.icon }}" aria-hidden="true"></i>
-                            <p class="mb-0">{{ app.shortname.upper }}{% if app_level_menus or modules %}<i class="right fas fa-angle-left" aria-hidden="true"></i>{% endif %}</p>
+                    <li id="app-{{  app.code  }}" class="nav-item {% if app_level_menus or modules %}has-treeview{% endif %} {{  app_open  }}" role="none">
+                        <a href="{{  app.url|default:'#'  }}" class="nav-link {% safe_menu_active app.url %} {{  app_active  }}" role="menuitem" {% if app_level_menus or modules %}aria-haspopup="true" aria-expanded="{{  app_open|yesno:'true,false'  }}"{% endif %}>
+                            <i class="nav-icon {{  app.icon  }}" aria-hidden="true"></i>
+                            <p class="mb-0">{{  app.shortname.upper  }}{% if app_level_menus or modules %}<i class="right fas fa-angle-left" aria-hidden="true"></i>{% endif %}</p>
                         </a>
                         {% if app_level_menus %}
-                            <ul class="nav nav-treeview" role="group" aria-label="{{ app.shortname }} sub menus">
+                            <ul class="nav nav-treeview" role="group" aria-label="{{  app.shortname  }} sub menus">
                                 {% include "menu_tree.html" with menus=app_level_menus %}
                             </ul>
                         {% endif %}
 
                         {% if modules %}
-                            <ul class="nav nav-treeview" role="group" aria-label="{{ app.shortname }} modules">
+                            <ul class="nav nav-treeview" role="group" aria-label="{{  app.shortname  }} modules">
                                 {% for module in modules %}
                                     {% with module_menus=menu_access|dict_key:module.id %}
                                         {% menu_group_open module_menus as module_open %}
                                         {% menu_group_active module_menus as module_active %}
-                                        <li class="nav-item {% if module_menus %}has-treeview{% endif %} {{ module_open }}" role="none">
-                                            <a href="{{ module.url|default:'#' }}" class="nav-link {% safe_menu_active module.url %} {{ module_active }}" role="menuitem" 
-                                            {% if module_menus %}aria-haspopup="true" aria-expanded="{{ module_open|yesno:'true,false' }}"{% endif %}>
-                                                <i class="nav-icon {{ module.icon }}" aria-hidden="true"></i>
+                                        <li class="nav-item {% if module_menus %}has-treeview{% endif %} {{  module_open  }}" role="none">
+                                            <a href="{{  module.url|default:'#'  }}" class="nav-link {% safe_menu_active module.url %} {{  module_active  }}" role="menuitem" 
+                                            {% if module_menus %}aria-haspopup="true" aria-expanded="{{  module_open|yesno:'true,false'  }}"{% endif %}>
+                                                <i class="nav-icon {{  module.icon  }}" aria-hidden="true"></i>
                                                 <p>
-                                                    {{ module.shortname }}
+                                                    {{  module.shortname  }}
                                                     {% if module_menus %}
                                                     <i class="right fas fa-angle-left" aria-hidden="true"></i>
                                                     {% endif %}
                                                 </p>
                                             </a>
                                             {% if module_menus %}
-                                                <ul class="nav nav-treeview" role="group" aria-label="{{ module.shortname }} sub menus">
+                                                <ul class="nav nav-treeview" role="group" aria-label="{{  module.shortname  }} sub menus">
                                                     {% include "menu_tree.html" with menus=module_menus %}
                                                 </ul>
                                             {% endif %}

@@ -2,17 +2,17 @@
 {% load i18n static translation_tags %}
 
 {% block content %}
-{{ block.super }}
+{{  block.super  }}
 {% get_translations 'products' as t %}
 
 <div class="card card-primary card-outline hiveforest pb-2">
   <div class="card-header">
-    <h2 class="card-title">{% if form.instance.pk %}{{ t.page_edit|default:'Edit Product' }}{% else %}{{ t.page_add|default:'Add Product' }}{% endif %}</h2>
+    <h2 class="card-title">{% if form.instance.pk %}{{  t.page_edit|default:'Edit Product'  }}{% else %}{{  t.page_add|default:'Add Product'  }}{% endif %}</h2>
   </div>
-    <form method="post">{% csrf_token %}
+    <form method="post" class="track-form" data-feature="{% if form.instance.pk %}Update Product Form{% else %}Create Product Form{% endif %}" data-description="User submitted Product form" data-metadata='{"is_edit": {% if form.instance.pk %}true{% else %}false{% endif %}}'>{% csrf_token %}
         {% if form.errors %}
             <div class="alert alert-danger">
-                {{ form.errors }}
+                {{  form.errors  }}
             </div>
         {% endif %}
 
@@ -20,7 +20,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="form-group">
-                        {{ form.as_p }}
+                        {{  form.as_p  }}
                     </div>
                 </div>
             </div>
@@ -28,11 +28,11 @@
             
         <div class="card-footer">
             <a href="{% url 'sales:product_list' %}"
-                class="btn btn-primary">
-                <i class="fas fa-arrow-left"></i> {{ t.btn_back|default:'Back' }}
+                class="btn btn-primary track-click" data-feature="Back to Product List Button" data-description="User clicked Back on Product form">
+                <i class="fas fa-arrow-left"></i> {{  t.btn_back|default:'Back'  }}
             </a>
-            <button type="submit" class="btn btn-success">
-                {{ t.btn_save|default:'Save' }}
+            <button type="submit" class="btn btn-success track-click" data-feature="Submit Product Button" data-description="User clicked Save on Product form">
+                {{  t.btn_save|default:'Save'  }}
             </button>
         </div>
     </form>
@@ -62,6 +62,44 @@
         }
         $('#id_name, #id_code').on('input change', updateSlug);
         updateSlug();
+
+        function logClick(feature, description, metadata) {
+          const url = '/api/log-click/';
+          const body = JSON.stringify({
+            module: 'Sales',
+            feature: feature,
+            description: description,
+            metadata: metadata || {}
+          });
+          
+          fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': '{{  csrf_token  }}'
+            },
+            body: body,
+            keepalive: true
+          }).catch(err => console.error('Click logging failed', err));
+        }
+
+        document.querySelectorAll('.track-click').forEach(elem => {
+          elem.addEventListener('click', function () {
+            const feature = this.getAttribute('data-feature');
+            const description = this.getAttribute('data-description');
+            const metadata = JSON.parse(this.getAttribute('data-metadata') || '{}');
+            logClick(feature, description, metadata);
+          });
+        });
+
+        document.querySelectorAll('.track-form').forEach(form => {
+          form.addEventListener('submit', function () {
+            const feature = this.getAttribute('data-feature');
+            const description = this.getAttribute('data-description');
+            const metadata = JSON.parse(this.getAttribute('data-metadata') || '{}');
+            logClick(feature, description, metadata);
+          });
+        });
     });
 </script>
 {% endblock %}

@@ -24,12 +24,12 @@
             Enter the 6-digit code from your authenticator app
           </p>
           {% if form.non_field_errors %}
-            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            <div class="alert alert-danger">{{  form.non_field_errors  }}</div>
           {% endif %}
           <form method="post">
             {% csrf_token %}
             <div class="input-group mb-3">
-              {{ form.otp_code }}
+              {{  form.otp_code  }}
               <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-shield-alt"></span>
@@ -38,7 +38,7 @@
             </div>
             {% if form.otp_code.errors %}
               <div class="alert alert-danger py-2">
-                {{ form.otp_code.errors|striptags }}
+                {{  form.otp_code.errors|striptags  }}
               </div>
             {% endif %}
             <button type="submit" class="btn btn-primary btn-block">

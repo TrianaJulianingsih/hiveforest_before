@@ -1,14 +1,14 @@
 {% load static %}
 <div id="export-menu" class="hidden absolute right-0 top-full mt-2 w-[170px] bg-white border border-[#E1E4EA] rounded-lg dropdown-shadow z-20 p-1.5">
   <span class="block px-3 py-2 text-[11px] font-semibold text-[#878D96] tracking-wider uppercase">Format</span>
-  <a href="{% url csv_url_name %}?{{ request.GET.urlencode }}" class="group/csv flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium text-[#323743] hover:bg-[#f2f2fd] hover:text-[#636AE8]">
+  <a href="{% url csv_url_name %}?{{  request.GET.urlencode  }}" class="group/csv flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium text-[#323743] hover:bg-[#f2f2fd] hover:text-[#636AE8]">
     <span class="flex items-center gap-2">
       <img src="{% static 'custom/crm/shared/assets/export-csv.svg' %}" alt="" class="w-4 h-4">
       <span>CSV</span>
     </span>
     <img src="{% static 'custom/crm/shared/assets/export-check.svg' %}" alt="" class="w-3.5 h-3.5 opacity-0 group-hover/csv:opacity-100">
   </a>
-  <a href="{% url excel_url_name %}?{{ request.GET.urlencode }}" class="group/excel flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium text-[#323743] hover:bg-[#f2f2fd] hover:text-[#636AE8]">
+  <a href="{% url excel_url_name %}?{{  request.GET.urlencode  }}" class="group/excel flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium text-[#323743] hover:bg-[#f2f2fd] hover:text-[#636AE8]">
     <span class="flex items-center gap-2">
       <img src="{% static 'custom/crm/shared/assets/export-excel.svg' %}" alt="" class="w-4 h-4">
       <span>Excel</span>

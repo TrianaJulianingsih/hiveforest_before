@@ -3,11 +3,13 @@ import json
 from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from apps.supplychain.models.distributions import StDistDaily
-from apps.sales.models.sales import RawAPLSO, RawMUSO
+from apps.supplychain.models.distributions_models import StDistDaily
+from apps.sales.models.sales_models import RawAPLSO, RawMUSO
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
-from apps.sales.form.stock_daily_distributor_form import StockDailyDistributorForm
+from apps.sales.forms.stock_daily_distributor_forms import StockDailyDistributorForm
+from apps.base.services.system_log_service import SystemLogService
+from apps.base.models.system_log import LogAction
 
 from django.http import HttpResponseRedirect, JsonResponse
 from django.views import View
@@ -19,10 +21,20 @@ from django.shortcuts import render
 class StockDailyDistributorListView(
     LoginRequiredMixin, PermissionRequiredMixin, ListView
 ):
-    # model = StDistDaily
     template_name = "sales/stock_daily_distributor/list.html"
-    # context_object_name = "stdistdaily"
     permission_required = "supplychain.view_stdistdaily"
+
+    def get(self, request, *args, **kwargs):
+        SystemLogService.log(
+            request=request,
+            action=LogAction.READ,
+            module="Sales",
+            feature="Stock Daily Distributor List",
+            description="User accessed Stock Daily Distributor List view.",
+            status="SUCCESS",
+            log_type="SYSTEM",
+        )
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         return StDistDaily.objects.none()
@@ -37,22 +49,20 @@ class StockDailyDistributorListView(
         context["last_sync"] = last_sync
         return context
 
-    # def get_queryset(self):
-    #     return StDistDaily.objects.filter(deleted=False)
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     user = self.request.user
-    #     context["can_hard_delete"] = user.is_superuser or user.has_perm(
-    #         "supplychain.hard_delete_stdistdaily"
-    #     )
-    #     return context
-
 
 class StockDailyDistributorDataView(LoginRequiredMixin, PermissionRequiredMixin, View):
     permission_required = "supplychain.view_stdistdaily"
 
     def get(self, request):
+        SystemLogService.log(
+            request=request,
+            action=LogAction.READ,
+            module="Sales",
+            feature="Stock Daily Distributor Data",
+            description="User requested Stock Daily Distributor datatable via AJAX.",
+            status="SUCCESS",
+            log_type="SYSTEM",
+        )
         draw = int(request.GET.get("draw", 1))
         start = int(request.GET.get("start", 0))
         length = int(request.GET.get("length", 25))
@@ -77,49 +87,6 @@ class StockDailyDistributorDataView(LoginRequiredMixin, PermissionRequiredMixin,
 
         rows = []
         for p in data:
-            # action_html = ""
-            # if can_edit:
-            #     action_html += f"""
-            #         <a href="/sales/stock-daily-distributor/{p.id}/edit/"
-            #            class="btn btn-sm btn-warning text-dark">
-            #            <i class="fa fa-edit"></i> Edit
-            #         </a>
-            #     """
-            # if can_delete:
-            #     if not p.deleted:
-            #         action_html += f"""
-            #             <form method="post"
-            #                   action="/sales/stock-daily-distributor/{p.id}/delete/"
-            #                   style="display:inline"
-            #                   class="delete-form">
-            #                 <input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}">
-            #                 <button type="button"
-            #                         class="btn btn-sm btn-danger btn-delete"
-            #                         data-name="{p}">
-            #                     <i class="fa fa-trash"></i> Delete
-            #                 </button>
-            #             </form>
-            #         """
-            #     else:
-            #         if can_soft_delete:
-            #             action_html += f"""
-            #                 <form method="post"
-            #                       action="/sales/stock-daily-distributor/{p.id}/delete/"
-            #                       style="display:inline">
-            #                     <input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}">
-            #                     <button type="submit"
-            #                             class="btn btn-sm btn-danger">
-            #                         <i class="fa fa-trash"></i> Hard Delete
-            #                     </button>
-            #                 </form>
-            #             """
-            #         else:
-            #             action_html += """
-            #                 <span class="badge badge-secondary">
-            #                     <i class="fa fa-trash"></i> Deleted
-            #                 </span>
-            #             """
-
             rows.append(
                 {
                     "name": p.name or "-",
@@ -130,7 +97,6 @@ class StockDailyDistributorDataView(LoginRequiredMixin, PermissionRequiredMixin,
                     "periode": p.periode or "-",
                     "branch": p.branch.name if p.branch else "-",
                     "distributor": p.distributor.name if p.distributor else "-",
-                    # "action": action_html
                 }
             )
 
@@ -158,6 +124,16 @@ class StockDailyDistributorCreateView(
         obj._request_user = self.request.user
         obj.save()
         messages.success(self.request, _("Data berhasil ditambahkan."))
+        SystemLogService.log(
+            request=self.request,
+            action=LogAction.CREATE,
+            module="Sales",
+            feature="Stock Daily Distributor Create",
+            description=f"User created Stock Daily Distributor: {obj.name}.",
+            obj=obj,
+            status="SUCCESS",
+            log_type="SYSTEM",
+        )
         return super().form_valid(form)
 
 
@@ -175,6 +151,16 @@ class StockDailyDistributorUpdateView(
         obj._request_user = self.request.user
         obj.save()
         messages.success(self.request, _("Data berhasil diperbarui."))
+        SystemLogService.log(
+            request=self.request,
+            action=LogAction.UPDATE,
+            module="Sales",
+            feature="Stock Daily Distributor Update",
+            description=f"User updated Stock Daily Distributor: {obj.name}.",
+            obj=obj,
+            status="SUCCESS",
+            log_type="SYSTEM",
+        )
         return super().form_valid(form)
 
 
@@ -189,20 +175,44 @@ class StockDailyDistributorDeleteView(
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
         self.object._request_user = request.user
+        obj_name = self.object.name
         if request.user.is_superuser or request.user.has_perm(
             "supplychain.hard_delete_stdistdaily"
         ):
             messages.success(request, _("Stock Daily Distributor berhasil dihapus."))
-            return super().delete(request, *args, **kwargs)
-        self.object.delete()
-        messages.success(request, _("Stock Daily Distributor berhasil dihapus."))
+            response = super().delete(request, *args, **kwargs)
+        else:
+            self.object.delete()
+            messages.success(request, _("Stock Daily Distributor berhasil dihapus."))
+            response = HttpResponseRedirect(self.get_success_url())
 
-        return HttpResponseRedirect(self.get_success_url())
+        SystemLogService.log(
+            request=request,
+            action=LogAction.DELETE,
+            module="Sales",
+            feature="Stock Daily Distributor Delete",
+            description=f"User deleted Stock Daily Distributor: {obj_name}.",
+            status="SUCCESS",
+            log_type="SYSTEM",
+        )
+        return response
 
 
 class RawMupSoListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     template_name = "sales/raw_mup_so/list.html"
     permission_required = "sales.view_rawmuso"
+
+    def get(self, request, *args, **kwargs):
+        SystemLogService.log(
+            request=request,
+            action=LogAction.READ,
+            module="Sales",
+            feature="Raw MUP-SO List",
+            description="User accessed Raw MUP-SO List view.",
+            status="SUCCESS",
+            log_type="SYSTEM",
+        )
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         return RawMUSO.objects.none()
@@ -247,6 +257,15 @@ class RawMupSoDataView(LoginRequiredMixin, PermissionRequiredMixin, View):
     permission_required = "sales.view_rawmuso"
 
     def get(self, request):
+        SystemLogService.log(
+            request=request,
+            action=LogAction.READ,
+            module="Sales",
+            feature="Raw MUP-SO Data",
+            description="User requested Raw MUP-SO datatable via AJAX.",
+            status="SUCCESS",
+            log_type="SYSTEM",
+        )
         draw = int(request.GET.get("draw", 1))
         start = int(request.GET.get("start", 0))
         length = int(request.GET.get("length", 25))
@@ -302,6 +321,18 @@ class RawAplSoListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     template_name = "sales/raw_apl_so/list.html"
     permission_required = "sales.view_rawaplso"
 
+    def get(self, request, *args, **kwargs):
+        SystemLogService.log(
+            request=request,
+            action=LogAction.READ,
+            module="Sales",
+            feature="Raw APL-SO List",
+            description="User accessed Raw APL-SO List view.",
+            status="SUCCESS",
+            log_type="SYSTEM",
+        )
+        return super().get(request, *args, **kwargs)
+
     def get_queryset(self):
         return RawAPLSO.objects.none()
 
@@ -345,6 +376,15 @@ class RawAplSoDataView(LoginRequiredMixin, PermissionRequiredMixin, View):
     permission_required = "sales.view_rawaplso"
 
     def get(self, request):
+        SystemLogService.log(
+            request=request,
+            action=LogAction.READ,
+            module="Sales",
+            feature="Raw APL-SO Data",
+            description="User requested Raw APL-SO datatable via AJAX.",
+            status="SUCCESS",
+            log_type="SYSTEM",
+        )
         draw = int(request.GET.get("draw", 1))
         start = int(request.GET.get("start", 0))
         length = int(request.GET.get("length", 25))

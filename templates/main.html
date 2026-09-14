@@ -4,8 +4,8 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token }}">
-    <title>{% block title %}{{ title }}{% endblock %}</title>
+    <meta name="csrf-token" content="{{  csrf_token  }}">
+    <title>{% block title %}{{  title  }}{% endblock %}</title>
     <link rel="shortcut icon" href="{% static 'favicon.ico' %}" />
 
     <link rel="stylesheet" href="{% static 'adminlte/css/adminlte.min.css' %}">
@@ -46,7 +46,7 @@
             return cookieValue;
         }
         // Cookie may be HttpOnly (JS cannot read it). Template token always works.
-        const csrftoken = '{{ csrf_token }}' || getCookie('csrftoken');
+        const csrftoken = '{{  csrf_token  }}' || getCookie('csrftoken');
     </script>
 
     <style>
@@ -370,12 +370,6 @@
     
     {% block datatable_js %}
       <script src="{% static 'datatables/230bs4/datatables.min.js' %}"></script>
-      <script>
-        // Show DataTables warnings in the console instead of a blocking alert()
-        // popup - this fires routinely on tables with no rows (e.g. an empty
-        // "no data" placeholder row), which isn't an error worth interrupting for.
-        $.fn.dataTable.ext.errMode = 'none';
-      </script>
     {% endblock %}
     
     {% block extra_js %}{% endblock %}
@@ -622,16 +616,16 @@
                   <li class="breadcrumb-item"><a href="/">Home</a></li>
                   {% for item in breadcrumbs %}
                     {% if forloop.last %}
-                      <li class="breadcrumb-item active" aria-current="page">{{ item.name }}</li>
+                      <li class="breadcrumb-item active" aria-current="page">{{  item.name  }}</li>
                     {% else %}
                       <li class="breadcrumb-item">
-                        <a href="{{ item.url }}/">{{ item.name }}</a>
+                        <a href="{{  item.url  }}/">{{  item.name  }}</a>
                       </li>
                     {% endif %}
                   {% endfor %}
                 </ol>
                 {% if title %}
-                    <small class="d-block mt-1">{{ title }}</small>
+                    <small class="d-block mt-1">{{  title  }}</small>
                 {% endif %}
               </div>
               {% endblock %}
@@ -642,8 +636,8 @@
               <div class="col-12 px-0">
                 {% if messages %}
                   {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-0 rounded-0" role="alert">
-                      {{ message }}
+                    <div class="alert alert-{{  message.tags  }} alert-dismissible fade show mb-0 rounded-0" role="alert">
+                      {{  message  }}
                       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                       </button>
@@ -658,7 +652,7 @@
               <div class="col-12 col-md-10 col-lg-8">
                 {% if messages %}
                   {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm mb-3" role="alert">
+                    <div class="alert alert-{{  message.tags  }} alert-dismissible fade show shadow-sm mb-3" role="alert">
                       {% if message.tags == 'success' %}
                         <i class="fas fa-check-circle mr-2"></i>
                       {% elif message.tags == 'error' or message.tags == 'danger' %}
@@ -668,7 +662,7 @@
                       {% elif message.tags == 'info' %}
                         <i class="fas fa-info-circle mr-2"></i>
                       {% endif %}
-                      {{ message }}
+                      {{  message  }}
                       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                       </button>
@@ -739,7 +733,7 @@
         
         <div class="version-badge">
           {% if app_version %}
-              <i class="fas fa-code-branch"></i> {{ app_version }}
+              <i class="fas fa-code-branch"></i> {{  app_version  }}
           {% else %}
               hiveforest-version-not-set
           {% endif %}

@@ -1,2 +1,2 @@
-from apps.finance.models.products import ItemPrice
-from apps.finance.models.receivable import ARBalance, ARCollection
+from apps.finance.models.products_models import ItemPrice
+from apps.finance.models.receivable_models import ARBalance, ARCollection

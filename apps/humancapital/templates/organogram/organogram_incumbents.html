@@ -1,0 +1,14 @@
+{# Multi-incumbent stack: numbered rows so each person is visually distinct. Expects node.incumbents, node.incumbent_count. #}
+<div class="og-incumbent-stack og-incumbent-stack--{{  variant  }}" role="list">
+    {% for row in node.incumbents %}
+        <div class="og-incumbent-row" role="listitem">
+            <span class="og-incumbent-ix" title="#{{  forloop.counter  }}">{{  forloop.counter  }}</span>
+            <div class="og-incumbent-body">
+                <div class="og-incumbent-name">{{  row.display_name|default:row.name|default:"—"  }}</div>
+                {% if row.title %}
+                    <div class="og-incumbent-title">{{  row.title  }}</div>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+</div>

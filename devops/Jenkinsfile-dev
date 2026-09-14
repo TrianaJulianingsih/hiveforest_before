@@ -13,10 +13,10 @@ pipeline {
         GIT_BRANCH = "${scm.branches[0].name}"
         //docker info
         DOCKER_CREDENTIALS = 'gitlab'
-        // REGISTRY and SERVER_IP come from Jenkins global environment variables
-        // (Manage Jenkins > System > Global properties > Environment variables)
+        REGISTRY = '10.3.102.239:5050'
         IMAGE_NAME = 'hiveforest/hiveforest'
         //server info
+        SERVER_IP = '10.3.102.240'
         REMOTE_DIR = '/home/it/repo-infra-development/docker-compose/hiveforest'
     }
 

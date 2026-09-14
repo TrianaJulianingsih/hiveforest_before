@@ -1,13 +1,13 @@
 {# Sellingout filter partial (Period View / Region View). #}
-<form method="get" id="{% if selected_model == 'cibg' %}cibg-report-form{% else %}report-filter-form{% endif %}" class="form-row align-items-end mb-3" data-report-ready="{{ report_ready|yesno:'true,false' }}">
-  <input type="hidden" name="model" value="{{ selected_model }}">
+<form method="get" id="{% if selected_model == 'cibg' %}cibg-report-form{% else %}report-filter-form{% endif %}" class="form-row align-items-end mb-3" data-report-ready="{{  report_ready|yesno:'true,false'  }}">
+  <input type="hidden" name="model" value="{{  selected_model  }}">
   <input type="hidden" name="display" value="1">
 
   <div class="form-group col-md-3">
     <label for="report-year">Year</label>
     <select id="report-year" name="year" class="form-control">
       {% for year in years %}
-        <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
+        <option value="{{  year  }}" {% if year == selected_year %}selected{% endif %}>{{  year  }}</option>
       {% endfor %}
     </select>
   </div>
@@ -19,7 +19,7 @@
         <option value="">All Business</option>
       {% endif %}
       {% for business in businesses %}
-        <option value="{{ business.id }}" {% if business.id|stringformat:"s" == selected_business %}selected{% endif %}>{{ business.label }}</option>
+        <option value="{{  business.id  }}" {% if business.id|stringformat:"s" == selected_business %}selected{% endif %}>{{  business.label  }}</option>
       {% endfor %}
     </select>
   </div>
@@ -28,7 +28,7 @@
     <label for="report-from-month">From Month</label>
     <select id="report-from-month" name="from_month" class="form-control">
       {% for month in month_options %}
-        <option value="{{ month.number }}" {% if month.number == selected_from_month %}selected{% endif %}>{{ month.label }}</option>
+        <option value="{{  month.number  }}" {% if month.number == selected_from_month %}selected{% endif %}>{{  month.label  }}</option>
       {% endfor %}
     </select>
   </div>
@@ -37,7 +37,7 @@
     <label for="report-to-month">To Month</label>
     <select id="report-to-month" name="to_month" class="form-control">
       {% for month in month_options %}
-        <option value="{{ month.number }}" {% if month.number == selected_to_month %}selected{% endif %}>{{ month.label }}</option>
+        <option value="{{  month.number  }}" {% if month.number == selected_to_month %}selected{% endif %}>{{  month.label  }}</option>
       {% endfor %}
     </select>
   </div>
@@ -62,7 +62,7 @@
               <label for="report-product">Product / Variant</label>
               <select id="report-product" name="product_ids" class="form-control" multiple data-placeholder="Select one or more products">
                 {% for product in product_options %}
-                  <option value="{{ product.id }}" {% if product.id|stringformat:"s" in selected_products %}selected{% endif %}>{{ product.label }}</option>
+                  <option value="{{  product.id  }}" {% if product.id|stringformat:"s" in selected_products %}selected{% endif %}>{{  product.label  }}</option>
                 {% endfor %}
               </select>
               <small id="cibg-filter-feedback" class="form-text text-muted">
@@ -93,7 +93,7 @@
               <label for="report-group">Product Group</label>
               <select id="report-group" name="group_ids" class="form-control report-filter-select" multiple data-placeholder="All Product Groups">
                 {% for group in groups %}
-                  <option value="{{ group.id }}" {% if group.id|stringformat:"s" in selected_groups %}selected{% endif %}>{{ group.label }}</option>
+                  <option value="{{  group.id  }}" {% if group.id|stringformat:"s" in selected_groups %}selected{% endif %}>{{  group.label  }}</option>
                 {% endfor %}
               </select>
             </div>
@@ -102,7 +102,7 @@
               <label for="report-subgroup">Subgroup</label>
               <select id="report-subgroup" name="subgroup_ids" class="form-control report-filter-select" multiple data-placeholder="All Subgroups">
                 {% for subgroup in subgroups %}
-                  <option value="{{ subgroup.id }}" {% if subgroup.id|stringformat:"s" in selected_subgroups %}selected{% endif %}>{{ subgroup.label }}</option>
+                  <option value="{{  subgroup.id  }}" {% if subgroup.id|stringformat:"s" in selected_subgroups %}selected{% endif %}>{{  subgroup.label  }}</option>
                 {% endfor %}
               </select>
             </div>
@@ -111,7 +111,7 @@
               <label for="report-product">Product / Variant</label>
               <select id="report-product" name="product_ids" class="form-control report-filter-select" multiple data-placeholder="All Products / Variants">
                 {% for product in product_options %}
-                  <option value="{{ product.id }}" {% if product.id|stringformat:"s" in selected_products %}selected{% endif %}>{{ product.label }}</option>
+                  <option value="{{  product.id  }}" {% if product.id|stringformat:"s" in selected_products %}selected{% endif %}>{{  product.label  }}</option>
                 {% endfor %}
               </select>
             </div>
@@ -130,7 +130,3 @@
     </button>
   </div>
 </form>
-
-{% if not report_ready %}
-  <div id="report-result-content"></div>
-{% endif %}

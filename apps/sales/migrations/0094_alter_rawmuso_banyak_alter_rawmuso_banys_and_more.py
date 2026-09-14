@@ -65,4 +65,14 @@ class Migration(migrations.Migration):
             name='thna',
             field=models.DecimalField(blank=True, decimal_places=2, default=None, max_digits=20, null=True, verbose_name='THNA'),
         ),
+        migrations.RunSQL(
+            sql="""
+                CREATE SCHEMA IF NOT EXISTS finance;
+                CREATE OR REPLACE VIEW finance.sales_rawmuso AS
+                SELECT id, name, code, whse, no_order, nodokjdi, hrdok, area, kodepos, gruplang, kodelang, nmlang, almtlang, nmprod, kodeprod, klasprod, nmklas1, banyak, hna, tharga, harga, thna, banys, ehna, prsnpot, pharga, prsnbmp, prsnbp, mom, nobat, dun, idpkt, kodesalur, kdcust, principle_id
+                FROM sales_rawmuso;
+            """,
+            reverse_sql="DROP VIEW IF EXISTS finance.sales_rawmuso CASCADE;",
+        ),
     ]
+

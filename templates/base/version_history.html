@@ -5,14 +5,14 @@
 {% block title %}{% trans "Version History" %} - HiveForest Admin{% endblock %}
 
 {% block extrahead %}
-{{ block.super }}
+{{  block.super  }}
 <link rel="stylesheet" href="{% static 'adminlte/plugins/summernote/summernote-bs4.min.css' %}">
 {% endblock %}
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">
     <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
-    &rsaquo; <a href="{{ app.app_url }}">{% trans 'Base' %}</a>
+    &rsaquo; <a href="{{  app.app_url  }}">{% trans 'Base' %}</a>
     &rsaquo; {% trans "Version History" %}
 </div>
 {% endblock %}
@@ -32,9 +32,9 @@
             <div class="col-12">
                 <div class="alert alert-info">
                     <h5><i class="icon fas fa-info-circle"></i> {% trans "Current Version" %}</h5>
-                    <strong>{{ current_version.version_number }}-{{ current_version.title }}</strong>
+                    <strong>{{  current_version.version_number  }}-{{  current_version.title  }}</strong>
                     <br>
-                    <small>{% trans "Released on" %}: {{ current_version.release_date|date:"d F Y" }}</small>
+                    <small>{% trans "Released on" %}: {{  current_version.release_date|date:"d F Y"  }}</small>
                 </div>
             </div>
         </div>
@@ -48,7 +48,7 @@
                         <!-- Time Label -->
                         <div class="time-label">
                             <span class="{% if version.is_current %}bg-success{% elif version.is_major_release %}bg-primary{% else %}bg-secondary{% endif %}">
-                                {{ version.release_date|date:"d M Y" }}
+                                {{  version.release_date|date:"d M Y"  }}
                             </span>
                         </div>
                         <!-- End Time Label -->
@@ -59,11 +59,11 @@
                             <div class="timeline-item">
                                 <span class="time">
                                     <i class="fas fa-calendar"></i> 
-                                    {{ version.release_date|date:"d M Y" }}
+                                    {{  version.release_date|date:"d M Y"  }}
                                 </span>
                                 
                                 <h3 class="timeline-header">
-                                    <strong>{{ version.version_number }}-{{ version.title }}</strong>
+                                    <strong>{{  version.version_number  }}-{{  version.title  }}</strong>
                                     {% if version.is_current %}
                                         <span class="badge badge-success ml-2">{% trans "Current" %}</span>
                                     {% endif %}
@@ -74,7 +74,7 @@
 
                                 <div class="timeline-body">
                                     {% if version.description %}
-                                        <div>{{ version.description|safe }}</div>
+                                        <div>{{  version.description|safe  }}</div>
                                     {% endif %}
 
                                     {% if version.features.all %}
@@ -105,12 +105,12 @@
                                                             <i class="fas fa-times"></i> {% trans "Deprecation" %}
                                                         </span>
                                                     {% endif %}
-                                                    <strong>&nbsp; {{ feature.title }}</strong>
+                                                    <strong>&nbsp; {{  feature.title  }}</strong>
                                                     
                                                     {% if feature.description %}
                                                         <br>
                                                         <div style="color: #6c757d; margin-left: 20px;">
-                                                            {{ feature.description|safe }}
+                                                            {{  feature.description|safe  }}
                                                         </div>
                                                     {% endif %}
                                                 </li>

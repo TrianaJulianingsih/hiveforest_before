@@ -1,10 +1,10 @@
 {% load i18n %}
 <div class="filter-wrapper">
-  <label for="id_{{ spec.parameter_name }}"><strong>{{ spec.title }}</strong></label>
-  <select id="id_{{ spec.parameter_name }}" onchange="if (this.value) { window.location = this.value; }">
+  <label for="id_{{  spec.parameter_name  }}"><strong>{{  spec.title  }}</strong></label>
+  <select id="id_{{  spec.parameter_name  }}" onchange="if (this.value) { window.location = this.value; }">
     {% for choice in choices %}
-      <option value="{{ choice.query_string|iriencode }}" {% if choice.selected %}selected{% endif %}>
-        {{ choice.display }}
+      <option value="{{  choice.query_string|iriencode  }}" {% if choice.selected %}selected{% endif %}>
+        {{  choice.display  }}
       </option>
     {% endfor %}
   </select>

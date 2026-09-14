@@ -1,0 +1,904 @@
+{% extends "main.html" %}
+{% load i18n static translation_tags %}
+
+{% block title %}{{ t.dashboard_title|default:'Freight Cost Dashboard' }}{% endblock %}
+
+{% block datatable_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'adminlte/plugins/chart.js/Chart.min.css' %}">
+{% get_translations 'freight_cost' as t %}
+
+<style>
+  /* ========================================================
+     FREIGHT COST DASHBOARD - PROFESSIONAL STYLESYSTEM
+     ======================================================== */
+  :root {
+    --fc-primary: #0d6efd;
+    --fc-primary-soft: rgba(13, 110, 253, 0.08);
+    --fc-success: #198754;
+    --fc-success-soft: rgba(25, 135, 84, 0.08);
+    --fc-warning: #d97706;
+    --fc-warning-soft: rgba(217, 119, 6, 0.08);
+    --fc-info: #0284c7;
+    --fc-info-soft: rgba(2, 132, 199, 0.08);
+    --fc-purple: #7c3aed;
+    --fc-purple-soft: rgba(124, 58, 237, 0.08);
+    --fc-border: #e2e8f0;
+    --fc-radius: 10px;
+    --fc-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    --fc-shadow-hover: 0 6px 18px rgba(15, 23, 42, 0.1);
+  }
+
+  /* Header Card */
+  .fc-header-card {
+    background: #ffffff;
+    border-radius: var(--fc-radius);
+    padding: 1.15rem 1.25rem;
+    box-shadow: var(--fc-shadow);
+    border: 1px solid var(--fc-border);
+    border-top: 3px solid var(--fc-primary);
+  }
+
+  .fc-header-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    background: var(--fc-primary-soft);
+    color: var(--fc-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  /* Filter Panel */
+  .fc-filter-panel {
+    background: #ffffff;
+    border-radius: var(--fc-radius);
+    border: 1px solid var(--fc-border);
+    box-shadow: var(--fc-shadow);
+    padding: 1.15rem 1.25rem;
+  }
+
+  .fc-filter-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #475569;
+    margin-bottom: 0.35rem;
+    display: block;
+  }
+
+  .fc-filter-input {
+    height: 38px !important;
+    border-radius: 6px !important;
+    border: 1px solid #cbd5e1 !important;
+    font-size: 0.85rem !important;
+    color: #1e293b !important;
+    background-color: #ffffff !important;
+    padding: 0.375rem 0.65rem !important;
+    transition: all 0.15s ease;
+  }
+
+  .fc-filter-input:focus {
+    border-color: var(--fc-primary) !important;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15) !important;
+    outline: none !important;
+  }
+
+  /* KPI Summary Cards */
+  .fc-kpi-card {
+    background: #ffffff;
+    border-radius: var(--fc-radius);
+    padding: 1.15rem 1.25rem;
+    box-shadow: var(--fc-shadow);
+    border: 1px solid var(--fc-border);
+    height: 100%;
+    min-height: 142px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.18s ease;
+    border-top: 3px solid transparent;
+  }
+
+  .fc-kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--fc-shadow-hover);
+  }
+
+  .fc-kpi-card.kpi-primary { border-top-color: var(--fc-primary); }
+  .fc-kpi-card.kpi-success { border-top-color: var(--fc-success); }
+  .fc-kpi-card.kpi-warning { border-top-color: var(--fc-warning); }
+  .fc-kpi-card.kpi-info { border-top-color: var(--fc-info); }
+  .fc-kpi-card.kpi-purple { border-top-color: var(--fc-purple); }
+
+  .fc-kpi-title {
+    font-size: 0.725rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748b;
+    margin-bottom: 0.35rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .fc-kpi-value {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .fc-kpi-sub {
+    font-size: 0.775rem;
+    color: #64748b;
+    margin-top: 0.4rem;
+    min-height: 1.3rem;
+  }
+
+  .fc-kpi-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+  }
+
+  .fc-icon-primary { background: var(--fc-primary-soft); color: var(--fc-primary); }
+  .fc-icon-success { background: var(--fc-success-soft); color: var(--fc-success); }
+  .fc-icon-warning { background: var(--fc-warning-soft); color: var(--fc-warning); }
+  .fc-icon-info { background: var(--fc-info-soft); color: var(--fc-info); }
+  .fc-icon-purple { background: var(--fc-purple-soft); color: var(--fc-purple); }
+
+  /* Widget & Chart Cards */
+  .fc-widget-card {
+    background: #ffffff;
+    border-radius: var(--fc-radius);
+    border: 1px solid var(--fc-border);
+    box-shadow: var(--fc-shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+    margin-bottom: 1.25rem;
+  }
+
+  .fc-widget-card .card-header {
+    background: #f8fafc;
+    border-bottom: 1px solid var(--fc-border);
+    padding: 0.85rem 1.15rem;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #0f172a;
+  }
+
+  .fc-widget-card .card-body {
+    padding: 1.15rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .fc-chart-box {
+    position: relative;
+    width: 100%;
+  }
+
+  /* Dual Progress Bar */
+  .fc-dual-progress {
+    height: 8px;
+    border-radius: 4px;
+    background: #e2e8f0;
+    overflow: hidden;
+    display: flex;
+  }
+
+  /* Table styling */
+  .fc-routes-table thead th {
+    background-color: #f8fafc;
+    color: #334155;
+    font-weight: 700;
+    font-size: 0.775rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #e2e8f0;
+    padding: 0.65rem 0.85rem;
+    white-space: nowrap;
+  }
+
+  .fc-routes-table tbody td {
+    padding: 0.65rem 0.85rem;
+    font-size: 0.825rem;
+    vertical-align: middle;
+    color: #1e293b;
+    border-top: 1px solid #f1f5f9;
+  }
+
+  .fc-routes-table tbody tr:hover {
+    background-color: #f8fafc;
+  }
+
+  .fc-rank-badge {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #475569;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.725rem;
+    font-weight: 700;
+  }
+
+  .fc-rank-1 { background: #fef3c7; color: #b45309; }
+  .fc-rank-2 { background: #e2e8f0; color: #334155; }
+  .fc-rank-3 { background: #ffedd5; color: #c2410c; }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'bom:freight_cost_list' %}">Freight Cost</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+  </ol>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'adminlte/plugins/chart.js/Chart.bundle.min.js' %}"></script>
+<script>
+$(document).ready(function() {
+  const chartData = {{ chart_data_json|safe }};
+
+  function formatRp(val) {
+    if (val === null || val === undefined || isNaN(val)) return 'Rp 0';
+    return 'Rp ' + Number(val).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function formatCompactRp(val) {
+    const num = Number(val);
+    if (Math.abs(num) >= 1e9) return 'Rp ' + (num / 1e9).toFixed(2) + ' B';
+    if (Math.abs(num) >= 1e6) return 'Rp ' + (num / 1e6).toFixed(2) + ' M';
+    if (Math.abs(num) >= 1e3) return 'Rp ' + (num / 1e3).toFixed(1) + ' K';
+    return 'Rp ' + num.toFixed(2);
+  }
+
+  // 1. Monthly Cost & Weight Trend (Bar/Line Combo)
+  const monthlyCanvas = document.getElementById('monthlyTrendChart');
+  if (monthlyCanvas && chartData.monthly_labels && chartData.monthly_labels.length > 0) {
+    new Chart(monthlyCanvas.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: chartData.monthly_labels,
+        datasets: [
+          {
+            label: 'OI Burden Cost',
+            data: chartData.monthly_oi_costs,
+            backgroundColor: 'rgba(13, 110, 253, 0.8)',
+            borderColor: '#0d6efd',
+            borderWidth: 1,
+            type: 'bar',
+            yAxisID: 'y-cost',
+            order: 2
+          },
+          {
+            label: 'MUP Burden Cost',
+            data: chartData.monthly_mup_costs,
+            backgroundColor: 'rgba(25, 135, 84, 0.8)',
+            borderColor: '#198754',
+            borderWidth: 1,
+            type: 'bar',
+            yAxisID: 'y-cost',
+            order: 3
+          },
+          {
+            label: 'Total Weight (Tons)',
+            data: chartData.monthly_weights_ton,
+            borderColor: '#d97706',
+            backgroundColor: 'rgba(217, 119, 6, 0.08)',
+            borderWidth: 2.5,
+            type: 'line',
+            fill: false,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#d97706',
+            pointBorderColor: '#ffffff',
+            yAxisID: 'y-weight',
+            order: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: {
+          position: 'top',
+          labels: { boxWidth: 12, fontSize: 11, padding: 10 }
+        },
+        tooltips: {
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            label: function(tooltipItem, data) {
+              const datasetLabel = data.datasets[tooltipItem.datasetIndex].label || '';
+              const val = tooltipItem.yLabel;
+              if (datasetLabel.includes('Cost')) {
+                return datasetLabel + ': ' + formatRp(val);
+              }
+              return datasetLabel + ': ' + Number(val).toLocaleString('id-ID') + ' Ton';
+            }
+          }
+        },
+        scales: {
+          xAxes: [{
+            gridLines: { display: false }
+          }],
+          yAxes: [
+            {
+              id: 'y-cost',
+              type: 'linear',
+              position: 'left',
+              gridLines: { color: '#f1f5f9' },
+              ticks: {
+                beginAtZero: true,
+                callback: function(value) {
+                  return formatCompactRp(value);
+                }
+              }
+            },
+            {
+              id: 'y-weight',
+              type: 'linear',
+              position: 'right',
+              gridLines: { display: false },
+              ticks: {
+                beginAtZero: true,
+                callback: function(value) {
+                  return Number(value).toLocaleString() + ' Ton';
+                }
+              }
+            }
+          ]
+        }
+      }
+    });
+  }
+
+  // 2. Burden Type Doughnut Chart
+  const burdenCanvas = document.getElementById('burdenDoughnutChart');
+  if (burdenCanvas) {
+    new Chart(burdenCanvas.getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: chartData.burden_labels,
+        datasets: [{
+          data: chartData.burden_costs,
+          backgroundColor: ['#0d6efd', '#198754'],
+          borderWidth: 2,
+          borderColor: '#ffffff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: { display: false },
+        cutoutPercentage: 65,
+        tooltips: {
+          callbacks: {
+            label: function(tooltipItem, data) {
+              const label = data.labels[tooltipItem.index] || '';
+              const val = data.datasets[0].data[tooltipItem.index] || 0;
+              const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+              const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+              return label + ': ' + formatRp(val) + ' (' + pct + '%)';
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // 3. Top Expeditions Horizontal Bar
+  const expCanvas = document.getElementById('topExpeditionsChart');
+  if (expCanvas && chartData.expedition_labels && chartData.expedition_labels.length > 0) {
+    new Chart(expCanvas.getContext('2d'), {
+      type: 'horizontalBar',
+      data: {
+        labels: chartData.expedition_labels,
+        datasets: [{
+          label: 'Total Cost',
+          data: chartData.expedition_costs,
+          backgroundColor: 'rgba(2, 132, 199, 0.85)',
+          borderColor: '#0284c7',
+          borderWidth: 1,
+          barPercentage: 0.75
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: { display: false },
+        tooltips: {
+          callbacks: {
+            label: function(tooltipItem, data) {
+              return 'Cost: ' + formatRp(tooltipItem.xLabel);
+            }
+          }
+        },
+        scales: {
+          xAxes: [{
+            ticks: {
+              beginAtZero: true,
+              callback: function(value) {
+                return formatCompactRp(value);
+              }
+            },
+            gridLines: { color: '#f1f5f9' }
+          }],
+          yAxes: [{
+            gridLines: { display: false }
+          }]
+        }
+      }
+    });
+  }
+
+  // 4. Top Branches Horizontal Bar
+  const branchCanvas = document.getElementById('topBranchesChart');
+  if (branchCanvas && chartData.branch_labels && chartData.branch_labels.length > 0) {
+    new Chart(branchCanvas.getContext('2d'), {
+      type: 'horizontalBar',
+      data: {
+        labels: chartData.branch_labels,
+        datasets: [{
+          label: 'Total Cost',
+          data: chartData.branch_costs,
+          backgroundColor: 'rgba(217, 119, 6, 0.85)',
+          borderColor: '#d97706',
+          borderWidth: 1,
+          barPercentage: 0.75
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: { display: false },
+        tooltips: {
+          callbacks: {
+            label: function(tooltipItem, data) {
+              return 'Cost: ' + formatRp(tooltipItem.xLabel);
+            }
+          }
+        },
+        scales: {
+          xAxes: [{
+            ticks: {
+              beginAtZero: true,
+              callback: function(value) {
+                return formatCompactRp(value);
+              }
+            },
+            gridLines: { color: '#f1f5f9' }
+          }],
+          yAxes: [{
+            gridLines: { display: false }
+          }]
+        }
+      }
+    });
+  }
+});
+</script>
+{% endblock %}
+
+{% block content %}
+{{ block.super }}
+{% get_translations 'freight_cost' as t %}
+
+<div class="container-fluid px-2 px-md-3">
+
+  <!-- Header Card with Switcher Buttons -->
+  <div class="row mb-3">
+    <div class="col-12">
+      <div class="fc-header-card">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+          <div class="d-flex align-items-center">
+            <div class="fc-header-icon mr-3">
+              <i class="fas fa-truck-moving"></i>
+            </div>
+            <div>
+              <h4 class="mb-1 font-weight-bold" style="font-size: 1.25rem; color: #0f172a;">
+                {{ t.dashboard_title|default:'Freight Cost Dashboard' }}
+              </h4>
+              <div class="text-muted small">
+                {{ t.dashboard_subtitle|default:'Interactive analytics, cost distribution, and logistics operational metrics' }}
+              </div>
+            </div>
+          </div>
+          <div class="d-flex align-items-center mt-2 mt-md-0">
+            <a href="{% url 'bom:freight_cost_dashboard' %}" class="btn btn-sm btn-primary active shadow-sm mr-2 font-weight-bold">
+              <i class="fas fa-chart-pie mr-1"></i> {{ t.dashboard|default:'Dashboard' }}
+            </a>
+            <a href="{% url 'bom:freight_cost_list' %}" class="btn btn-sm btn-light border text-dark shadow-sm mr-2 font-weight-bold">
+              <i class="fas fa-table mr-1 text-primary"></i> {{ t.view_table_report|default:'Table Report' }}
+            </a>
+            <a href="{% url 'bom:freight_cost_export' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-sm btn-success shadow-sm font-weight-bold">
+              <i class="fas fa-file-excel mr-1"></i> {{ t.btn_export_excel|default:'Export Excel' }}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Panel -->
+  <div class="row mb-3">
+    <div class="col-12">
+      <div class="fc-filter-panel">
+        <form id="fc-filter-form" method="GET" action="{% url 'bom:freight_cost_dashboard' %}">
+          <div class="row align-items-end">
+            
+            <!-- Year Filter -->
+            <div class="col-12 col-sm-6 col-md-4 col-lg-2 mb-2 mb-lg-0">
+              <label class="fc-filter-label" for="filter-year">
+                <i class="fas fa-calendar-alt text-primary mr-1"></i> {{ t.year|default:'Year' }}
+              </label>
+              <select id="filter-year" name="year" class="form-control form-control-sm fc-filter-input">
+                <option value="">{{ t.option_all_year|default:'All Year' }}</option>
+                {% for y in year_choices %}
+                <option value="{{ y }}" {% if selected_year == y %}selected{% endif %}>{{ y }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Month Filter -->
+            <div class="col-12 col-sm-6 col-md-4 col-lg-2 mb-2 mb-lg-0">
+              <label class="fc-filter-label" for="filter-month">
+                <i class="fas fa-calendar-day text-info mr-1"></i> {{ t.month|default:'Month' }}
+              </label>
+              <select id="filter-month" name="month" class="form-control form-control-sm fc-filter-input">
+                <option value="">{{ t.option_all_months|default:'All Months' }}</option>
+                {% for m_num, m_name in month_choices %}
+                <option value="{{ m_num }}" {% if selected_month == m_num %}selected{% endif %}>{{ m_name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Burden Type Filter -->
+            <div class="col-12 col-sm-6 col-md-4 col-lg-2 mb-2 mb-lg-0">
+              <label class="fc-filter-label" for="filter-burden">
+                <i class="fas fa-tags text-warning mr-1"></i> {{ t.burden_type|default:'Burden Type' }}
+              </label>
+              <select id="filter-burden" name="burden_type" class="form-control form-control-sm fc-filter-input">
+                <option value="">{{ t.option_all_burden|default:'All Burden Types' }}</option>
+                {% for b in burden_choices %}
+                <option value="{{ b }}" {% if selected_burden == b %}selected{% endif %}>{{ b }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Expedition Filter -->
+            <div class="col-12 col-sm-6 col-md-4 col-lg-2 mb-2 mb-lg-0">
+              <label class="fc-filter-label" for="filter-expedition">
+                <i class="fas fa-truck text-secondary mr-1"></i> {{ t.expedition|default:'Expedition' }}
+              </label>
+              <select id="filter-expedition" name="expedition" class="form-control form-control-sm fc-filter-input">
+                <option value="">{{ t.option_all_expeditions|default:'All Expeditions' }}</option>
+                {% for exp in expedition_choices %}
+                <option value="{{ exp }}" {% if selected_expedition == exp %}selected{% endif %}>{{ exp }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Branch (Cabang) Filter -->
+            <div class="col-12 col-sm-6 col-md-4 col-lg-2 mb-2 mb-lg-0">
+              <label class="fc-filter-label" for="filter-branch">
+                <i class="fas fa-building text-success mr-1"></i> {{ t.branch|default:'Branch' }}
+              </label>
+              <select id="filter-branch" name="branch" class="form-control form-control-sm fc-filter-input">
+                <option value="">{{ t.option_all_branches|default:'All Branches' }}</option>
+                {% for br in branch_choices %}
+                <option value="{{ br }}" {% if selected_branch == br %}selected{% endif %}>{{ br }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Action Buttons (Apply & Reset) -->
+            <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+              <label class="fc-filter-label text-muted" for="fc-btn-apply">
+                <i class="fas fa-sliders-h mr-1 text-primary"></i> Action
+              </label>
+              <div class="btn-group w-100" style="height: 38px;">
+                <button id="fc-btn-apply" type="submit" class="btn btn-sm btn-primary font-weight-bold" style="flex: 1;">
+                  <i class="fas fa-filter mr-1"></i> {{ t.apply|default:'Apply' }}
+                </button>
+                <a href="{% url 'bom:freight_cost_dashboard' %}" class="btn btn-sm btn-secondary text-white d-flex align-items-center justify-content-center px-3" title="{{ t.reset|default:'Reset Filter' }}">
+                  <i class="fas fa-undo"></i>
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI Metric Cards Row -->
+  <div class="row mb-3">
+    
+    <!-- KPI 1: Total Freight Cost -->
+    <div class="col-12 col-sm-6 col-lg mb-3 mb-lg-0">
+      <div class="fc-kpi-card kpi-primary">
+        <div class="d-flex align-items-start justify-content-between">
+          <div class="overflow-hidden mr-2 flex-grow-1">
+            <div class="fc-kpi-title">{{ t.total_freight_cost|default:'Total Freight Cost' }}</div>
+            <div class="fc-kpi-value text-truncate" title="{{ metrics.total_cost_display }}">{{ metrics.total_cost_compact }}</div>
+          </div>
+          <div class="fc-kpi-icon fc-icon-primary">
+            <i class="fas fa-coins"></i>
+          </div>
+        </div>
+        <div class="fc-kpi-sub text-truncate" title="{{ metrics.total_cost_display }}">
+          {{ metrics.total_cost_display }}
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI 2: Total Weight -->
+    <div class="col-12 col-sm-6 col-lg mb-3 mb-lg-0">
+      <div class="fc-kpi-card kpi-success">
+        <div class="d-flex align-items-start justify-content-between">
+          <div class="overflow-hidden mr-2 flex-grow-1">
+            <div class="fc-kpi-title">{{ t.total_weight_shipped|default:'Total Weight' }}</div>
+            <div class="fc-kpi-value text-truncate" title="{{ metrics.total_weight_display }}">{{ metrics.total_weight_compact }}</div>
+          </div>
+          <div class="fc-kpi-icon fc-icon-success">
+            <i class="fas fa-weight-hanging"></i>
+          </div>
+        </div>
+        <div class="fc-kpi-sub text-truncate">
+          {{ metrics.total_weight_display }}
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI 3: Avg Cost / Kg -->
+    <div class="col-12 col-sm-6 col-lg mb-3 mb-lg-0">
+      <div class="fc-kpi-card kpi-warning">
+        <div class="d-flex align-items-start justify-content-between">
+          <div class="overflow-hidden mr-2 flex-grow-1">
+            <div class="fc-kpi-title">{{ t.avg_cost_per_kg|default:'Avg Cost / Kg' }}</div>
+            <div class="fc-kpi-value text-truncate">{{ metrics.avg_cost_per_kg_display }}</div>
+          </div>
+          <div class="fc-kpi-icon fc-icon-warning">
+            <i class="fas fa-calculator"></i>
+          </div>
+        </div>
+        <div class="fc-kpi-sub text-muted text-truncate">
+          {{ t.cost_efficiency|default:'Logistics Cost Efficiency' }}
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI 4: Total Shipments -->
+    <div class="col-12 col-sm-6 col-lg mb-3 mb-lg-0">
+      <div class="fc-kpi-card kpi-info">
+        <div class="d-flex align-items-start justify-content-between">
+          <div class="overflow-hidden mr-2 flex-grow-1">
+            <div class="fc-kpi-title">{{ t.total_shipments|default:'Total Shipments' }}</div>
+            <div class="fc-kpi-value text-truncate">{{ metrics.total_items_display }}</div>
+          </div>
+          <div class="fc-kpi-icon fc-icon-info">
+            <i class="fas fa-boxes"></i>
+          </div>
+        </div>
+        <div class="fc-kpi-sub text-muted text-truncate">
+          Detail freight rows
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI 5: Burden Distribution -->
+    <div class="col-12 col-sm-6 col-lg">
+      <div class="fc-kpi-card kpi-purple">
+        <div class="d-flex align-items-start justify-content-between">
+          <div class="overflow-hidden mr-2 flex-grow-1">
+            <div class="fc-kpi-title">{{ t.burden_distribution|default:'Burden Distribution' }}</div>
+            <div class="fc-kpi-value d-flex align-items-baseline" style="font-size: 1.4rem;">
+              <span class="text-primary font-weight-bold">{{ metrics.oi_percent }}%</span>
+              <span class="text-muted mx-1" style="font-size: 0.85rem; font-weight: 400;">/</span>
+              <span class="text-success font-weight-bold">{{ metrics.mup_percent }}%</span>
+            </div>
+          </div>
+          <div class="fc-kpi-icon fc-icon-purple">
+            <i class="fas fa-chart-pie"></i>
+          </div>
+        </div>
+        <div class="fc-kpi-sub">
+          <div class="d-flex justify-content-between align-items-center mb-1 text-muted" style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase;">
+            <span>OI: {{ metrics.oi_percent }}%</span>
+            <span>MUP: {{ metrics.mup_percent }}%</span>
+          </div>
+          <div class="fc-dual-progress">
+            <div style="width: {{ metrics.oi_percent }}%; background: #0d6efd;" title="OI Burden: {{ metrics.oi_percent }}%"></div>
+            <div style="width: {{ metrics.mup_percent }}%; background: #198754;" title="MUP Burden: {{ metrics.mup_percent }}%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Charts Row 1: Monthly Cost Trend & Burden Share -->
+  <div class="row mb-3">
+    <!-- Monthly Cost & Weight Trend (Line/Bar Combo) -->
+    <div class="col-12 col-lg-8 mb-3 mb-lg-0">
+      <div class="fc-widget-card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <div>
+            <i class="fas fa-chart-line text-primary mr-1"></i>
+            <span>{{ t.monthly_cost_weight_trend|default:'Monthly Cost & Weight Trend' }}</span>
+          </div>
+          <span class="badge badge-light border text-muted px-2 py-1">
+            {% if selected_year %}{{ selected_year }}{% else %}{{ t.option_all_year|default:'All Period' }}{% endif %}
+          </span>
+        </div>
+        <div class="card-body">
+          <div class="fc-chart-box" style="height: 310px;">
+            <canvas id="monthlyTrendChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Burden Distribution Doughnut -->
+    <div class="col-12 col-lg-4">
+      <div class="fc-widget-card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <div>
+            <i class="fas fa-chart-pie text-purple mr-1"></i>
+            <span>{{ t.burden_type_share|default:'Burden Type Share' }}</span>
+          </div>
+        </div>
+        <div class="card-body d-flex flex-column justify-content-between">
+          <div class="fc-chart-box my-auto" style="height: 250px;">
+            <canvas id="burdenDoughnutChart"></canvas>
+          </div>
+          <div class="pt-2 border-top d-flex justify-content-around text-center small mt-2">
+            <div>
+              <span class="d-inline-block rounded-circle mr-1" style="width: 10px; height: 10px; background: #0d6efd;"></span>
+              <span class="font-weight-bold">OI BURDEN</span>
+              <div class="text-muted mt-1">{{ metrics.oi_cost_compact }} ({{ metrics.oi_percent }}%)</div>
+            </div>
+            <div>
+              <span class="d-inline-block rounded-circle mr-1" style="width: 10px; height: 10px; background: #198754;"></span>
+              <span class="font-weight-bold">MUP BURDEN</span>
+              <div class="text-muted mt-1">{{ metrics.mup_cost_compact }} ({{ metrics.mup_percent }}%)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row 2: Top Expeditions & Top Destination Branches -->
+  <div class="row mb-3">
+    <!-- Top 10 Expeditions -->
+    <div class="col-12 col-lg-6 mb-3 mb-lg-0">
+      <div class="fc-widget-card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <div>
+            <i class="fas fa-shipping-fast text-info mr-1"></i>
+            <span>{{ t.top_expeditions_chart|default:'Top 10 Expeditions by Total Cost' }}</span>
+          </div>
+          <span class="badge badge-light border text-muted px-2 py-1">Top 10</span>
+        </div>
+        <div class="card-body">
+          <div class="fc-chart-box" style="height: 300px;">
+            <canvas id="topExpeditionsChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top 10 Destination Branches -->
+    <div class="col-12 col-lg-6">
+      <div class="fc-widget-card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <div>
+            <i class="fas fa-warehouse text-warning mr-1"></i>
+            <span>{{ t.top_branches_chart|default:'Top 10 Destination Branches' }}</span>
+          </div>
+          <span class="badge badge-light border text-muted px-2 py-1">Top 10</span>
+        </div>
+        <div class="card-body">
+          <div class="fc-chart-box" style="height: 300px;">
+            <canvas id="topBranchesChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table: Top Logistics Routes -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="fc-widget-card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <div>
+            <i class="fas fa-route text-primary mr-1"></i>
+            <span>{{ t.top_logistics_routes|default:'Top Logistics Routes' }}</span>
+          </div>
+          <a href="{% url 'bom:freight_cost_list' %}" class="btn btn-xs btn-outline-primary bg-white text-primary font-weight-bold px-2 py-1" style="border-radius: 6px;">
+            {{ t.open_full_report|default:'Open Detailed Report' }} <i class="fas fa-arrow-right ml-1"></i>
+          </a>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table fc-routes-table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th style="width: 50px;" class="text-center">#</th>
+                  <th>{{ t.col_route|default:'Route (Origin → Destination)' }}</th>
+                  <th>{{ t.col_branch|default:'Branch' }}</th>
+                  <th>{{ t.col_expedition|default:'Expedition' }}</th>
+                  <th class="text-right">{{ t.col_shipments|default:'Shipments' }}</th>
+                  <th class="text-right">{{ t.col_weight|default:'Weight' }}</th>
+                  <th class="text-right">{{ t.col_total_cost|default:'Total Cost' }}</th>
+                  <th class="text-right">{{ t.col_avg_cost_kg|default:'Avg Cost/Kg' }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if top_routes %}
+                  {% for r in top_routes %}
+                  <tr>
+                    <td class="text-center">
+                      <span class="fc-rank-badge {% if r.rank == 1 %}fc-rank-1{% elif r.rank == 2 %}fc-rank-2{% elif r.rank == 3 %}fc-rank-3{% endif %}">
+                        {{ r.rank }}
+                      </span>
+                    </td>
+                    <td class="font-weight-bold">
+                      <i class="fas fa-map-marker-alt text-danger mr-1 small"></i> {{ r.origin }}
+                      <i class="fas fa-arrow-right text-muted mx-1 small"></i>
+                      <i class="fas fa-map-pin text-success mr-1 small"></i> {{ r.destination }}
+                    </td>
+                    <td><span class="badge badge-light border text-dark">{{ r.branch|default:'-' }}</span></td>
+                    <td class="text-muted">{{ r.expedition|default:'-' }}</td>
+                    <td class="text-right font-weight-bold">{{ r.shipments|stringformat:"d" }}</td>
+                    <td class="text-right">{{ r.weight_display }}</td>
+                    <td class="text-right font-weight-bold text-primary">{{ r.cost_compact }}</td>
+                    <td class="text-right text-muted">{{ r.avg_cost_kg }}</td>
+                  </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr>
+                    <td colspan="8" class="text-center text-muted py-4">
+                      <i class="fas fa-inbox fa-2x mb-2 text-secondary"></i><br>
+                      {{ t.no_data|default:'No freight cost data found.' }}
+                    </td>
+                  </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

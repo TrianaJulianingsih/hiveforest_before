@@ -1,6 +1,6 @@
 from django.urls import path
-from apps.finance.views.sync import sync_arbalance, sync_arcollection
-from apps.finance.views.dash_financeviews import dash_arbalance
+from apps.finance.views.sync_views import sync_arbalance, sync_arcollection
+from apps.finance.views.dashboard_finance_views import dash_arbalance
 app_name = 'finance'
 
 urlpatterns = [

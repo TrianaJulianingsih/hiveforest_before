@@ -8,42 +8,42 @@
     <form method="post" action="{% if mode == 'add' %}{% url 'performance:model_create' %}{% else %}{% url 'performance:model_edit' performancemodel.pk %}{% endif %}">
         {% csrf_token %}
         <div class="card-header ui-sortable-handle" style="cursor: move;">
-            <h1 class="card-title"><b>{% if mode == 'add' %}Add Performance Model{% else %}Edit Performance Model | {{ performancemodel.name }}{% endif %}</b></h1>
+            <h1 class="card-title"><b>{% if mode == 'add' %}Add Performance Model{% else %}Edit Performance Model | {{  performancemodel.name  }}{% endif %}</b></h1>
         </div>
         <div class="card-body hiveforest">
             <div class="row">
                 <div class="col-md-6">
                     <div class="hv-form-group">
-                        {{ form.code.label_tag }}
-                        {{ form.code }}<span class="text-danger">*</span>
-                        {{ form.code.errors }}
+                        {{  form.code.label_tag  }}
+                        {{  form.code  }}<span class="text-danger">*</span>
+                        {{  form.code.errors  }}
                     </div>
                     <div class="hv-form-group">
-                        {{ form.name.label_tag }}
-                        {{ form.name }}<span class="text-danger">*</span>
-                        {{ form.name.errors }}
+                        {{  form.name.label_tag  }}
+                        {{  form.name  }}<span class="text-danger">*</span>
+                        {{  form.name.errors  }}
                     </div>
                     <div class="hv-form-group">
-                        {{ form.initial.label_tag }}
-                        {{ form.initial }}
-                        {{ form.initial.errors }}
+                        {{  form.initial.label_tag  }}
+                        {{  form.initial  }}
+                        {{  form.initial.errors  }}
                     </div>
                     <div class="hv-form-group">
-                        {{ form.shortname.label_tag }}
-                        {{ form.shortname }}
-                        {{ form.shortname.errors }}
+                        {{  form.shortname.label_tag  }}
+                        {{  form.shortname  }}
+                        {{  form.shortname.errors  }}
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="hv-form-group">
-                        {{ form.description.label_tag }}
-                        {{ form.description }}
-                        {{ form.description.errors }}
+                        {{  form.description.label_tag  }}
+                        {{  form.description  }}
+                        {{  form.description.errors  }}
                     </div>
                     <div class="hv-form-group">
-                        {{ form.status.label_tag }}
-                        {{ form.status }}
-                        {{ form.status.errors }}
+                        {{  form.status.label_tag  }}
+                        {{  form.status  }}
+                        {{  form.status.errors  }}
                     </div>
                 </div>
             </div>

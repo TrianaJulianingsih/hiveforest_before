@@ -3,25 +3,25 @@
     <h6 class="list-group hiveforest">Products</h6>
   </li>
   <li class="list-group-item hiveforest">
-    <a href="{% url 'admin:finance_itemprice_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Item Prices</a>
+    <a href="{% url 'admin:finance_itemprice_changelist' %}" class="track-click" data-feature="Item Prices Link" data-description="Clicked Item Prices list link" data-metadata='{"target": "{% url "admin:finance_itemprice_changelist" %}"}' {% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Item Prices</a>
   </li>
   <li class="list-group-item hiveforest">
     <h6 class="list-group hiveforest">Receivables</h6>
   </li>
     <li class="list-group-item hiveforest">
         <div class="d-inline">
-            <form id="sync-form" action="{% url 'finance:sync_arbalance' %}" method="post" class="d-inline swal-ajax-form">
+            <form id="sync-form" action="{% url 'finance:sync_arbalance' %}" method="post" class="d-inline swal-ajax-form track-form" data-feature="Sync AR Balance Button" data-description="Clicked MUP AR Balance sync button" data-metadata='{"action_url": "{% url "finance:sync_arbalance" %}"}'>
                 {% csrf_token %}
                 <button class="btn btn-primary btn-sm">Sync</button>
             </form>
-            <a href="{% url 'admin:finance_arbalance_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>MUP AR Balance</a> |
+            <a href="{% url 'admin:finance_arbalance_changelist' %}" class="track-click" data-feature="MUP AR Balance Link" data-description="Clicked MUP AR Balance list link" data-metadata='{"target": "{% url "admin:finance_arbalance_changelist" %}"}' {% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>MUP AR Balance</a> |
         </div>
         <div class="d-inline">
-            <form id="sync-form" action="{% url 'finance:sync_arcollection' %}" method="post" class="d-inline swal-ajax-form">
+            <form id="sync-form" action="{% url 'finance:sync_arcollection' %}" method="post" class="d-inline swal-ajax-form track-form" data-feature="Sync AR Collection Button" data-description="Clicked MUP AR Collection sync button" data-metadata='{"action_url": "{% url "finance:sync_arcollection" %}"}'>
                 {% csrf_token %}
                 <button class="btn btn-primary btn-sm">Sync</button>
             </form>
-            <a href="{% url 'admin:finance_arcollection_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>MUP AR Collection</a>
+            <a href="{% url 'admin:finance_arcollection_changelist' %}" class="track-click" data-feature="MUP AR Collection Link" data-description="Clicked MUP AR Collection list link" data-metadata='{"target": "{% url "admin:finance_arcollection_changelist" %}"}' {% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>MUP AR Collection</a>
         </div>
     </li>
 </ul>
@@ -80,3 +80,47 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 </script> -->
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  function logClick(feature, description, metadata) {
+    const url = '/api/log-click/';
+    const body = JSON.stringify({
+      module: 'Finance',
+      feature: feature,
+      description: description,
+      metadata: metadata
+    });
+    
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{  csrf_token  }}'
+      },
+      body: body,
+      keepalive: true
+    }).catch(err => console.error('Click logging failed', err));
+  }
+
+  // Track links
+  document.querySelectorAll('.track-click').forEach(link => {
+    link.addEventListener('click', function (e) {
+      const feature = this.getAttribute('data-feature');
+      const description = this.getAttribute('data-description');
+      const metadata = JSON.parse(this.getAttribute('data-metadata') || '{}');
+      logClick(feature, description, metadata);
+    });
+  });
+
+  // Track form sync buttons
+  document.querySelectorAll('.track-form').forEach(form => {
+    form.addEventListener('submit', function (e) {
+      const feature = this.getAttribute('data-feature');
+      const description = this.getAttribute('data-description');
+      const metadata = JSON.parse(this.getAttribute('data-metadata') || '{}');
+      logClick(feature, description, metadata);
+    });
+  });
+});
+</script>

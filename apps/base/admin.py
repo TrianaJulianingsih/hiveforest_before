@@ -24,6 +24,7 @@ from apps.base.models.locations import (
     District,
     Village,
 )
+from apps.base.models.sites import Sites
 from apps.base.models.entities import CompanyOwner, CompanyOwnership, Company
 from apps.base.models.people import Gender, Salutation, Person
 from apps.base.models.contacts import (
@@ -55,6 +56,7 @@ from apps.base.forms.profileforms import PersonForm
 from import_export.formats.base_formats import CSV, XLSX
 from django.utils.translation import gettext_lazy as _
 from .user_models import ForcePasswordStatus
+from apps.base.models.system_log import SystemLog
 
 from apps.base.models.version import AppVersion, VersionFeature
 from django_summernote.admin import SummernoteModelAdmin
@@ -65,6 +67,8 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from django.utils.safestring import mark_safe
+
+from django.core.exceptions import ValidationError
 
 admin.site.site_title = _("HiveForest")
 admin.site.site_header = _("HiveForest")
@@ -575,7 +579,14 @@ class WarehousePaletteAdmin(MassActionMixin, BaseModelAdmin):
         BaseModelAdmin.list_display_id
         + ("code",)
         + BaseModelAdmin.list_display_name
-        + ("company", "ambient_capacity", "ac_room_capacity", "capacity", "utilized", "remaining")
+        + (
+            "company",
+            "ambient_capacity",
+            "ac_room_capacity",
+            "capacity",
+            "utilized",
+            "remaining",
+        )
         + BaseModelAdmin.list_display_info
         + BaseModelAdmin.list_display_last
     )
@@ -1310,8 +1321,30 @@ class CompanyAdmin(MassActionMixin, BaseModelAdmin):
     )
 
 
-# Base | Contact | Locations
-# __________________________
+# ╔════════════════════════════════════════════════════════════╗
+# ║  Name: SitesAdmin                                           ║
+# ║  Type: ModelAdmin                                           ║
+# ║  Purpose: Register Sites in Admin Site                      ║
+# ╟────────────────────────────────────────────────────────────╢
+# ║  Path: apps\base\admin.py                                  ║
+# ║  Created: Jun/15-2026 by Copilot                           ║
+# ║  Updates: Jun/15-2026 by Copilot                           ║
+# ╚════════════════════════════════════════════════════════════╝
+@admin.register(Sites)
+class SitesAdmin(MassActionMixin, BaseModelAdmin):
+    list_display = (
+        BaseModelAdmin.list_display_id
+        + ("code",)
+        + BaseModelAdmin.list_display_name
+        + BaseModelAdmin.list_display_info
+        + BaseModelAdmin.list_display_last
+    )
+    list_display_links = ("name",)
+    search_fields = BaseModelAdmin.search_fields + (
+        "code",
+        "name",
+    )
+    fields = BaseModelAdmin.fields + ("code",)
 
 
 @admin.register(Village)
@@ -1825,26 +1858,8 @@ class VersionFeatureAdmin(SummernoteModelAdmin):
 # ═══════════════════════════════════════════════════════════
 
 
-# Base | Credentials FTP
-# __________________________
 
-
-@admin.register(CredentialFTP)
-class CredentialFTPAdmin(MassActionMixin, BaseModelAdmin):
-    list_display = (
-        BaseModelAdmin.list_display_id
-        + BaseModelAdmin.list_display_name
-        + ("username", "url", "periode")
-        + BaseModelAdmin.list_display_info
-        + BaseModelAdmin.list_display_last
-    )
-    list_display_links = ("name",)
-    # password sengaja TIDAK ditampilkan di list (keamanan)
-    search_fields = BaseModelAdmin.search_fields + ("username", "url", "periode")
-    fields = BaseModelAdmin.fields + ("username", "password", "url", "periode")
 # FaisalS | HF-75 - Master Password Policy
-
-
 class PasswordPolicyForm(forms.ModelForm):
     class Meta:
         model = PasswordPolicy
@@ -2008,75 +2023,81 @@ class PasswordHistoryAdmin(admin.ModelAdmin):
         """Display formatted created_at timestamp"""
         from django.utils import timezone
         from django.utils.html import format_html
-        
+
         local_time = timezone.localtime(obj.created_at)
         days_ago = (timezone.now() - obj.created_at).days
-        
+
         if days_ago == 0:
             time_str = "Today"
         elif days_ago == 1:
             time_str = "Yesterday"
         else:
             time_str = f"{days_ago} days ago"
-        
+
         return format_html(
             '<span title="{}">{}</span>',
             local_time.strftime("%Y-%m-%d %H:%M:%S"),
-            time_str
+            time_str,
         )
+
     created_at_display.short_description = "Changed At"
 
     def changed_by_display(self, obj):
         """Display changed_by with color coding"""
         from django.utils.html import format_html
-        
+
         colors = {
             "user": "#3498db",  # Blue
             "forgot_password": "#e74c3c",  # Red
             "force_change": "#f39c12",  # Orange
             "admin": "#9b59b6",  # Purple
         }
-        
+
         color = colors.get(obj.changed_by, "#95a5a6")  # Gray default
-        
+
         return format_html(
             '<span style="background-color: {}; color: white; padding: 3px 10px; border-radius: 3px; font-weight: bold;">{}</span>',
             color,
-            obj.changed_by.replace("_", " ").title()
+            obj.changed_by.replace("_", " ").title(),
         )
+
     changed_by_display.short_description = "Changed By"
 
     def policy_status(self, obj):
         from django.utils.html import format_html
-        
+
         policy = PasswordPolicy.get_active_policy()
-        
-        if not policy or policy.password_history_limit == 0 or not policy.check_password_history:
+
+        if (
+            not policy
+            or policy.password_history_limit == 0
+            or not policy.check_password_history
+        ):
             return format_html(
-                '<span style="color: #95a5a6;">{}</span>',
-                "Policy Inactive"
+                '<span style="color: #95a5a6;">{}</span>', "Policy Inactive"
             )
-        
-        user_history_count = PasswordHistory.objects.filter(
-            user=obj.user
-        ).order_by('-created_at').count()
-        
+
+        user_history_count = (
+            PasswordHistory.objects.filter(user=obj.user)
+            .order_by("-created_at")
+            .count()
+        )
+
         if user_history_count <= policy.password_history_limit:
             return format_html(
-                '<span style="color:#27ae60;font-weight:bold;">{}</span>',
-                "✓ Active"
+                '<span style="color:#27ae60;font-weight:bold;">{}</span>', "✓ Active"
             )
         else:
-            return format_html(
-                '<span style="color:#e74c3c;">{}</span>',
-                "✗ Expired"
-            )
+            return format_html('<span style="color:#e74c3c;">{}</span>', "✗ Expired")
+
     policy_status.short_description = "Policy Status"
 
     def history_info_display(self, obj):
 
         policy = PasswordPolicy.get_active_policy()
-        user_history = PasswordHistory.objects.filter(user=obj.user).order_by('-created_at')
+        user_history = PasswordHistory.objects.filter(user=obj.user).order_by(
+            "-created_at"
+        )
 
         info_html = f"""
         <div style="background-color: #ecf0f1; padding: 10px; border-radius: 5px;">
@@ -2094,7 +2115,7 @@ class PasswordHistoryAdmin(admin.ModelAdmin):
         """
 
         return mark_safe(info_html)
-    
+
     history_info_display.short_description = "Password History Details"
 
     def has_add_permission(self, request):
@@ -2107,6 +2128,74 @@ class PasswordHistoryAdmin(admin.ModelAdmin):
 
     def has_change_permission(self, request, obj=None):
         # Password history is read-only
+        return False
+# Base | Credentials FTP
+# __________________________
+
+
+@admin.register(CredentialFTP)
+class CredentialFTPAdmin(MassActionMixin, BaseModelAdmin):
+    list_display = (
+        BaseModelAdmin.list_display_id
+        + BaseModelAdmin.list_display_name
+        + ("username", "url", "periode")
+        + BaseModelAdmin.list_display_info
+        + BaseModelAdmin.list_display_last
+    )
+    list_display_links = ("name",)
+    # password sengaja TIDAK ditampilkan di list (keamanan)
+    search_fields = BaseModelAdmin.search_fields + ("username", "url", "periode")
+    fields = BaseModelAdmin.fields + ("username", "password", "url", "periode")
+
+
+@admin.register(SystemLog)
+class SystemLogAdmin(admin.ModelAdmin):
+    list_display = [
+        "cat",
+        "user",
+        "action",
+        "module",
+        "feature",
+        "status",
+        "response_code",
+        "object_type",
+        "object_id",
+        "ip_address",
+    ]
+    
+    list_filter = [
+        "cat",
+        "user",
+        "action",
+        "module",
+        "feature",
+        "status",
+        "log_type",
+        "response_code",
+        "object_type",
+        "object_id",
+    ]
+    
+    search_fields = [
+        "user__username",
+        "description",
+        "object_id",
+        "request_path",
+        "error_message",
+    ]
+    
+    ordering = ["-cat"]
+    
+    def get_readonly_fields(self, request, obj=None):
+        return [f.name for f in self.model._meta.fields]
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
         return False
 
 

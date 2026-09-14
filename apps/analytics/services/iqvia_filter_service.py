@@ -1,6 +1,6 @@
 from django.db.models import Q
 
-from apps.analytics.models.iqvia import IQV_Pack
+from apps.analytics.models.iqvia_models import IQV_Pack
 from apps.analytics.services.iqvia_dimension_service import (
     BIG_ROWS,
     SEARCH_MIN_CHARS,

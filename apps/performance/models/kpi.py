@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from apps.base.models.abstracts import GenericAbstract
-from apps.humancapital.models.employee import EmployeeTitle
+from apps.humancapital.models.employee_models import EmployeeTitle
 
 
 class PerformanceModel(GenericAbstract):

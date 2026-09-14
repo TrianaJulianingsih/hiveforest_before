@@ -15,11 +15,12 @@ from .views import custom_404
 from django.conf.urls import handler404
 from django.conf.urls.i18n import i18n_patterns
 from django.contrib.auth import views as auth_views
-from apps.humancapital.views.assignment_view import Ajax as AssignmentAjax
-from apps.humancapital.views.organization_view import Ajax as OrganizationAjax
-from apps.humancapital.views.position_view import Ajax as PositionAjax
-from apps.humancapital.views.humancapital_view import organogram as OrganogramView
+from apps.humancapital.views.assignment_views import Ajax as AssignmentAjax
+from apps.humancapital.views.organization_views import Ajax as OrganizationAjax
+from apps.humancapital.views.position_views import Ajax as PositionAjax
+from apps.humancapital.views.humancapital_views import organogram as OrganogramView
 from apps.base.views.authentication_views import AuthenticationAdminLoginView
+from apps.base.views.click_log import log_click
 
 
 def admin_redirect(request):
@@ -41,7 +42,6 @@ urlpatterns = [
     path("humancapital/organization/ajax/", OrganizationAjax.as_view(), name="organization-ajax-fallback"),
     path("humancapital/position/ajax/", PositionAjax.as_view(), name="position-ajax-fallback"),
     path("humancapital/organogram/", OrganogramView, name="organogram-fallback"),
-    path("api/v1/crm/", include("apps.crm.api.urls")),
 ]
 urlpatterns += i18n_patterns(
     path("admin/login/", AuthenticationAdminLoginView.as_view(), name="admin_login"),

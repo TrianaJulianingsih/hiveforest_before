@@ -3,8 +3,11 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
-from apps.supplychain.models.distributions import Branch
-from apps.supplychain.forms.branch_forms import BranchsForm
+from apps.supplychain.models.distributions_models import Branch
+from apps.supplychain.forms.branch_forms import BranchForm
+from apps.base.services.system_log_service import SystemLogService
+from apps.base.models.system_log import LogAction
+from django.http import HttpResponseRedirect
 
 
 class BranchListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -12,6 +15,18 @@ class BranchListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     template_name = "branch/list.html"
     context_object_name = "branches"
     permission_required = "supplychain.view_branch"
+
+    def get(self, request, *args, **kwargs):
+        SystemLogService.log(
+            request=request,
+            action=LogAction.READ,
+            module="SupplyChain",
+            feature="Branch List",
+            description="User accessed Branch List view.",
+            status="SUCCESS",
+            log_type="SYSTEM",
+        )
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         return Branch.objects.filter(deleted=False)
@@ -27,7 +42,7 @@ class BranchListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
 class BranchCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Branch
-    form_class = BranchsForm
+    form_class = BranchForm
     template_name = "branch/form.html"
     success_url = reverse_lazy("supplychain:branch_list")
     permission_required = "supplychain.add_branch"
@@ -36,12 +51,22 @@ class BranchCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
         obj = form.save(commit=False)
         obj._request_user = self.request.user
         obj.save()
+        SystemLogService.log(
+            request=self.request,
+            action=LogAction.CREATE,
+            module="SupplyChain",
+            feature="Branch Create",
+            description=f"User created Branch: {obj.name} ({obj.code}).",
+            obj=obj,
+            status="SUCCESS",
+            log_type="SYSTEM",
+        )
         return super().form_valid(form)
 
 
 class BranchUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Branch
-    form_class = BranchsForm
+    form_class = BranchForm
     template_name = "branch/form.html"
     success_url = reverse_lazy("supplychain:branch_list")
     permission_required = "supplychain.change_branch"
@@ -50,6 +75,16 @@ class BranchUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
         obj = form.save(commit=False)
         obj._request_user = self.request.user
         obj.save()
+        SystemLogService.log(
+            request=self.request,
+            action=LogAction.UPDATE,
+            module="SupplyChain",
+            feature="Branch Update",
+            description=f"User updated Branch: {obj.name} ({obj.code}).",
+            obj=obj,
+            status="SUCCESS",
+            log_type="SYSTEM",
+        )
         return super().form_valid(form)
 
 
@@ -61,13 +96,25 @@ class BranchDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
         self.object._request_user = request.user
+        branch_name = self.object.name
+        branch_code = self.object.code
         if request.user.is_superuser or request.user.has_perm(
             "supplychain.hard_delete_branch"
         ):
             messages.success(request, _("Branch berhasil dihapus."))
-            return super().delete(request, *args, **kwargs)
-        self.object.delete()
-        messages.success(request, _("Branch berhasil dihapus."))
-        from django.http import HttpResponseRedirect
+            response = super().delete(request, *args, **kwargs)
+        else:
+            self.object.delete()
+            messages.success(request, _("Branch berhasil dihapus."))
+            response = HttpResponseRedirect(self.get_success_url())
 
-        return HttpResponseRedirect(self.get_success_url())
+        SystemLogService.log(
+            request=request,
+            action=LogAction.DELETE,
+            module="SupplyChain",
+            feature="Branch Delete",
+            description=f"User deleted Branch: {branch_name} ({branch_code}).",
+            status="SUCCESS",
+            log_type="SYSTEM",
+        )
+        return response

@@ -3,18 +3,6 @@ from django.db import migrations
 
 def repair_django_content_type(apps, schema_editor):
     with schema_editor.connection.cursor() as cursor:
-        # Nothing to repair on a freshly-created table: modern Django/Postgres
-        # creates "id" as a proper IDENTITY column, which Postgres refuses to
-        # manually re-own below. This repair only applies to older databases
-        # whose id sequence got detached from the column.
-        cursor.execute(
-            "SELECT is_identity FROM information_schema.columns "
-            "WHERE table_name = 'django_content_type' AND column_name = 'id'"
-        )
-        row = cursor.fetchone()
-        if row and row[0] == "YES":
-            return
-
         cursor.execute("SELECT to_regclass('public.django_content_type_id_seq')")
         if cursor.fetchone()[0] is None:
             cursor.execute("CREATE SEQUENCE django_content_type_id_seq")

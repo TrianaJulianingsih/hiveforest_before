@@ -9,7 +9,7 @@ from django.utils.timezone import now
 from django.db import transaction, connection
 import pandas as pd
 from dbfread import DBF
-from apps.sales.models.sales import RawAPLSO
+from apps.sales.models.sales_models import RawAPLSO
 from django.contrib.auth import get_user_model
 import mysql.connector
 from mysql.connector import errors as mysql_errors

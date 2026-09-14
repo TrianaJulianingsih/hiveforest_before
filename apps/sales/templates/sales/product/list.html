@@ -2,7 +2,7 @@
 {% load i18n static translation_tags %}
 
 {% block content %}
-{{ block.super }}
+{{  block.super  }}
 {% get_translations 'product' as t %}
 
 {% if messages %}
@@ -11,20 +11,20 @@
   <script>
     $(document).ready(function() {
       {% for message in messages %}
-        toastr.success("{{ message|escapejs }}");
+        toastr.success("{{  message|escapejs  }}");
       {% endfor %}
     });
   </script>
 {% endif %}
 <div class="card card-primary card-outline hiveforest pb-2">
   <div class="card-header ui-sortable-handle">
-    <h1 class="card-title"><b>{{ t.page_title|default:'Sales Product' }}</b></h1>
+    <h1 class="card-title"><b>{{  t.page_title|default:'Sales Product'  }}</b></h1>
     <div class="card-tools">
       <ul class="nav nav-pills ml-auto">
         <li class="nav-item">
           {% if perms.sales.add_product %}
-          <a href="{% url 'sales:product_add' %}" class="btn btn-sm btn-success">
-            <i class="fas fa-plus"></i> {{ t.btn_add|default:'Add' }}
+          <a href="{% url 'sales:product_add' %}" class="btn btn-sm btn-success track-click" data-feature="Add Product Button" data-description="User clicked Add Product button">
+            <i class="fas fa-plus"></i> {{  t.btn_add|default:'Add'  }}
           </a>
           {% endif %}
         </li>
@@ -36,67 +36,67 @@
       <table id="product_table" class="table table-striped table-bordered">
         <thead>
             <tr>
-            <th>{{ t.col_name|default:'Name' }}</th>
-            <th>{{ t.col_remark|default:'Remark' }}</th>
-            <th>{{ t.col_size|default:'Size' }}</th>
-            <th>{{ t.col_height|default:'Height' }}</th>
-            <th>{{ t.col_length|default:'Length' }}</th>
-            <th>{{ t.col_width|default:'Width' }}</th>
-            <th>{{ t.col_weight|default:'Weight' }}</th>
-            <th>{{ t.col_category|default:'Category' }}</th>
-            <th>{{ t.col_owner|default:'Owner' }}</th>
-            <th>{{ t.col_package|default:'Package' }}</th>
-            <th>{{ t.col_subgroup|default:'Subgroup' }}</th>
-            <th>{{ t.col_business|default:'Business' }}</th>
-            <th>{{ t.col_packaging|default:'Packaging' }}</th>
-            <th>{{ t.col_uom|default:'UOM' }}</th>
-            <th>{{ t.col_box_per_palletac|default:'Box per Palletac' }}</th>
-            <th>{{ t.col_action|default:'Aksi' }}</th>
+            <th>{{  t.col_name|default:'Name'  }}</th>
+            <th>{{  t.col_remark|default:'Remark'  }}</th>
+            <th>{{  t.col_size|default:'Size'  }}</th>
+            <th>{{  t.col_height|default:'Height'  }}</th>
+            <th>{{  t.col_length|default:'Length'  }}</th>
+            <th>{{  t.col_width|default:'Width'  }}</th>
+            <th>{{  t.col_weight|default:'Weight'  }}</th>
+            <th>{{  t.col_category|default:'Category'  }}</th>
+            <th>{{  t.col_owner|default:'Owner'  }}</th>
+            <th>{{  t.col_package|default:'Package'  }}</th>
+            <th>{{  t.col_subgroup|default:'Subgroup'  }}</th>
+            <th>{{  t.col_business|default:'Business'  }}</th>
+            <th>{{  t.col_packaging|default:'Packaging'  }}</th>
+            <th>{{  t.col_uom|default:'UOM'  }}</th>
+            <th>{{  t.col_box_per_palletac|default:'Box per Palletac'  }}</th>
+            <th>{{  t.col_action|default:'Aksi'  }}</th>
             </tr>
         </thead>
         <tbody>
             {% for p in products %}
             <tr>
-            <td>{{ p.name }}</td>
-            <td>{{ p.remark }}</td>
-            <td>{{ p.size }}</td>
-            <td>{{ p.height }}</td>
-            <td>{{ p.length }}</td>
-            <td>{{ p.width }}</td>
-            <td>{{ p.weight }}</td>
-            <td>{{ p.category }}</td>
-            <td>{{ p.owner }}</td>
-            <td>{{ p.package }}</td>
-            <td>{{ p.subgroup }}</td>
-            <td>{{ p.business }}</td>
-            <td>{{ p.packaging }}</td>
-            <td>{{ p.uom }}</td>
-            <td>{{ p.box_per_palletac }}</td>
+            <td>{{  p.name  }}</td>
+            <td>{{  p.remark  }}</td>
+            <td>{{  p.size  }}</td>
+            <td>{{  p.height  }}</td>
+            <td>{{  p.length  }}</td>
+            <td>{{  p.width  }}</td>
+            <td>{{  p.weight  }}</td>
+            <td>{{  p.category  }}</td>
+            <td>{{  p.owner  }}</td>
+            <td>{{  p.package  }}</td>
+            <td>{{  p.subgroup  }}</td>
+            <td>{{  p.business  }}</td>
+            <td>{{  p.packaging  }}</td>
+            <td>{{  p.uom  }}</td>
+            <td>{{  p.box_per_palletac  }}</td>
             <td>
                 {% if perms.sales.change_product %}
-                <a href="{% url 'sales:product_edit' p.pk %}" class="btn btn-sm btn-warning text-dark"><i class="fa fa-edit"></i> {{ t.btn_edit|default:'Edit' }}</a>
+                <a href="{% url 'sales:product_edit' p.pk %}" class="btn btn-sm btn-warning text-dark track-click" data-feature="Edit Product Action" data-description="User clicked Edit on Product row" data-metadata='{"product_id": "{{  p.pk  }}", "product_name": "{{  p.name  }}"}'><i class="fa fa-edit"></i> {{  t.btn_edit|default:'Edit'  }}</a>
                 {% endif %}
                 {% if perms.sales.delete_product %}
                 {% if not p.deleted %}
                     <form method="post" action="{% url 'sales:product_delete' p.pk %}" style="display:inline;" class="delete-form">
                     {% csrf_token %}
-                    <button type="button" class="btn btn-sm btn-danger btn-delete" data-name="{{ p }}"><i class="fa fa-trash"></i> {{ t.btn_delete|default:'Delete' }}</button>
+                    <button type="button" class="btn btn-sm btn-danger btn-delete track-click" data-feature="Delete Product Action" data-description="User clicked Delete on Product row" data-name="{{  p  }}" data-metadata='{"product_id": "{{  p.pk  }}", "product_name": "{{  p.name  }}"}'><i class="fa fa-trash"></i> {{  t.btn_delete|default:'Delete'  }}</button>
                     </form>
                 {% else %}
                     {% if can_hard_delete %}
                     <form method="post" action="{% url 'sales:product_delete' p.pk %}" style="display:inline;" class="delete-form">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i> {{ t.btn_deleted|default:'Hard Delete' }}</button>
+                        <button type="submit" class="btn btn-sm btn-danger track-click" data-feature="Hard Delete Product Action" data-description="User clicked Hard Delete on Product row" data-metadata='{"product_id": "{{  p.pk  }}", "product_name": "{{  p.name  }}"}'><i class="fa fa-trash"></i> {{  t.btn_deleted|default:'Hard Delete'  }}</button>
                     </form>
                     {% else %}
-                    <span class="badge badge-secondary"><i class="fa fa-trash"></i> {{ t.btn_delete|default:'Deleted' }}</span>
+                    <span class="badge badge-secondary"><i class="fa fa-trash"></i> {{  t.btn_delete|default:'Deleted'  }}</span>
                     {% endif %}
                 {% endif %}
                 {% endif %}
             </td>
             </tr>
             {% empty %}
-            <tr><td colspan="16">{{ t.no_data|default:'No data available.' }}</td></tr>
+            <tr><td colspan="16">{{  t.no_data|default:'No data available.'  }}</td></tr>
             {% endfor %}
         </tbody>
     </table>
@@ -105,7 +105,7 @@
 {% endblock %}
 
 {% block datatable_js %}
-{{ block.super }}
+{{  block.super  }}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -144,8 +144,8 @@ $(document).ready(function() {
         "colvis": 'Columns'
       },
       "lengthMenu": "Show _MENU_ entries",
-      "emptyTable": "{{ t.no_data }}",
-      "zeroRecords": "{{ t.no_data }}"
+      "emptyTable": "{{  t.no_data  }}",
+      "zeroRecords": "{{  t.no_data  }}"
     },
     "layout": {
       "topStart": ['pageLength'],
@@ -187,6 +187,35 @@ $(document).ready(function() {
 
 {% block extra_js %}
 <script>
+function logSalesClick(feature, description, metadata) {
+  const url = '/api/log-click/';
+  const body = JSON.stringify({
+    module: 'Sales',
+    feature: feature,
+    description: description,
+    metadata: metadata || {}
+  });
+  
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': '{{  csrf_token  }}'
+    },
+    body: body,
+    keepalive: true
+  }).catch(err => console.error('Click logging failed', err));
+}
+
+$(document).on('click', '.track-click', function() {
+  const feature = $(this).attr('data-feature');
+  const description = $(this).attr('data-description');
+  const metadata = JSON.parse($(this).attr('data-metadata') || '{}');
+  if (feature) {
+    logSalesClick(feature, description, metadata);
+  }
+});
+
 $(document).on('click', '.btn-delete', function(e) {
   e.preventDefault();
 
@@ -194,17 +223,18 @@ $(document).on('click', '.btn-delete', function(e) {
   const name = $(this).data('name');
 
   Swal.fire({
-    title: '{{ t.confirm_title|default:"Confirmation" }}',
-    text: '{{ t.confirm_delete|default:"Are you sure you want to delete" }} ' + name + '?',
+    title: '{{  t.confirm_title|default:"Confirmation"  }}',
+    text: '{{  t.confirm_delete|default:"Are you sure you want to delete"  }} ' + name + '?',
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#d33',
     cancelButtonColor: '#6c757d',
-    confirmButtonText: '{{ t.confirm_btn_delete|default:"Yes, Delete" }}',
-    cancelButtonText: '{{ t.btn_cancel|default:"Cancel" }}',
+    confirmButtonText: '{{  t.confirm_btn_delete|default:"Yes, Delete"  }}',
+    cancelButtonText: '{{  t.btn_cancel|default:"Cancel"  }}',
     reverseButtons: true
   }).then((result) => {
     if (result.isConfirmed) {
+      logSalesClick("Confirm Delete Product", "User confirmed deletion of product " + name, {product_name: name});
       form.submit();
     }
   });

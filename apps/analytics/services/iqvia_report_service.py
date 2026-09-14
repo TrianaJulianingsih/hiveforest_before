@@ -1,5 +1,5 @@
 from django.db.models import Sum, Count
-from apps.analytics.models.iqvia import IQV_ITMATrans, IQV_Corp
+from apps.analytics.models.iqvia_models import IQV_ITMATrans, IQV_Corp
 
 
 # Base queryset, exclude soft deleted rows

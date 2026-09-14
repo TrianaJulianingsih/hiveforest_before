@@ -26,14 +26,14 @@
         <div class="card-body login-card-body">
           <p class="login-box-msg">
             <i class="fas fa-shield-alt mr-2"></i>
-            {{ auth_setting.login_message|default:"Sign in to start your session" }}
+            {{  auth_setting.login_message|default:"Sign in to start your session"  }}
           </p>
 
           {% if form.errors %}
             <div class="alert alert-danger">
               <i class="fas fa-exclamation-triangle mr-2"></i>
               <strong>Access Denied!</strong>
-              {{ form.non_field_errors|striptags|default:"Invalid username or password." }}
+              {{  form.non_field_errors|striptags|default:"Invalid username or password."  }}
             </div>
           {% endif %}
 
@@ -81,7 +81,7 @@
               </div>
               <div class="row align-items-center">
                 <div class="col-12">
-                  <input type="hidden" name="next" value="{{ request.GET.next }}" />
+                  <input type="hidden" name="next" value="{{  request.GET.next  }}" />
                   <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
                     <i class="fas fa-sign-in-alt mr-2"></i> Sign In
                   </button>
@@ -93,9 +93,9 @@
           {% if show_microsoft_login %}
             <div class="{% if show_local_login %}mt-3{% endif %}">
               {% if microsoft_login_available and microsoft_login_url %}
-                <a href="{{ microsoft_login_url }}" class="btn btn-outline-primary btn-block">
+                <a href="{{  microsoft_login_url  }}" class="btn btn-outline-primary btn-block">
                   <i class="fab fa-microsoft mr-2"></i>
-                  {{ auth_setting.login_button_text|default:"Sign in with Microsoft" }}
+                  {{  auth_setting.login_button_text|default:"Sign in with Microsoft"  }}
                 </a>
               {% else %}
                 <button type="button" class="btn btn-outline-secondary btn-block" disabled>

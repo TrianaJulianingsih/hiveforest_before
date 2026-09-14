@@ -1,0 +1,3 @@
+from .app_managers_admin import ApplicationListAdmin
+from .menu_system_admin import MenuItemAdmin
+from .module_managers_admin import ModuleListAdmin

@@ -12,7 +12,7 @@ TRANSLATABLE_MODELS = [
     {
         "app": "CMS",
         "model": "ApplicationList",
-        "model_class": "apps.cms.models.appmanagers.ApplicationList",
+        "model_class": "apps.cms.models.app_managers_models.ApplicationList",
         "fields": ["shortname"],
     },
     # You can later register more models here

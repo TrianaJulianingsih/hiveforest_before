@@ -10,7 +10,9 @@ from apps.base.models.password_policy import PasswordPolicy
 @receiver(post_save, sender=User)
 def create_force_password_status(sender, instance, created, **kwargs):
     if created:
-        ForcePasswordStatus.objects.create(user=instance, must_change_password=True)
+        ForcePasswordStatus.objects.get_or_create(
+            user=instance, defaults={"must_change_password": True}
+        )
 
 
 @receiver(user_logged_in)

@@ -137,10 +137,10 @@
 
     </a>
     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="langDropdown">
-        <a href="/en{{ request.get_full_path|cut:"/id"|cut:"/en" }}" class="dropdown-item d-flex align-items-center">
+        <a href="/en{{  request.get_full_path|cut:"/id"|cut:"/en"  }}" class="dropdown-item d-flex align-items-center">
         <img src="{% static 'media/flags/us.png' %}" height="16" class="mr-2 lang-flag"> English
         </a>
-        <a href="/id{{ request.get_full_path|cut:"/en"|cut:"/id" }}" class="dropdown-item d-flex align-items-center">
+        <a href="/id{{  request.get_full_path|cut:"/en"|cut:"/id"  }}" class="dropdown-item d-flex align-items-center">
         <img src="{% static 'media/flags/id.png' %}" height="16" class="mr-2 lang-flag"> Indonesia
         </a>
     </div>

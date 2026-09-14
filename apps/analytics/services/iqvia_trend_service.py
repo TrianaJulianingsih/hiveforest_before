@@ -1,6 +1,6 @@
 from django.db.models import Sum
 
-from apps.analytics.models.iqvia import IQV_ITMATrans
+from apps.analytics.models.iqvia_models import IQV_ITMATrans
 from apps.analytics.services.iqvia_dimension_service import (
     MAT_WINDOW,
     MEASURE_UNIT,

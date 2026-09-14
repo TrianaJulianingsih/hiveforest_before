@@ -1,8 +1,8 @@
 from django import forms
 from apps.base.models import Role, CMSPermission, SCMPermission
 from apps.cms.models import ApplicationList, ModuleList, MenuItem
-from apps.supplychain.models.distributions import Distributor, DistributorItemGroup, Branch
-from apps.supplychain.models.manufacturing import ManufacturingItemGroup
+from apps.supplychain.models.distributions_models import Distributor, DistributorItemGroup, Branch
+from apps.supplychain.models.manufacturing_models import ManufacturingItemGroup
 from django.contrib.admin.widgets import FilteredSelectMultiple
 
 class SCMPermissionForm(forms.ModelForm):

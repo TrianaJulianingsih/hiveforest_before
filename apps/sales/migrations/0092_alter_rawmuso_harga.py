@@ -10,9 +10,14 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunSQL(
+            sql="DROP VIEW IF EXISTS finance.sales_rawmuso CASCADE;",
+            reverse_sql=migrations.RunSQL.noop,
+        ),
         migrations.AlterField(
             model_name='rawmuso',
             name='harga',
             field=models.DecimalField(blank=True, decimal_places=2, default=None, max_digits=12, null=True, verbose_name='Harga'),
         ),
     ]
+

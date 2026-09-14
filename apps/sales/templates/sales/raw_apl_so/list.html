@@ -1,16 +1,16 @@
 {% extends "components/datatable_base.html" %}
 
 {% block table_columns %}
-  <th>{{ t.col_name|default:'Name' }}</th>
-  <th>{{ t.col_kode_produk|default:'Product Code' }}</th>
-  <th>{{ t.col_produk|default:'Product Name' }}</th>
-  <th>{{ t.col_outlet|default:'Outlet' }}</th>
-  <th>{{ t.col_alamat_outlet|default:'Outlet Address' }}</th>
-  <th>{{ t.col_qty|default:'QTY' }}</th>
-  <th>{{ t.col_faktor_kali|default:'X Factor' }}</th>
-  <th>{{ t.col_hjp|default:'HJP' }}</th>
-  <th>{{ t.col_hna|default:'HNA' }}</th>
-  <th>{{ t.col_harga|default:'Price' }}</th>
-  <th>{{ t.col_whse|default:'WHSE' }}</th>
-  <th>{{ t.col_tanggal_expired|default:'Expired Date' }}</th>
+  <th>{{  t.col_name|default:'Name'  }}</th>
+  <th>{{  t.col_kode_produk|default:'Product Code'  }}</th>
+  <th>{{  t.col_produk|default:'Product Name'  }}</th>
+  <th>{{  t.col_outlet|default:'Outlet'  }}</th>
+  <th>{{  t.col_alamat_outlet|default:'Outlet Address'  }}</th>
+  <th>{{  t.col_qty|default:'QTY'  }}</th>
+  <th>{{  t.col_faktor_kali|default:'X Factor'  }}</th>
+  <th>{{  t.col_hjp|default:'HJP'  }}</th>
+  <th>{{  t.col_hna|default:'HNA'  }}</th>
+  <th>{{  t.col_harga|default:'Price'  }}</th>
+  <th>{{  t.col_whse|default:'WHSE'  }}</th>
+  <th>{{  t.col_tanggal_expired|default:'Expired Date'  }}</th>
 {% endblock %}

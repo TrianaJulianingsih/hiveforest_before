@@ -1,13 +1,20 @@
 from django.contrib import admin
-from apps.humancapital.models.business import Business
-from apps.humancapital.models.structure import Assignment, Position, Organization, OrganizationType
-from apps.humancapital.models.employee import Employee, EmployeeTitle
+from apps.humancapital.models.business_models import Business
+from apps.humancapital.models.employee_models import Assignment, Position, Organization, OrganizationType
+from apps.humancapital.models.structure_models import Employee, EmployeeTitle
 from apps.base.models.people import Gender
 from apps.base.admin_base import BaseModelAdmin, PandasImportMixin
 from apps.base.admin_utils import MassActionMixin
 
+from apps.humancapital.admin.business_admin import BusinessAdmin
+from apps.humancapital.admin.assignment_admin import AssignmentAdmin
+from apps.humancapital.admin.position_admin import PositionAdmin
+from apps.humancapital.admin.employee_admin import EmployeeAdmin, EmployeeTitleAdmin
+from apps.humancapital.admin.organization_admin import OrganizationAdmin, OrganizationTypeAdmin
+
 # Pandas
 from django import forms
+from django.db import transaction
 import pandas as pd
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -47,13 +54,29 @@ class BusinessAdmin(MassActionMixin, BaseModelAdmin):
 @admin.register(Assignment)
 class AssignmentAdmin(PandasImportMixin, MassActionMixin, BaseModelAdmin):
     list_display = BaseModelAdmin.list_display_id + ("code",) + BaseModelAdmin.list_display_name + \
-        ("initial", "shortname", "effective", "terminated", "position", "employee", "title",) + BaseModelAdmin.list_display_info + BaseModelAdmin.list_display_last
+        ("initial", "shortname", "effective", "terminated", "position", "employee", "title", "site",) + BaseModelAdmin.list_display_info + BaseModelAdmin.list_display_last
     list_display_links = ("name",)
-    search_fields = ("name", "code", "description", "remark", "initial", "shortname", "effective", "terminated", "position", "employee")
+    search_fields = (
+        "name",
+        "code",
+        "description",
+        "remark",
+        "initial",
+        "shortname",
+        "position__name",
+        "position__code",
+        "position__shortname",
+        "employee__name",
+        "employee__code",
+        "employee__person__name",
+        "title__name",
+        "site__name",
+        "site__code",
+    )
     list_per_page = 1000
     has_pandas_import = True
-    fields = ("employee", "position", "title",) + BaseModelAdmin.fields + ("code", "initial", "shortname", "effective", "terminated")
-    autocomplete_fields = ('employee', 'position')
+    fields = ("employee", "position", "title", "site",) + BaseModelAdmin.fields + ("code", "initial", "shortname", "effective", "terminated")
+    autocomplete_fields = ('employee', 'position', 'site')
 
     def changelist_view(self, request, extra_context=None):
         """
@@ -294,6 +317,8 @@ class EmployeeAdmin(PandasImportMixin, MassActionMixin, BaseModelAdmin):
     has_pandas_import = True
     ordering = ('name',)
     search_fields = BaseModelAdmin.search_fields + ('code', 'person__initial', 'person__nickname', 'person__national_id', 'person__tax_id', 'person__name',)
+    # Enable searchable select for Person field in admin
+    autocomplete_fields = ('person',)
 
     person__initial = person_field_display('initial', 'Initial')
     person__nickname = person_field_display('nickname', 'Nickname')
@@ -305,7 +330,7 @@ class EmployeeAdmin(PandasImportMixin, MassActionMixin, BaseModelAdmin):
     fields = None
     fieldsets = (
         ('Primary Info', {
-            'fields': ('code', 'person', 'name',  'description', 'remark',)
+            'fields': ('code', 'person', 'name', 'email', 'description', 'remark',)
         }),
         ('References', {
             'fields': ('hired', 'terminated', 'employment_status',)
@@ -363,21 +388,31 @@ class EmployeeAdmin(PandasImportMixin, MassActionMixin, BaseModelAdmin):
             citizenship_id = handle_blank(row['citizenship_id'])
             tax_id = handle_blank(row['tax_id'])
 
-            Employee.objects.create(
-                code=code,
-                name=row['name'],
-                description=description,
-                remark=remark,
-                initial=initial,
-                shortname=shortname,
-                gender=gender,
-                dob=dob,
-                hired=hired,
-                terminated=terminated,
-                citizenship_id=citizenship_id,
-                tax_id=tax_id,
-                status=row['status']
-            )
+            with transaction.atomic():
+                emp = Employee.objects.create(
+                    code=code,
+                    name=row['name'],
+                    description=description,
+                    remark=remark,
+                    initial=initial,
+                    shortname=shortname,
+                    gender=gender,
+                    dob=dob,
+                    hired=hired,
+                    terminated=terminated,
+                    citizenship_id=citizenship_id,
+                    tax_id=tax_id,
+                    status=row['status']
+                )
+
+                # Auto-create linked auth User and UserProfile if possible.
+                try:
+                    # create_user_account will raise on failures so keep inside transaction
+                    emp.create_user_account(send_email=True)
+                except Exception as e:
+                    # Log and continue; don't abort entire import for one row
+                    import logging
+                    logging.exception('Failed to create user for imported Employee %s: %s', emp.pk, e)
 
 # ╔════════════════════════════════════════════════════════════╗
 # ║  Name: EmployeeTitleAdmin                                  ║

@@ -1,10 +1,10 @@
 <ul class="{% if not forloop.parentloop %}nav nav-pills nav-sidebar flex-column{% else %}nav nav-treeview{% endif %}" data-widget="treeview" role="menu" data-accordion="false">
     {% for menu in menus %}
         <li class="nav-item {% if menu.children.all %}has-treeview{% endif %}">
-            <a href="{% if menu.url %}{{ menu.url }}{% else %}#{% endif %}" class="nav-link">
+            <a href="{% if menu.url %}{{  menu.url  }}{% else %}#{% endif %}" class="nav-link">
                 <i class="nav-icon fas fa-folder"></i>
                 <p>
-                    {{ menu.name }}
+                    {{  menu.name  }}
                     {% if menu.children.all %}
                         <i class="right fas fa-angle-left"></i>
                     {% endif %}

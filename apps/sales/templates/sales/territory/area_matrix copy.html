@@ -12,7 +12,7 @@
 {% load i18n static sales_tag %}
 
 {% block datatable_css %}
-  {{ block.super }}
+  {{  block.super  }}
   <!-- <link href="{% static 'custom/css/select2.min.css' %}" rel="stylesheet" /> -->
   <link rel="stylesheet" href="{% static 'vendor/bootstrap-multiselect/bootstrap-multiselect.css' %}">
 {% endblock %}
@@ -26,8 +26,8 @@
             <label for="islandFilter" class="mr-2">Select Island(s):</label>
             <select id="islandFilter" name="island[]" multiple class="form-control select2-hidden">
                 {% for island in islands %}
-                    <option value="{{ island.id }}" {% if island.id|stringformat:"s" in selected_island_ids %}selected{% endif %}>
-                        {{ island.name }}
+                    <option value="{{  island.id  }}" {% if island.id|stringformat:"s" in selected_island_ids %}selected{% endif %}>
+                        {{  island.name  }}
                     </option>
                 {% endfor %}
             </select>
@@ -36,8 +36,8 @@
             <label for="provinceFilter" class="mr-2 ml-4">Select Province(s):</label>
             <select id="provinceFilter" name="province[]" multiple class="form-control select2-hidden">
                 {% for province in provinces %}
-                    <option value="{{ province.id }}" {% if province.id|stringformat:"s" in selected_province_ids %}selected{% endif %}>
-                        {{ province.name }}
+                    <option value="{{  province.id  }}" {% if province.id|stringformat:"s" in selected_province_ids %}selected{% endif %}>
+                        {{  province.name  }}
                     </option>
                 {% endfor %}
             </select>
@@ -61,8 +61,8 @@
                     <tbody>
                         {% for island in selected_islands %}
                             <tr>
-                                <td>{{ island.id }}</td>
-                                <td>{{ island.name }}</td>
+                                <td>{{  island.id  }}</td>
+                                <td>{{  island.name  }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>

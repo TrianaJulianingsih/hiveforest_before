@@ -2,14 +2,14 @@
 {% load i18n static translation_tags %}
 
 {% block content %}
-{{ block.super }}
+{{  block.super  }}
 {% get_translations 'sub_distributor' as t %}
 
   <section class="content-header">
     <div class="container-fluid">
       <div class="row mb-2">
         <div class="col-sm-12">
-          <h1>{{ t.page_title_add }}</h1>
+          <h1>{{  t.page_title_add  }}</h1>
         </div>
       </div>
     </div>
@@ -19,27 +19,27 @@
     <div class="container-fluid">
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">{{ t.search_title }}</h3>
+          <h3 class="card-title">{{  t.search_title  }}</h3>
         </div>
         <div class="card-body">
           <form method="GET" class="mb-4">
             <div class="row">
               <div class="col-md-8">
                 <div class="form-group">
-                  <label for="search">{{ t.search_label }}</label>
+                  <label for="search">{{  t.search_label  }}</label>
                   <input type="text" 
                          class="form-control" 
                          id="search" 
                          name="search" 
-                         placeholder="{{ t.search_placeholder }}" 
-                         value="{{ search_query }}"
+                         placeholder="{{  t.search_placeholder  }}" 
+                         value="{{  search_query  }}"
                          autofocus>
                 </div>
               </div>
               <div class="col-md-4">
                 <label>&nbsp;</label>
                 <button type="submit" class="btn btn-primary btn-block">
-                  <i class="fas fa-search"></i> {{ t.btn_search }}
+                  <i class="fas fa-search"></i> {{  t.btn_search  }}
                 </button>
               </div>
             </div>
@@ -48,44 +48,44 @@
           {% if search_query %}
             {% if customers %}
               <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> {{ t.search_found }} {{ customers|length }} {{ t.search_customers }}. {{ t.search_click_add }}.
+                <i class="fas fa-info-circle"></i> {{  t.search_found  }} {{  customers|length  }} {{  t.search_customers  }}. {{  t.search_click_add  }}.
               </div>
               
               <div class="table-responsive">
                 <table class="table table-striped table-bordered">
                   <thead>
                     <tr>
-                      <th>{{ t.col_name }}</th>
-                      <th>{{ t.col_code }}</th>
-                      <th>{{ t.col_shortname }}</th>
-                      <th>{{ t.col_address }}</th>
-                      <th>{{ t.col_station }}</th>
-                      <th>{{ t.col_district }}</th>
-                      <th class="text-center">{{ t.col_action }}</th>
+                      <th>{{  t.col_name  }}</th>
+                      <th>{{  t.col_code  }}</th>
+                      <th>{{  t.col_shortname  }}</th>
+                      <th>{{  t.col_address  }}</th>
+                      <th>{{  t.col_station  }}</th>
+                      <th>{{  t.col_district  }}</th>
+                      <th class="text-center">{{  t.col_action  }}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {% for customer in customers %}
                     <tr>
-                      <td>{{ customer.name }}</td>
-                      <td>{{ customer.code|default:"-" }}</td>
-                      <td>{{ customer.shortname|default:"-" }}</td>
+                      <td>{{  customer.name  }}</td>
+                      <td>{{  customer.code|default:"-"  }}</td>
+                      <td>{{  customer.shortname|default:"-"  }}</td>
                       <td>
                         {% if customer.street %}
-                          {{ customer.street }}
+                          {{  customer.street  }}
                         {% else %}
-                          {{ customer.regency.name|default:"-" }} - {{ customer.province.name|default:"-" }}
+                          {{  customer.regency.name|default:"-"  }} - {{  customer.province.name|default:"-"  }}
                         {% endif %}
-                        {% if customer.postcode %}, {{ customer.postcode }}{% endif %}
+                        {% if customer.postcode %}, {{  customer.postcode  }}{% endif %}
                       </td>
-                      <td>{{ customer.station.name|default:"-" }}</td>
-                      <td>{{ customer.district.name|default:"-" }}</td>
+                      <td>{{  customer.station.name|default:"-"  }}</td>
+                      <td>{{  customer.district.name|default:"-"  }}</td>
                       <td class="text-center">
                         <button type="button" 
                                 class="btn btn-success btn-sm btn-add-subdist" 
-                                data-customer-id="{{ customer.id }}"
-                                data-customer-name="{{ customer.name }}">
-                          <i class="fas fa-check"></i> {{ t.btn_add_as_subdist }}
+                                data-customer-id="{{  customer.id  }}"
+                                data-customer-name="{{  customer.name  }}">
+                          <i class="fas fa-check"></i> {{  t.btn_add_as_subdist  }}
                         </button>
                       </td>
                     </tr>
@@ -95,19 +95,19 @@
               </div>
             {% else %}
               <div class="alert alert-warning">
-                <i class="fas fa-exclamation-triangle"></i> {{ t.search_no_results }} "{{ search_query }}". 
-                <br>{{ t.search_note }}.
+                <i class="fas fa-exclamation-triangle"></i> {{  t.search_no_results  }} "{{  search_query  }}". 
+                <br>{{  t.search_note  }}.
               </div>
             {% endif %}
           {% else %}
             <div class="alert alert-secondary">
-              <i class="fas fa-info-circle"></i> {{ t.search_instruction }}
+              <i class="fas fa-info-circle"></i> {{  t.search_instruction  }}
             </div>
           {% endif %}
         </div>
         <div class="card-footer">
           <a href="{% url 'bom:sub_distributor_list' %}" class="btn btn-primary">
-            <i class="fas fa-arrow-left"></i> {{ t.btn_back }}
+            <i class="fas fa-arrow-left"></i> {{  t.btn_back  }}
           </a>
         </div>
       </div>
@@ -116,22 +116,22 @@
 {% endblock %}
 
 {% block datatable_js %}
-{{ block.super }}
+{{  block.super  }}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 $(document).ready(function() {
   const translations = {
-    confirm_title: '{{ t.confirm_title }}',
-    confirm_message: '{{ t.confirm_message }}',
-    confirm_as_subdist: '{{ t.confirm_as_subdist }}',
-    btn_yes_add: '{{ t.btn_yes_add }}',
-    btn_cancel: '{{ t.btn_cancel }}',
-    processing: '{{ t.processing }}',
-    please_wait: '{{ t.please_wait }}',
-    success_title: '{{ t.success_title }}',
-    failed_title: '{{ t.failed_title }}',
-    error_title: '{{ t.error_title }}',
-    error_saving: '{{ t.error_saving }}'
+    confirm_title: '{{  t.confirm_title  }}',
+    confirm_message: '{{  t.confirm_message  }}',
+    confirm_as_subdist: '{{  t.confirm_as_subdist  }}',
+    btn_yes_add: '{{  t.btn_yes_add  }}',
+    btn_cancel: '{{  t.btn_cancel  }}',
+    processing: '{{  t.processing  }}',
+    please_wait: '{{  t.please_wait  }}',
+    success_title: '{{  t.success_title  }}',
+    failed_title: '{{  t.failed_title  }}',
+    error_title: '{{  t.error_title  }}',
+    error_saving: '{{  t.error_saving  }}'
   };
 
   $('.btn-add-subdist').on('click', function() {
@@ -165,7 +165,7 @@ $(document).ready(function() {
           type: 'POST',
           data: {
             'customer_id': customerId,
-            'csrfmiddlewaretoken': '{{ csrf_token }}'
+            'csrfmiddlewaretoken': '{{  csrf_token  }}'
           },
           success: function(response) {
             if (response.success) {

@@ -1,7 +1,7 @@
 {% extends "main.html" %}
 {% load i18n static %}
 {% block datatable_css %}
-    {{ block.super }}
+    {{  block.super  }}
     <!-- CSS -->
     <link href="{% static 'custom/css/select2.min.css' %}" rel="stylesheet" />
 {% endblock %}
@@ -9,14 +9,14 @@
 <h1>Outlet List</h1>
 <div class="row mb-2">
     <div class="col-auto">
-      <button id="apply-filters" class="btn btn-sm btn-primary">Filter</button>
-      <button id="reset-filters" class="btn btn-sm btn-secondary">Reset</button>
+      <button id="apply-filters" class="btn btn-sm btn-primary track-click" data-feature="Apply Outlet Filter Button" data-description="User clicked Apply Filter on Outlet List" data-metadata='{"action": "apply_filter"}'>Filter</button>
+      <button id="reset-filters" class="btn btn-sm btn-secondary track-click" data-feature="Reset Outlet Filter Button" data-description="User clicked Reset Filter on Outlet List" data-metadata='{"action": "reset_filter"}'>Reset</button>
     </div>
   </div>
 <table id="outlet_table" class="table table-striped table-bordered">
   <thead>
     <tr>
-        <th class="hv-lefted"><input type="checkbox" id="action-toggle"></th>
+        <th class="hv-lefted"><input type="checkbox" id="action-toggle" class="track-click" data-feature="Toggle All Outlets Checkbox" data-description="User toggled Select All Outlets"></th>
         <th class="hv-lefted">ID</th>
         <th class="hv-lefted">Code</th>
         <th class="hv-lefted">Name</th>
@@ -53,26 +53,59 @@
         <td class="hv-centered">
             <input type="checkbox" name="_selected_action" value="9" class="action-select" aria-label="Select this object for an action">
         </td>
-        <td class="hv-lefted">{{ outlet.id }}</td>
-        <td class="hv-lefted">{{ outlet.code }}</td>
-        <td class="hv-lefted">{{ outlet.name }}</td>
-        <td class="hv-lefted">{{ outlet.distributor.initial }}</td>
-        <td class="hv-lefted">{{ outlet.branch }}</td>
-        <td class="hv-lefted">{{ outlet.custtype.code }}</td>
-        <td class="hv-lefted">{{ outlet.customer.name }}</td>
-        <td class="hv-lefted">{{ outlet.outletgroup.name }}</td>
-        <td class="hv-lefted">{{ outlet.code1 }}</td>
-        <td class="hv-lefted">{{ outlet.code2 }}</td>
-        <td class="hv-lefted">{{ outlet.address }}</td>
-        <td><a href="#">Edit</a></td>
+        <td class="hv-lefted">{{  outlet.id  }}</td>
+        <td class="hv-lefted">{{  outlet.code  }}</td>
+        <td class="hv-lefted">{{  outlet.name  }}</td>
+        <td class="hv-lefted">{{  outlet.distributor.initial  }}</td>
+        <td class="hv-lefted">{{  outlet.branch  }}</td>
+        <td class="hv-lefted">{{  outlet.custtype.code  }}</td>
+        <td class="hv-lefted">{{  outlet.customer.name  }}</td>
+        <td class="hv-lefted">{{  outlet.outletgroup.name  }}</td>
+        <td class="hv-lefted">{{  outlet.code1  }}</td>
+        <td class="hv-lefted">{{  outlet.code2  }}</td>
+        <td class="hv-lefted">{{  outlet.address  }}</td>
+        <td><a href="#" class="track-click" data-feature="Edit Outlet Action" data-description="User clicked Edit on Outlet row" data-metadata='{"outlet_id": "{{  outlet.id  }}", "outlet_code": "{{  outlet.code  }}"}'>Edit</a></td>
     </tr>
     {% endfor %}
 </tbody>
 </table>
 {% endblock %}
 {% block datatable_js %}
-    {{ block.super }}
+    {{  block.super  }}
     <script src="{% static 'custom/js/outlet_list_datatable.js' %}"></script>
     <!-- JS (after jQuery) -->
     <script src="{% static 'custom/js/select2.min.js' %}"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      function logClick(feature, description, metadata) {
+        const url = '/api/log-click/';
+        const body = JSON.stringify({
+          module: 'Sales',
+          feature: feature,
+          description: description,
+          metadata: metadata || {}
+        });
+        
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{  csrf_token  }}'
+          },
+          body: body,
+          keepalive: true
+        }).catch(err => console.error('Click logging failed', err));
+      }
+
+      // Track click elements
+      document.querySelectorAll('.track-click').forEach(elem => {
+        elem.addEventListener('click', function (e) {
+          const feature = this.getAttribute('data-feature');
+          const description = this.getAttribute('data-description');
+          const metadata = JSON.parse(this.getAttribute('data-metadata') || '{}');
+          logClick(feature, description, metadata);
+        });
+      });
+    });
+    </script>
 {% endblock %}

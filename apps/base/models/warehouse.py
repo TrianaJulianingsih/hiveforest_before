@@ -5,10 +5,11 @@ from django.utils.translation import gettext_lazy as _
 
 from apps.base.models.abstracts import GenericAbstract
 from apps.base.models.entities import Company
-from apps.supplychain.models.distributions import Branch
+from apps.supplychain.models.distributions_models import Branch
+from apps.base.mixins import SystemLogModelMixin
 
 
-class WarehousePalette(GenericAbstract):
+class WarehousePalette(SystemLogModelMixin, GenericAbstract):
     code = models.CharField(max_length=30, null=False, default="", verbose_name="Code")
     deleted = models.BooleanField(
         default=False, verbose_name="Deleted", help_text="Soft delete flag."

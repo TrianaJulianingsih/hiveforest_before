@@ -1,0 +1,2004 @@
+{% extends "main.html" %}
+{% load i18n static translation_tags %}
+
+{% block extra_head %}
+<style>
+  /* HIVEFOREST IQVIA IMPORT */
+  .hf-wrap { padding: 16px 18px; }
+  .hf-panel { border: 1px solid #dee2e6; border-radius: 3px; background: #fff;
+              padding: 18px 20px; margin-bottom: 14px; }
+  .hf-label { font-size: .8rem; font-weight: 600; color: #495057;
+              margin-bottom: 5px; display: block; }
+  .hf-hint { font-size: .78rem; color: #6c757d; margin: 8px 0 0; }
+
+  /* Cascade, identical to the Trendline picker */
+  .hf-cascade { position: relative; width: 260px; }
+  .hf-cascade-toggle { text-align: left; display: flex; justify-content: space-between;
+                       align-items: center; background: #fff; cursor: pointer; }
+  .hf-cascade-toggle:hover { border-color: #adb5bd; }
+  .hf-cascade-toggle:focus { outline: none; box-shadow: none; }
+  .hf-cascade-toggle i { font-size: .7rem; color: #6c757d; }
+  .hf-cascade-menu { display: none; position: absolute; z-index: 1200; top: 100%; left: 0;
+                     background: #fff; border: 1px solid #dee2e6; border-radius: 3px;
+                     box-shadow: 0 4px 14px rgba(0,0,0,.10); min-width: 420px; margin-top: 2px; }
+  /* Third column only appears for IQVIA Classification */
+  .hf-cascade-leaf { border-left: 1px solid #eef0f2; display: none; }
+  .hf-cascade-leaf.is-on { display: block; }
+  .hf-cascade.is-open .hf-cascade-menu { display: flex; }
+  /* flex-grow would let a new column squeeze the ones already open */
+  .hf-cascade-col { padding: 5px 0; flex: 0 0 190px; width: 190px;
+                    max-height: 320px; overflow-y: auto; }
+  /* Family names are the longest, they get their own width */
+  #hf-cascade-family, #hf-modal-family { flex: 0 0 215px; width: 215px; }
+  /* Second column holds dimension names plus the imported tag */
+  #hf-cascade-level, #hf-modal-level { flex: 0 0 240px; width: 240px; }
+  /* Third column only holds short level names */
+  #hf-cascade-leaf, #hf-modal-leaf { flex: 0 0 175px; width: 175px; }
+  .hf-cascade-child { border-left: 1px solid #eef0f2; }
+  .hf-cascade-item { padding: 7px 14px; font-size: 13px; cursor: pointer; color: #212529;
+                     display: flex; justify-content: space-between; align-items: center; }
+  .hf-cascade-item:hover { background: #e9ecef; }
+  .hf-cascade-item.active { background: #007bff; color: #fff; }
+  .hf-cascade-item.active:hover { background: #0056b3; }
+  .hf-cascade-item i { font-size: .62rem; opacity: .55; }
+  .hf-cascade-item.is-current { font-weight: 700; color: #0056b3; }
+  .hf-all-hint { font-size: .65rem; color: #adb5bd; margin-left: 8px;
+                 font-style: italic; }
+  .hf-cascade-item.active .hf-all-hint { color: #cfe2ff; }
+  .hf-cascade-item.active.is-current { color: #fff; }
+
+  .hf-dot { font-size: .55rem; margin-left: 8px; }
+  .hf-dot-warning { color: #dc3545; }
+  .hf-dot-empty { color: #ced4da; }
+
+  /* One red pill per missing ancestor, stacked right of the label */
+  .hf-pend { display: inline-flex; align-items: center; margin-left: 8px; }
+  .hf-pend-n { display: inline-flex; align-items: center; justify-content: center;
+               width: 17px; height: 17px; border-radius: 50%; background: #dc3545;
+               color: #fff; font-size: .65rem; font-weight: 700; margin-left: 6px; }
+
+  /* Green side, how much of a group already sits in the database */
+  .hf-badges { display: inline-flex; align-items: center; margin-left: auto;
+               padding-left: 10px; }
+  .hf-imported { font-size: .62rem; font-weight: 600; background: #5cae7f;
+                 color: #fff; border-radius: 3px; padding: 1px 7px;
+                 margin-left: 6px; letter-spacing: .2px; }
+  .hf-needed { font-size: .62rem; font-weight: 600; background: #dc3545;
+               color: #fff; border-radius: 3px; padding: 1px 7px;
+               margin-left: 6px; letter-spacing: .2px; }
+  .hf-cascade-item.active .hf-pend-n { background: #fff; color: #dc3545; }
+  .hf-ok-n { display: inline-flex; align-items: center; justify-content: center;
+             width: 17px; height: 17px; border-radius: 50%; background: #5cae7f;
+             color: #fff; font-size: .65rem; font-weight: 700; margin-left: 6px; }
+  .hf-cascade-item.active .hf-ok-n { background: #fff; color: #2f9e5f; }
+
+  /* Summary inside the closed picker, hidden while the menu is open */
+  /* Label takes the slack so the pills sit just left of the chevron */
+  .hf-cascade-toggle > span:first-child { flex: 1 1 auto; text-align: left; }
+  .hf-cascade-toggle .hf-badges { flex: 0 0 auto; margin-left: 0; padding-right: 4px; }
+  .hf-cascade.is-open .hf-cascade-toggle .hf-badges { display: none; }
+
+  /* Ring the picker while an ancestor is still missing */
+  .hf-cascade.is-blocked .hf-cascade-toggle { border-color: #dc3545;
+                                              box-shadow: 0 0 0 2px rgba(220,53,69,.18); }
+  .hf-block-note { font-size: .78rem; color: #721c24; background: #f8d7da;
+                   border: 1px solid #f5c6cb; border-radius: 3px;
+                   padding: 7px 11px; margin-top: 8px; }
+  .hf-block-note b { font-weight: 700; }
+
+  /* Shake the picker when submit is pressed while still blocked */
+  @keyframes hfShake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+  .hf-cascade.is-shake { animation: hfShake .35s; }
+
+  .hf-summary { font-size: .8rem; color: #495057; background: #f8f9fa;
+                border: 1px solid #e9ecef; border-radius: 3px; padding: 8px 12px;
+                margin-bottom: 12px; }
+  .hf-summary b { color: #212529; }
+  .hf-summary .sep { color: #ced4da; margin: 0 8px; }
+
+  .hf-table-tools { display: flex; justify-content: space-between; align-items: center;
+                    flex-wrap: wrap; margin-bottom: 8px; font-size: .8rem; color: #6c757d; }
+    /* Height hugs the rows, JS caps it at one page worth */
+  .hf-table-wrap { overflow: auto; height: auto; max-height: 324px;
+                   border: 1px solid #dee2e6; border-radius: 3px; }
+  #hf-table { margin-bottom: 0; font-size: 12.5px; white-space: nowrap; }
+  #hf-table thead th { position: sticky; top: 0; z-index: 5; background: #343a40;
+                       color: #fff; font-weight: 600; font-size: 12px;
+                       border-color: #454d55; padding: 8px 10px; }
+  #hf-table tbody td { padding: 6px 10px; vertical-align: middle; }
+  #hf-table thead th { cursor: pointer; user-select: none; }
+  #hf-table thead th:hover { background: #454d55; }
+  #hf-table thead th i { margin-left: 6px; opacity: .35; font-size: .7rem; }
+  #hf-table thead th.is-sorted i { opacity: 1; }
+  #hf-table tbody tr:hover { background: #f1f3f5; }
+  .hf-table-foot { display: flex; justify-content: space-between; align-items: center;
+                   flex-wrap: wrap; margin-top: 10px; font-size: .8rem; color: #6c757d; }
+  .hf-table-foot .pagination { margin-bottom: 0; }
+  .hf-page-size { width: auto; display: inline-block; }
+  .hf-search-box { width: 260px; }
+  .hf-export-label { font-size: .78rem; font-weight: 600; color: #495057;
+                     margin-right: 8px; }
+  .hf-type-opt.is-export { width: 118px; padding: 4px 0; font-size: .78rem; }
+  .hf-empty { padding: 26px 0; text-align: center; color: #adb5bd; font-size: .85rem; }
+
+  /* File type picker, one joined border like a button group */
+  .hf-type-group { display: inline-flex; }
+  .hf-type-opt { border: 1px solid #dee2e6; background: #fff; padding: 5px 0;
+                 width: 132px; font-size: .82rem; color: #495057; cursor: pointer;
+                 display: inline-flex; align-items: center; justify-content: center;
+                 transition: background .12s, color .12s, border-color .12s;
+                 font-weight: 400; }
+  .hf-type-opt:first-child { border-radius: 3px 0 0 3px; }
+  .hf-type-opt:last-child { border-radius: 0 3px 3px 0; margin-left: -1px; }
+  .hf-type-opt i { font-size: 1rem; margin-right: 8px; opacity: .45;
+                   transition: opacity .12s; }
+  .hf-type-opt:hover { background: #f8f9fa; border-color: #adb5bd; z-index: 1; }
+  .hf-type-opt:hover i { opacity: 1; }
+  .hf-type-opt.active { background: #e7f1ff; border-color: #007bff;
+                        color: #0056b3; z-index: 2; }
+  .hf-type-opt.active i { opacity: 1; }
+  .hf-type-opt.is-excel i { color: #1d6f42; }
+  .hf-type-opt.is-csv i { color: #0d6efd; }
+
+  /* Format is sniffed from the extension, this row is read only */
+  .hf-type-info { display: flex; align-items: center; height: 31px;
+                  font-size: .82rem; color: #495057; }
+  .hf-type-info b { font-size: .8rem; font-weight: 600; color: #495057;
+                    margin-right: 16px; }
+  .hf-type-info span { display: inline-flex; align-items: center; margin-right: 18px; }
+  .hf-type-info i { font-size: 1.05rem; margin-right: 6px; }
+  .hf-type-info .xlsx { color: #1d6f42; }
+  .hf-type-info .csv { color: #0d6efd; }
+  .hf-type-info { line-height: 1; }
+
+  /* Import modal, sidebar sits at z-index 2000 so the modal must clear it */
+  #hf-import-modal { z-index: 2100; }
+  .modal-backdrop { z-index: 2050; }
+  #hf-import-modal .modal-dialog { max-width: 680px !important; }
+  #hf-import-modal .modal-footer { padding: .5rem .75rem; }
+  /* Compact file bar, the old 96px drop box pushed every result card down */
+  .hf-filebar { display: flex; align-items: center; border: 1px solid #dee2e6;
+                border-radius: 6px; background: #f8f9fa; padding: 8px 10px;
+                cursor: pointer; transition: border-color .12s, background .12s; }
+  .hf-filebar:hover { border-color: #adb5bd; background: #f1f3f5; }
+  .hf-filebar > i { font-size: .95rem; color: #6c757d; margin-right: 9px; }
+  .hf-filebar-label { font-size: .82rem; font-weight: 600; color: #212529; }
+  .hf-filebar-hint { font-size: .76rem; color: #adb5bd; margin-left: 8px;
+                     flex: 1 1 auto; }
+  .hf-filebar-count { font-size: .76rem; font-weight: 600; color: #0056b3;
+                      margin-right: 12px; }
+  .hf-filebar-add { border: 1px solid #ced4da; background: #fff; border-radius: 5px;
+                    font-size: .78rem; font-weight: 600; color: #212529;
+                    padding: 3px 14px; line-height: 1.5; }
+  .hf-filebar:hover .hf-filebar-add { border-color: #007bff; color: #0056b3; }
+  .hf-file-list { max-height: 300px; overflow-y: auto; }
+  .hf-chain { margin-top: 5px; }
+  .hf-chip { display: inline-block; font-size: .7rem; font-weight: 600;
+             border-radius: 3px; padding: 2px 7px; margin: 0 5px 4px 0; }
+  .hf-chip.ok { background: #d4edda; color: #155724; }
+  .hf-chip.staged { background: #cce5ff; color: #004085; }
+  .hf-chip.missing { background: #f8d7da; color: #721c24; }
+  .hf-chip.waiting { background: #f1f3f5; color: #adb5bd; }
+  .hf-file-dim { font-size: .78rem; font-weight: 700; color: #0056b3;
+                 text-transform: uppercase; letter-spacing: .3px;
+                 display: flex; align-items: center; justify-content: space-between; }
+  .hf-file-line { display: flex; align-items: center; font-size: .78rem;
+                  padding: 3px 0; border-top: 1px solid #f1f3f5; }
+  .hf-file-line:first-of-type { border-top: 0; }
+  .hf-file-line .fname { flex: 1; color: #212529; }
+  .hf-file-line .frows { color: #adb5bd; font-size: .72rem; margin: 0 8px; }
+  .hf-file-line .fx { border: 0; background: none; color: #ced4da;
+                      font-size: 1rem; line-height: 1; cursor: pointer; padding: 0 4px; }
+  .hf-file-line .fx:hover { color: #dc3545; }
+  .hf-shared { font-size: .68rem; color: #6c757d; font-style: italic;
+               margin-left: 6px; }
+
+  /* Pack slice grid, fourteen slots that fill in as files arrive */
+  .hf-slices { display: flex; flex-wrap: wrap; margin: 6px 0 4px; }
+  .hf-slot { font-size: .68rem; border-radius: 3px; padding: 2px 7px;
+             margin: 0 5px 5px 0; border: 1px solid transparent; }
+  .hf-slot.have { background: #d4edda; color: #155724; }
+  .hf-slot.miss { background: #fff; color: #adb5bd; border-color: #e9ecef; }
+  .hf-slice-count { font-size: .72rem; font-weight: 700; color: #495057; }
+  .hf-slice-count.full { color: #2f9e5f; }
+  /* Drag overlay, darkens the popup box only, never the whole page */
+  /* Negative offsets swallow the 1px modal-content border, at 0 a pale ring shows */
+  /* visibility carries the fade out, display none cannot be transitioned */
+  .hf-dragmask { position: absolute; top: -1px; right: -1px; bottom: -1px; left: -1px;
+                 z-index: 20; display: flex; align-items: center;
+                 justify-content: center; border-radius: .3rem;
+                 background: rgba(23,26,29,.88); opacity: 0; visibility: hidden;
+                 transition: opacity .13s ease, visibility 0s linear .13s; }
+  .hf-dragmask.is-on { opacity: 1; visibility: visible;
+                       transition: opacity .13s ease, visibility 0s; }
+  /* Never a drag target, so the counter only ever sees the mask itself */
+  .hf-dragmask-box { pointer-events: none; text-align: center; }
+  /* Only the icons move. The text just arrives with the mask fade. */
+  .hf-dragmask-icons { display: flex; align-items: center;
+                       justify-content: center; margin-bottom: 9px;
+                       transform: translateY(12px);
+                       transition: transform .17s cubic-bezier(.2,.8,.3,1); }
+  .hf-dragmask.is-on .hf-dragmask-icons { transform: translateY(0); }
+  .hf-dragmask-icons i { font-size: 1.6rem; color: #4ecb8d; }
+  .hf-dragmask-title { font-size: .95rem; font-weight: 600; color: #4da3ff;
+                       line-height: 1.3; }
+  .hf-dragmask-note { display: block; font-size: .76rem; font-weight: 400;
+                      color: #8a9199; margin-top: 1px; }
+  .hf-file-row { border: 1px solid #e9ecef; border-radius: 3px; padding: 8px 30px 8px 12px;
+                 margin-top: 10px; font-size: .8rem; background: #fff; position: relative; }
+  .hf-file-row .name { font-weight: 600; color: #212529; }
+  .hf-file-x { position: absolute; right: 6px; top: 4px; border: 0; background: none;
+               color: #adb5bd; font-size: 1.15rem; line-height: 1; cursor: pointer;
+               padding: 0 5px; }
+  .hf-file-x:hover { color: #dc3545; }
+  .hf-stat { font-size: .78rem; margin-top: 4px; }
+  .hf-stat .add { color: #28a745; font-weight: 600; }
+  .hf-stat .mod { color: #0056b3; font-weight: 600; }
+  .hf-stat .same { color: #6c757d; }
+
+  /* History timeline, mirrors the Version History page */
+  /* One continuous rail, date badges sit on top of it */
+  .hf-timeline { position: relative; padding-left: 46px; }
+  .hf-timeline:before { content: ""; position: absolute; left: 14px; top: 8px;
+                        bottom: 8px; width: 4px; background: #dee2e6;
+                        border-radius: 2px; }
+  .hf-tl-date { position: relative; z-index: 1; display: inline-block;
+                margin: 6px 0 16px -46px; background: #6c757d; color: #fff;
+                font-size: .78rem; font-weight: 600; border-radius: 4px;
+                padding: 5px 14px; }
+  .hf-tl-date.is-latest { background: #28a745; }
+  .hf-tl-item { position: relative; margin-bottom: 18px; }
+  .hf-tl-icon { position: absolute; left: -46px; top: 0; width: 32px; height: 32px;
+                border-radius: 50%; display: flex; align-items: center;
+                justify-content: center; color: #fff; font-size: .82rem;
+                box-shadow: 0 0 0 4px #fff; z-index: 1; }
+  .hf-tl-icon.is-success { background: #28a745; }
+  .hf-tl-icon.is-partial { background: #ffc107; }
+  .hf-tl-icon.is-failed { background: #dc3545; }
+  /* Green marks the newest submit only, older successful ones go quiet */
+  .hf-tl-icon.is-past.is-success { background: #adb5bd; }
+  .hf-tl-card { border: 1px solid #dee2e6; border-radius: 4px; background: #fff; }
+  .hf-tl-head { background: #f8f9fa; border-bottom: 1px solid #dee2e6;
+                padding: 9px 14px; display: flex; align-items: center;
+                justify-content: space-between; flex-wrap: wrap; }
+  .hf-tl-name { font-size: .95rem; font-weight: 700; color: #212529; }
+  .hf-tl-when { font-size: .75rem; color: #6c757d; }
+  .hf-tl-body { padding: 12px 14px; }
+  .hf-tl-file { font-size: .82rem; color: #495057; margin-bottom: 8px; }
+  .hf-tag { display: inline-block; font-size: .72rem; font-weight: 600;
+            border-radius: 3px; padding: 2px 8px; margin: 0 6px 6px 0; }
+  .hf-tag.add { background: #28a745; color: #fff; }
+  .hf-tag.mod { background: #17a2b8; color: #fff; }
+  .hf-tag.arc { background: #6c757d; color: #fff; }
+  .hf-tag.same { background: #e9ecef; color: #495057; }
+  .hf-tag.noise { background: #ffc107; color: #212529; }
+  .hf-tag.orphan { background: #dc3545; color: #fff; }
+  .hf-tl-msg { font-size: .8rem; color: #495057; margin-top: 4px; }
+  .hf-tl-missing { font-size: .78rem; color: #dc3545; margin-top: 4px; }
+
+  /* One submit box holds a block per dimension, in commit order */
+  .hf-tl-dim { padding: 11px 0; border-top: 1px solid #f1f3f5; }
+  .hf-tl-dim:first-child { padding-top: 0; border-top: 0; }
+  .hf-tl-dim:last-child { padding-bottom: 0; }
+  .hf-tl-dim-head { display: flex; align-items: baseline;
+                    justify-content: space-between; flex-wrap: wrap; }
+  .hf-tl-dim-name { font-size: .85rem; font-weight: 700; color: #212529; }
+  .hf-tl-dim.is-failed .hf-tl-dim-name { color: #dc3545; }
+  .hf-tl-dim-file { font-size: .76rem; color: #6c757d; margin-left: 12px;
+                    text-align: right; }
+  .hf-tl-dim-tags { margin-top: 6px; }
+  .hf-more { font-weight: 700; color: #007bff; cursor: help; }
+
+  /* History view switch and its table mode */
+  .hf-view-opt { width: 104px; }
+  #hf-history-table { margin-bottom: 0; font-size: 12.5px; white-space: nowrap; }
+  #hf-history-table thead th { position: sticky; top: 0; z-index: 5; background: #343a40;
+                               color: #fff; font-weight: 600; font-size: 12px;
+                               border-color: #454d55; padding: 8px 10px; }
+  #hf-history-table tbody td { padding: 6px 10px; vertical-align: middle; }
+  #hf-history-table tbody tr:hover { background: #f1f3f5; }
+  /* Sortable columns, same behaviour as the import table header */
+  #hf-history-table thead th[data-sort] { cursor: pointer; user-select: none; }
+  #hf-history-table thead th[data-sort]:hover { background: #454d55; }
+  #hf-history-table thead th i { margin-left: 6px; opacity: .35; font-size: .7rem; }
+  #hf-history-table thead th.is-sorted i { opacity: 1; }
+  .hf-state { display: inline-block; font-size: .7rem; font-weight: 600;
+              border-radius: 3px; padding: 2px 8px; }
+  .hf-state.success { background: #d4edda; color: #155724; }
+  .hf-state.partial { background: #fff3cd; color: #856404; }
+  .hf-state.failed { background: #f8d7da; color: #721c24; }
+
+  /* Flow helper, hover panel next to the tabs */
+  .hf-flow { position: relative; display: inline-block; margin-left: 8px; }
+  .hf-flow-btn { color: #6c757d; cursor: help; font-size: 1rem; }
+  .hf-flow-btn:hover { color: #007bff; }
+  /* Anchored right so it never spills past the panel edge */
+  .hf-flow-panel { display: none; position: absolute; z-index: 1300; top: 26px; right: -8px;
+                   width: 470px; background: #fff; border: 1px solid #dee2e6;
+                   border-radius: 4px; box-shadow: 0 6px 20px rgba(0,0,0,.13);
+                   padding: 14px 16px; }
+  .hf-flow:hover .hf-flow-panel { display: block; }
+  .hf-flow-title { font-size: .85rem; font-weight: 700; color: #212529;
+                   margin-bottom: 3px; }
+  .hf-flow-sub { font-size: .75rem; color: #6c757d; margin-bottom: 10px; }
+  .hf-flow-step { display: flex; align-items: flex-start; padding: 6px 0;
+                  border-top: 1px solid #f1f3f5; }
+  .hf-flow-step:first-of-type { border-top: 0; }
+  .hf-flow-num { flex: 0 0 22px; height: 22px; border-radius: 50%; background: #e9ecef;
+                 color: #495057; font-size: .7rem; font-weight: 700; display: flex;
+                 align-items: center; justify-content: center; margin-right: 10px; }
+  .hf-flow-num.done { background: #28a745; color: #fff; }
+  .hf-flow-body { flex: 1; }
+  .hf-flow-name { font-size: .78rem; font-weight: 600; color: #212529; }
+  .hf-flow-dims { font-size: .72rem; color: #6c757d; margin-top: 2px; }
+  .hf-flow-dims b { color: #dc3545; font-weight: 600; }
+  .hf-flow-chain { margin-top: 2px; }
+  .hf-arrow { color: #ced4da; margin: 0 2px; }  .hf-flow-dims b { color: #dc3545; font-weight: 600; }
+  .hf-flow-note { font-size: .72rem; color: #495057; margin-top: 10px;
+                  padding-top: 9px; border-top: 1px solid #f1f3f5; }
+  .hf-flow-note i { color: #6c757d; margin-right: 5px; }
+  .hf-flow-note:last-child i { color: #ffc107; }  .hf-tl-missing { font-size: .78rem; color: #dc3545; margin-top: 4px; }
+</style>
+{% endblock %}
+
+{% block content %}
+{% get_translations 'analytics_import' as t %}
+{% csrf_token %}
+{{  import_groups|json_script:"hf-import-groups"  }}
+{{  dimension_status|json_script:"hf-dim-status"  }}
+{{  deferred_dimensions|json_script:"hf-deferred"  }}
+{{  pending_map|json_script:"hf-pending"  }}
+
+<div class="card card-primary card-outline hiveforest">
+  <div class="card-header">
+    <h3 class="card-title"><i class="fas fa-file-import mr-2"></i>{{  t.page_title  }}</h3>
+  </div>
+  <div class="card-body hiveforest">
+    <div class="hf-wrap">
+
+      <div class="hf-panel">
+        <label class="hf-label">{{  t.lbl_dimension  }}</label>
+        <div class="d-flex align-items-center">
+          <div class="hf-cascade" id="hf-dim-cascade">
+            <button type="button" class="form-control form-control-sm hf-cascade-toggle"
+                    id="hf-dim-toggle">
+              <span id="hf-dim-label">-</span>
+              <span id="hf-dim-summary"></span>
+              <i class="fas fa-chevron-down ml-2"></i>
+            </button>
+            <div class="hf-cascade-menu">
+              <div class="hf-cascade-col" id="hf-cascade-family"></div>
+              <div class="hf-cascade-col hf-cascade-child" id="hf-cascade-level"></div>
+              <div class="hf-cascade-col hf-cascade-leaf" id="hf-cascade-leaf"></div>
+            </div>
+          </div>
+          <button id="hf-btn-import" class="btn btn-sm btn-primary ml-3" disabled>
+            <i class="fas fa-cloud-upload-alt mr-1"></i>{{  t.btn_import  }}
+          </button>
+          <span class="hf-flow ml-auto" id="hf-flow">
+            <i class="fas fa-info-circle hf-flow-btn"></i>
+            <div class="hf-flow-panel" id="hf-flow-panel"></div>
+          </span>
+        </div>
+        <input type="hidden" id="hf-dimension" value="">
+        <p class="hf-hint" id="hf-dim-hint">{{  t.hint_pick_dimension  }}</p>
+      </div>
+
+      <div class="hf-panel">
+        <ul class="nav nav-tabs mb-3" id="hf-tabs">
+          <li class="nav-item">
+            <a class="nav-link active" data-tab="table" href="#">
+              <i class="fas fa-table mr-1"></i>{{  t.tab_table  }}
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" data-tab="history" href="#">
+              <i class="fas fa-code-branch mr-1"></i>{{  t.tab_history  }}
+            </a>
+          </li>
+        </ul>
+
+        <div id="hf-tab-table">
+          <div class="hf-summary" id="hf-summary">{{  t.js_summary_none  }}</div>
+          <div class="hf-table-tools">
+            <div>
+              {{  t.lbl_show  }}
+              <select id="hf-page-size" class="form-control form-control-sm hf-page-size mx-1">
+                <option value="10">10</option>
+                <option value="25" selected>25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+              {{  t.lbl_entries  }}
+            </div>
+            <div class="d-flex align-items-center">
+              <span class="hf-export-label">{{  t.lbl_export  }}</span>
+              <div class="hf-type-group mr-3">
+                <span class="hf-type-opt is-export is-excel" data-export="xlsx">
+                  <i class="fas fa-file-excel"></i>{{  t.lbl_excel  }}
+                </span>
+                <span class="hf-type-opt is-export is-csv" data-export="csv">
+                  <i class="fas fa-file-csv"></i>{{  t.lbl_csv  }}
+                </span>
+              </div>
+              <div class="hf-search-box">
+                <input type="text" id="hf-search" class="form-control form-control-sm"
+                       placeholder="{{  t.ph_search_table  }}">
+              </div>
+            </div>
+          </div>
+          <div class="hf-table-wrap">
+            <table id="hf-table" class="table table-bordered table-sm">
+              <thead id="hf-table-head"></thead>
+              <tbody id="hf-table-body"></tbody>
+            </table>
+          </div>
+          <div class="hf-table-foot">
+            <div id="hf-table-info"></div>
+            <nav><ul class="pagination pagination-sm" id="hf-pagination"></ul></nav>
+          </div>
+        </div>
+
+        <div id="hf-tab-history" style="display:none;">
+          <div class="hf-table-tools">
+            <div class="d-flex align-items-center">
+              <span class="hf-export-label">{{  t.lbl_view  }}</span>
+              <div class="hf-type-group">
+                <span class="hf-type-opt hf-view-opt active" data-view="table">
+                  <i class="fas fa-table"></i>{{  t.view_table  }}
+                </span>
+                <span class="hf-type-opt hf-view-opt" data-view="commit">
+                  <i class="fas fa-code-branch"></i>{{  t.view_commit  }}
+                </span>
+              </div>
+            </div>
+            <div class="hf-search-box">
+              <input type="text" id="hf-history-search" class="form-control form-control-sm"
+                     placeholder="{{  t.ph_search_history  }}">
+            </div>
+          </div>
+
+          <div class="hf-table-wrap" id="hf-history-table-wrap">
+            <table id="hf-history-table" class="table table-bordered table-sm">
+              <thead>
+                <tr id="hf-history-head"></tr>
+              </thead>
+              <tbody id="hf-history-tbody"></tbody>
+            </table>
+          </div>
+
+          <div id="hf-history-list"></div>
+
+          <div class="hf-table-foot">
+            <div id="hf-history-info"></div>
+            <nav><ul class="pagination pagination-sm" id="hf-history-pagination"></ul></nav>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="hf-import-modal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary">
+        <h5 class="modal-title text-white">
+          <i class="fas fa-cloud-upload-alt mr-2"></i>{{  t.modal_import  }}
+          <span id="hf-modal-dim">-</span>
+        </h5>
+        <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="row align-items-end mb-3 mx-0">
+          <div class="col-auto px-0">
+            <label class="hf-label">{{  t.lbl_dimension  }}</label>
+            <div class="hf-cascade" id="hf-modal-cascade">
+              <button type="button" class="form-control form-control-sm hf-cascade-toggle"
+                      id="hf-modal-toggle">
+                <span id="hf-modal-label">-</span>
+                <span class="hf-badges">
+                  <span id="hf-modal-gap"></span>
+                  <span id="hf-modal-summary"></span>
+                </span>
+                <i class="fas fa-chevron-down ml-2"></i>
+              </button>
+              <div class="hf-cascade-menu">
+                <div class="hf-cascade-col" id="hf-modal-family"></div>
+                <div class="hf-cascade-col hf-cascade-child" id="hf-modal-level"></div>
+                <div class="hf-cascade-col hf-cascade-leaf" id="hf-modal-leaf"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-auto pr-0">
+            <label class="hf-label">&nbsp;</label>
+            <div class="hf-type-info">
+              <b>{{  t.lbl_file_type  }}</b>
+              <span><i class="fas fa-file-excel xlsx"></i>.xlsx</span>
+              <span><i class="fas fa-file-csv csv"></i>.csv</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hf-filebar" id="hf-filebar">
+          <i class="far fa-copy"></i>
+          <span class="hf-filebar-label">{{  t.lbl_files  }}</span>
+          <span class="hf-filebar-hint">{{  t.hint_files  }}</span>
+          <span class="hf-filebar-count" id="hf-filebar-count"></span>
+          <button type="button" class="hf-filebar-add">{{  t.btn_add  }}</button>
+        </div>
+
+        <div id="hf-modal-notice"></div>
+        <!-- multiple lets one dialog pick all 14 pack slices, queue stays serial -->
+        <input type="file" id="hf-file-input" class="d-none" multiple accept=".xlsx,.xls,.csv">
+
+        <div id="hf-file-list" class="hf-file-list"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-secondary" id="hf-btn-cancel">{{  t.btn_cancel  }}</button>
+        <button type="button" class="btn btn-sm btn-primary" id="hf-btn-submit" disabled>{{  t.btn_submit  }}</button>
+      </div>
+
+      <div class="hf-dragmask" id="hf-dragmask">
+        <div class="hf-dragmask-box">
+          <div class="hf-dragmask-icons">
+            <i class="far fa-file-excel"></i>
+          </div>
+          <div class="hf-dragmask-title">{{  t.drop_title  }}
+            <span class="hf-dragmask-note">{{  t.drop_note  }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(function () {
+  {% get_translations 'analytics_import' as t %}
+  // Every user facing string lives in the analytics_import translation module
+  var T = {
+    rows: "{{  t.js_rows|escapejs  }}",
+    summaryNone: "{{  t.js_summary_none|escapejs  }}",
+    neverImported: "{{  t.js_never_imported|escapejs  }}",
+    lastUpdate: "{{  t.js_last_update|escapejs  }}",
+    by: "{{  t.js_by|escapejs  }}",
+    insertedLow: "{{  t.js_inserted_low|escapejs  }}",
+    updatedLow: "{{  t.js_updated_low|escapejs  }}",
+    parent: "{{  t.js_parent|escapejs  }}",
+    noParent: "{{  t.js_no_parent|escapejs  }}",
+    archivedRows: "{{  t.js_archived_rows|escapejs  }}",
+    deferred: "{{  t.js_deferred|escapejs  }}",
+    noData: "{{  t.js_no_data|escapejs  }}",
+    loadFailed: "{{  t.js_load_failed|escapejs  }}",
+    showing: "{{  t.js_showing|escapejs  }}",
+    to: "{{  t.js_to|escapejs  }}",
+    of: "{{  t.js_of|escapejs  }}",
+    submitUnit: "{{  t.js_submit_unit|escapejs  }}",
+    noHistory: "{{  t.js_no_history|escapejs  }}",
+    first: "{{  t.js_first|escapejs  }}",
+    previous: "{{  t.js_previous|escapejs  }}",
+    next: "{{  t.js_next|escapejs  }}",
+    last: "{{  t.js_last|escapejs  }}",
+    tagInserted: "{{  t.js_tag_inserted|escapejs  }}",
+    tagUpdated: "{{  t.js_tag_updated|escapejs  }}",
+    tagArchived: "{{  t.js_tag_archived|escapejs  }}",
+    tagUnchanged: "{{  t.js_tag_unchanged|escapejs  }}",
+    tagNoId: "{{  t.js_tag_no_id|escapejs  }}",
+    notRegistered: "{{  t.js_not_registered|escapejs  }}",
+    allPrefix: "{{  t.js_all_prefix|escapejs  }}",
+    allDimension: "{{  t.js_all_dimension|escapejs  }}",
+    and: "{{  t.js_and|escapejs  }}",
+    importGeneric: "{{  t.js_import_generic|escapejs  }}",
+    packParts: "{{  t.js_pack_parts|escapejs  }}",
+    verified: "{{  t.js_verified|escapejs  }}",
+    queued: "{{  t.js_queued|escapejs  }}",
+    unverified: "{{  t.js_unverified|escapejs  }}",
+    notUploaded: "{{  t.js_not_uploaded|escapejs  }}",
+    alsoFor: "{{  t.js_also_for|escapejs  }}",
+    delFile: "{{  t.js_del_file|escapejs  }}",
+    newWord: "{{  t.js_new|escapejs  }}",
+    updatedWord: "{{  t.js_updated_word|escapejs  }}",
+    same: "{{  t.js_same|escapejs  }}",
+    withoutId: "{{  t.js_without_id|escapejs  }}",
+    processing: "{{  t.js_processing|escapejs  }}",
+    filesIn: "{{  t.js_files_in|escapejs  }}",
+    filesRejected: "{{  t.js_files_rejected|escapejs  }}",
+    dupInDrop: "{{  t.js_dup_in_drop|escapejs  }}",
+    badExt: "{{  t.js_bad_ext|escapejs  }}",
+    alreadyStaged: "{{  t.js_already_staged|escapejs  }}",
+    blocked: "{{  t.js_blocked|escapejs  }}",
+    saving: "{{  t.js_saving|escapejs  }}",
+    submitFailed: "{{  t.js_submit_failed|escapejs  }}",
+    noBody: "{{  t.js_no_body|escapejs  }}",
+    badgeImported: "{{  t.js_badge_imported|escapejs  }}",
+    badgeNeedUpdate: "{{  t.js_badge_need_update|escapejs  }}",
+    allLevels: "{{  t.js_all_levels|escapejs  }}",
+    flowTitle: "{{  t.js_flow_title|escapejs  }}",
+    flowSub: "{{  t.js_flow_sub|escapejs  }}",
+    flowNote1: "{{  t.js_flow_note1|escapejs  }}",
+    flowNote2: "{{  t.js_flow_note2|escapejs  }}",
+    flowNote3: "{{  t.js_flow_note3|escapejs  }}",
+    btnSubmit: "{{  t.btn_submit|escapejs  }}",
+    colTime: "{{  t.col_time|escapejs  }}",
+    colDimension: "{{  t.col_dimension|escapejs  }}",
+    colFile: "{{  t.col_file|escapejs  }}",
+    colUser: "{{  t.col_user|escapejs  }}",
+    colInserted: "{{  t.col_inserted|escapejs  }}",
+    colUpdated: "{{  t.col_updated|escapejs  }}",
+    colUnchanged: "{{  t.col_unchanged|escapejs  }}",
+    colArchived: "{{  t.col_archived|escapejs  }}",
+    colNoId: "{{  t.col_no_id|escapejs  }}",
+    colStatus: "{{  t.col_status|escapejs  }}",
+    excel: "{{  t.lbl_excel|escapejs  }}",
+    csv: "{{  t.lbl_csv|escapejs  }}"
+  };
+
+  // Sentence per message code, {name} slots filled from the stored numbers
+  var MSG = {
+    dim_committed: "{{  t.msg_dim_committed|escapejs  }}",
+    pack_committed: "{{  t.msg_pack_committed|escapejs  }}",
+    itma_committed: "{{  t.msg_itma_committed|escapejs  }}",
+    rows_archived: "{{  t.msg_rows_archived|escapejs  }}",
+    values_archived: "{{  t.msg_values_archived|escapejs  }}",
+    company_empty: "{{  t.msg_company_empty|escapejs  }}",
+    parent_empty: "{{  t.msg_parent_empty|escapejs  }}",
+    orphan_rows: "{{  t.msg_orphan_rows|escapejs  }}",
+    orphan_packs: "{{  t.msg_orphan_packs|escapejs  }}",
+    orphan_itma: "{{  t.msg_orphan_itma|escapejs  }}",
+    not_registered: "{{  t.msg_not_registered|escapejs  }}",
+    pack_parts_missing: "{{  t.msg_pack_parts_missing|escapejs  }}",
+    pack_no_product: "{{  t.msg_pack_no_product|escapejs  }}",
+    multi_file_flow: "{{  t.msg_multi_file_flow|escapejs  }}",
+    unknown_dimension: "{{  t.msg_unknown_dimension|escapejs  }}"
+  };
+
+  // "Showing 1 to 25 of 900", built from four separate words
+  function showingText(first, last, total) {
+    return T.showing + ' ' + first + ' ' + T.to + ' ' + last + ' ' + T.of + ' ' + total;
+  }
+  var GROUPS = JSON.parse(document.getElementById('hf-import-groups').textContent);
+  var STATUS = JSON.parse(document.getElementById('hf-dim-status').textContent);
+  var DEFERRED = JSON.parse(document.getElementById('hf-deferred').textContent);
+  var PENDING = JSON.parse(document.getElementById('hf-pending').textContent);
+  // Dimension keys blocking the current batch, filled by refreshSubmit
+  var GAPS = [];
+
+  var DIM = {};
+  var FAMILY_KEYS = {};
+  GROUPS.forEach(function (g) {
+    g.items.forEach(function (it) { it.family = g.family; DIM[it.key] = it; });
+    // Picking ATC, OTC or NFC uploads every level inside it at once
+    (g.subgroups || []).forEach(function (sub) {
+      FAMILY_KEYS[sub.key] = true;
+      DIM[sub.key] = {
+        key: sub.key,
+        label: T.allPrefix + ' ' + sub.label,
+        family: g.family,
+        members: sub.items.map(function (i) { return i.key; })
+      };
+    });
+  });
+
+  // AdminLTE wraps content in a transformed element, a fixed modal would be
+  // clipped by it, so the modal is moved to body before anything else
+  $('#hf-import-modal').appendTo('body');
+
+  // CSRF_COOKIE_HTTPONLY is on, so the cookie is unreadable from js.
+  // The hidden input rendered by csrf_token is the only source that works.
+  var CSRF = $('[name="csrfmiddlewaretoken"]').first().val();
+
+  var currentDim = null;
+  var tablePage = 1;
+  var tableSort = '';
+  var tableDir = 'asc';
+  var historyPage = 1;
+  var searchTimer = null;
+
+  function esc(text) { return $('<div>').text(text == null ? '' : text).html(); }
+
+  // One filled circle carrying the count, not a row of dots
+  function redDots(total) {
+    if (!total) { return ''; }
+    return '<span class="hf-pend"><span class="hf-pend-n">' + total + '</span></span>';
+  }
+
+  // Leaf level, a plain imported tag instead of a running total
+  function statusDot(key) {
+    if (FAMILY_KEYS[key]) { return ''; }
+    var p = PENDING[key] || { self: 1, chain: 0 };
+    var info = STATUS[key];
+    var badge;
+    if (GAPS.indexOf(key) !== -1) {
+      badge = '<span class="hf-needed">' + T.badgeNeedUpdate + '</span>';
+    } else {
+      badge = (info && info.imported)
+        ? '<span class="hf-imported">' + T.badgeImported + '</span>' : '';
+    }
+    return '<span class="hf-badges">' + redDots(p.self + p.chain) + badge + '</span>';
+  }
+
+  function greenDot(total) {
+    if (!total) { return ''; }
+    return '<span class="hf-ok-n">' + total + '</span>';
+  }
+
+  // Red is the deepest gap in the branch, green counts what is already in
+  function groupBadge(items) {
+    var deepest = 0;
+    var imported = 0;
+    var gaps = 0;
+    items.forEach(function (it) {
+      var p = PENDING[it.key];
+      var info = STATUS[it.key];
+      if (p) { deepest = Math.max(deepest, p.self + p.chain); }
+      if (info && info.imported) { imported += 1; }
+      if (GAPS.indexOf(it.key) !== -1) { gaps += 1; }
+    });
+    return '<span class="hf-badges">' + redDots(Math.max(deepest, gaps)) +
+           greenDot(imported) + '</span>';
+  }
+
+  // Whole registry at a glance, shown inside the closed picker
+  function renderSummaryBadge() {
+    var blocked = 0;
+    var imported = 0;
+    Object.keys(PENDING).forEach(function (key) {
+      var p = PENDING[key];
+      var info = STATUS[key];
+      if (p && (p.self + p.chain) > 0) { blocked += 1; }
+      if (info && info.imported) { imported += 1; }
+    });
+    // Panel picker shows both, modal picker leaves red to refreshSubmit
+    $('#hf-dim-summary').html(
+      '<span class="hf-badges">' + redDots(blocked) + greenDot(imported) + '</span>'
+    );
+    $('#hf-modal-summary').html(greenDot(imported));
+  }
+
+  function groupDot(group) {
+    var items = [];
+    if (group.subgroups && group.subgroups.length) {
+      group.subgroups.forEach(function (s) { items = items.concat(s.items); });
+    } else {
+      items = group.items;
+    }
+    return groupBadge(items);
+  }
+
+  function subDot(sub) {
+    return groupBadge(sub.items);
+  }
+
+  // Left column of the cascade, one row per dimension family
+  function buildCascade(target) {
+    var $fam = $(target).empty();
+    GROUPS.forEach(function (g) {
+      $fam.append(
+        $('<div class="hf-cascade-item">').attr('data-family', g.family)
+          .append($('<span>').text(g.label))
+          .append($(groupDot(g)))
+          .append($('<i class="fas fa-chevron-right ml-2">'))
+      );
+    });
+  }
+
+  function groupByFamily(family) {
+    for (var i = 0; i < GROUPS.length; i++) {
+      if (GROUPS[i].family === family) { return GROUPS[i]; }
+    }
+    return null;
+  }
+
+  function dimItem(it, activeKey) {
+    return $('<div class="hf-cascade-item">').attr('data-dim', it.key)
+      .append($('<span>').text(it.label))
+      .append($(statusDot(it.key)))
+      .toggleClass('is-current', it.key === activeKey);
+  }
+
+  // Third column, only IQVIA Classification fills it
+  function showLeaf(leafTarget, family, subKey, activeKey) {
+    var group = groupByFamily(family);
+    var $leaf = $(leafTarget).empty().removeClass('is-on');
+    if (!group || !group.subgroups || !group.subgroups.length) { return; }
+    group.subgroups.forEach(function (sub) {
+      if (sub.key !== subKey) { return; }
+      $leaf.addClass('is-on');
+      sub.items.forEach(function (it) { $leaf.append(dimItem(it, activeKey)); });
+    });
+  }
+
+  // Middle column, either the dimensions or the ATC OTC NFC split
+  function showFamily(famTarget, levelTarget, leafTarget, family, activeKey) {
+    $(famTarget + ' .hf-cascade-item').each(function () {
+      $(this).toggleClass('active', $(this).data('family') === family);
+    });
+
+    var group = groupByFamily(family);
+    var $level = $(levelTarget).empty();
+    $(leafTarget).empty().removeClass('is-on');
+    if (!group) { return; }
+
+    // Leaf stays closed until the cursor lands on ATC, OTC or NFC
+    if (group.subgroups && group.subgroups.length) {
+      group.subgroups.forEach(function (sub) {
+        $level.append(
+          $('<div class="hf-cascade-item">').attr('data-sub', sub.key)
+            .append($('<span>').text(sub.label))
+            .append($('<small class="hf-all-hint">').text(T.allLevels))
+            .append($(subDot(sub)))
+            .append($('<i class="fas fa-chevron-right ml-2">'))
+        );
+      });
+      return;
+    }
+
+    group.items.forEach(function (it) { $level.append(dimItem(it, activeKey)); });
+  }
+
+  function setDimension(key) {
+    currentDim = key;
+    $('#hf-dimension').val(key);
+    $('#hf-dim-label').text(DIM[key].label);
+    $('#hf-dim-cascade').removeClass('is-open');
+    $('#hf-btn-import').prop('disabled', DEFERRED.indexOf(key) !== -1);
+    tablePage = 1;
+    historyPage = 1;
+    tableSort = '';
+    tableDir = 'asc';
+    loadTable();
+  }
+
+  $('#hf-dim-toggle').on('click', function (event) {
+    event.stopPropagation();
+    var $box = $('#hf-dim-cascade').toggleClass('is-open');
+    if ($box.hasClass('is-open')) {
+      showFamily('#hf-cascade-family', '#hf-cascade-level', '#hf-cascade-leaf',
+        currentDim ? DIM[currentDim].family : GROUPS[0].family, currentDim);
+    }
+  });
+
+  $('#hf-cascade-family').on('mouseenter click', '.hf-cascade-item', function () {
+    showFamily('#hf-cascade-family', '#hf-cascade-level', '#hf-cascade-leaf',
+      $(this).data('family'), currentDim);
+  });
+
+  $('#hf-cascade-level').on('mouseenter click', '[data-sub]', function () {
+    var family = $('#hf-cascade-family .hf-cascade-item.active').data('family');
+    $('#hf-cascade-level .hf-cascade-item').removeClass('active');
+    $(this).addClass('active');
+    showLeaf('#hf-cascade-leaf', family, $(this).data('sub'), currentDim);
+  });
+
+  // Guard the key, middle column items in Classification carry no dimension
+  $('#hf-cascade-level').on('click', '.hf-cascade-item', function () {
+    var key = $(this).data('dim');
+    if (key) { setDimension(key); }
+  });
+
+  $('#hf-cascade-leaf').on('click', '.hf-cascade-item', function () {
+    setDimension($(this).data('dim'));
+  });
+
+  $(document).on('click', function (event) {
+    if (!$(event.target).closest('#hf-dim-cascade').length) {
+      $('#hf-dim-cascade').removeClass('is-open');
+    }
+  });
+
+  function renderHint(res) {
+    var parts = [];
+    parts.push(res.parents.length
+      ? T.parent + ' ' + res.parents.map(function (p) { return p.label; }).join(', ')
+      : T.noParent);
+    if (res.archived_count) { parts.push(res.archived_count + ' ' + T.archivedRows); }
+    if (res.deferred) {
+      parts.push('<span class="text-danger">' + T.deferred + '</span>');
+    }
+    var info = STATUS[res.dimension];
+    if (info && info.flag === 'warning') {
+      parts.push('<span class="text-danger">' + esc(info.message) + '</span>');
+    }
+    $('#hf-dim-hint').html(parts.join(' &middot; '));
+  }
+
+  function renderSummary(res) {
+    if (!res.last_commit) {
+      $('#hf-summary').html('<b>' + esc(res.label) + '</b><span class="sep">|</span>' +
+        res.total + ' ' + T.rows + '<span class="sep">|</span>' + T.neverImported);
+      return;
+    }
+    var c = res.last_commit;
+    $('#hf-summary').html(
+      '<b>' + esc(res.label) + '</b><span class="sep">|</span>' +
+      res.total + ' ' + T.rows + '<span class="sep">|</span>' +
+      T.lastUpdate + ' <b>' + c.timestamp + '</b> ' + T.by + ' <b>' + esc(c.user) + '</b>' +
+      '<span class="sep">|</span>' +
+      '<span class="text-success">+' + c.rows_insert + ' ' + T.insertedLow + '</span>, ' +
+      '<span class="text-primary">' + c.rows_update + ' ' + T.updatedLow + '</span>'
+    );
+  }
+
+  function renderPagination($target, page, numPages, handler) {
+    $target.empty();
+    if (numPages <= 1) { return; }
+    var start = Math.max(1, page - 2);
+    var end = Math.min(numPages, start + 4);
+    start = Math.max(1, end - 4);
+
+    function item(label, target, disabled, active) {
+      var $li = $('<li class="page-item">')
+        .toggleClass('disabled', !!disabled).toggleClass('active', !!active);
+      $('<a class="page-link" href="#">').text(label)
+        .on('click', function (e) {
+          e.preventDefault();
+          if (!disabled && !active) { handler(target); }
+        }).appendTo($li);
+      return $li;
+    }
+
+    $target.append(item(T.first, 1, page === 1));
+    $target.append(item(T.previous, page - 1, page === 1));
+    for (var i = start; i <= end; i++) {
+      $target.append(item(String(i), i, false, i === page));
+    }
+    $target.append(item(T.next, page + 1, page === numPages));
+    $target.append(item(T.last, numPages, page === numPages));
+  }
+
+  var ROW_H = 29;
+  var HEAD_H = 34;
+  var TABLE_MAX_H = 620;
+
+  // Cap is one full page, the box itself shrinks to whatever rows came back
+  function fitTable(pageSize) {
+    $('.hf-table-wrap').css({
+      'height': 'auto',
+      'max-height': Math.min(HEAD_H + pageSize * ROW_H, TABLE_MAX_H) + 'px'
+    });
+  }
+
+  function loadTable() {
+    if (!currentDim) { return; }
+    $.get("{% url 'analytics:iqvia_import_data' %}", {
+      dim: currentDim,
+      page: tablePage,
+      page_size: $('#hf-page-size').val(),
+      q: $('#hf-search').val(),
+      sort: tableSort,
+      dir: tableDir
+    }).done(function (res) {
+      tableSort = res.sort;
+      tableDir = res.dir;
+      $('#hf-table-head').html('<tr>' + res.columns.map(function (c) {
+        var active = c.key === res.sort;
+        var icon = !active ? 'fa-sort'
+                 : (res.dir === 'desc' ? 'fa-sort-down' : 'fa-sort-up');
+        return '<th class="' + (active ? 'is-sorted' : '') + '" data-sort="' +
+          c.key + '">' + esc(c.label) +
+          '<i class="fas ' + icon + '"></i></th>';
+      }).join('') + '</tr>');
+
+      if (!res.rows.length) {
+        $('#hf-table-body').html('<tr><td colspan="' + res.columns.length +
+          '"><div class="hf-empty">' + T.noData + '</div></td></tr>');
+      } else {
+        $('#hf-table-body').html(res.rows.map(function (row) {
+          return '<tr>' + res.columns.map(function (c) {
+            return '<td>' + esc(row[c.key]) + '</td>';
+          }).join('') + '</tr>';
+        }).join(''));
+      }
+
+      var first = res.total ? (res.page - 1) * res.page_size + 1 : 0;
+      var last = Math.min(res.page * res.page_size, res.total);
+      $('#hf-table-info').text(showingText(first, last, res.total));
+
+      renderPagination($('#hf-pagination'), res.page, res.num_pages, function (p) {
+        tablePage = p; loadTable();
+      });
+      renderSummary(res);
+      renderHint(res);
+      fitTable(res.page_size);
+    }).fail(function (xhr) {
+      var msg = (xhr.responseJSON && xhr.responseJSON.error) || T.loadFailed;
+      $('#hf-table-body').html('<tr><td class="text-danger">' + esc(msg) + '</td></tr>');
+    });
+  }
+
+  // One box per submit. batch is the only reliable key, iqvia_import_commit
+  // hands the same one to every dimension it writes in a single request.
+  // Rows written before the column existed fall back to standing alone.
+  function groupByBatch(rows) {
+    var order = [];
+    var map = {};
+    rows.forEach(function (r) {
+      var key = r.batch || ('row-' + r.id);
+      if (!map[key]) { map[key] = []; order.push(key); }
+      map[key].push(r);
+    });
+    return order.map(function (key) {
+      // Commit order is level order, ascending id replays it
+      return map[key].slice().sort(function (a, b) { return a.id - b.id; });
+    });
+  }
+
+  // The worst dimension decides the icon of the whole submit
+  function groupState(items) {
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].state === 'failed') { return 'failed'; }
+    }
+    for (var j = 0; j < items.length; j++) {
+      if (items[j].state === 'partial') { return 'partial'; }
+    }
+    return 'success';
+  }
+
+  // dimension_label was frozen when the row was written, the dropdown is live
+  function rowDimLabel(r) {
+    return (DIM[r.dimension] && DIM[r.dimension].label) || r.dimension_label;
+  }
+
+  // Pack joins fourteen names into one string, only the first two are shown
+  function fileSummary(text) {
+    var names = String(text || '').split(', ').filter(function (n) { return n; });
+    if (names.length <= 2) { return esc(names.join(', ')); }
+    return esc(names.slice(0, 2).join(', ')) +
+      ' <span class="hf-more">&hellip;' + names.length + '</span>';
+  }
+
+  // "A dan B" for two, "A, B dan C" for more
+  function joinNames(list) {
+    if (list.length <= 1) { return list[0] || ''; }
+    return list.slice(0, -1).join(', ') + ' ' + T.and + ' ' + list[list.length - 1];
+  }
+
+  // Group labels carry an ordering prefix like "6. Pack", which reads badly
+  // once "Semua" sits in front of it. The separator is required so a name
+  // that genuinely starts with a digit is left alone.
+  function cleanLabel(text) {
+    return String(text || '').replace(/^\s*\d+\s*[.)]\s*/, '');
+  }
+
+  // Names a submit by what it covers, read straight from GROUPS so the wording
+  // can never drift from the dropdown. Complete reads "Semua X", partial reads
+  // bare "X", and every family complete collapses to one name.
+  function submitLabel(items) {
+    var have = {};
+    items.forEach(function (r) { have[r.dimension] = true; });
+
+    function hit(list) {
+      var n = 0;
+      (list || []).forEach(function (it) { if (have[it.key]) { n += 1; } });
+      return n;
+    }
+
+    var parts = [];
+    var full = 0;
+    GROUPS.forEach(function (g) {
+      var subs = g.subgroups || [];
+      if (subs.length) {
+        var subFull = 0;
+        var subParts = [];
+        subs.forEach(function (sub) {
+          var n = hit(sub.items);
+          if (!n) { return; }
+          var subName = cleanLabel(sub.label);
+          if (n === sub.items.length) { subFull += 1; subParts.push(T.allPrefix + ' ' + subName); }
+          else { subParts.push(subName); }
+        });
+        if (!subParts.length) { return; }
+        // Every branch complete, the family name says the same thing shorter
+        if (subFull === subs.length) { full += 1; parts.push(T.allPrefix + ' ' + cleanLabel(g.label)); }
+        else { parts = parts.concat(subParts); }
+        return;
+      }
+      var k = hit(g.items);
+      if (!k) { return; }
+      if (k === g.items.length) { full += 1; parts.push(T.allPrefix + ' ' + cleanLabel(g.label)); }
+      else { parts.push(cleanLabel(g.label)); }
+    });
+
+    if (full === GROUPS.length) { return T.allDimension; }
+    return joinNames(parts) || T.importGeneric;
+  }
+
+  // Same {name} substitution the service does, so both sides read alike
+  function fillArgs(text, args) {
+    Object.keys(args || {}).forEach(function (key) {
+      text = text.split('{' + key + '}').join(args[key]);
+    });
+    return text;
+  }
+
+  // A submit written after the message codes landed carries codes and numbers,
+  // so the sentence is rebuilt in whatever language is being read right now.
+  function historyMessage(r) {
+    var parts = r.msg || [];
+    // An old row only stored a finished Indonesian sentence, it can never
+    // follow the reader's language, so the box leaves it out. The numbers
+    // above it already say the same thing.
+    if (!parts.length) { return ''; }
+    return parts.map(function (item) {
+      return fillArgs(MSG[item.code] || item.code, item.args);
+    }).join(' ');
+  }
+
+  // Skipped and duplicate counts are parser detail. A card states only what
+  // landed: inserted, updated, archived, unchanged.
+  // One dimension block inside a submit box
+  function dimBlock(r) {
+    var tags = [
+      '<span class="hf-tag add">+' + r.rows_insert + ' ' + T.tagInserted + '</span>',
+      '<span class="hf-tag mod">' + r.rows_update + ' ' + T.tagUpdated + '</span>'
+    ];
+    if (r.rows_archive) {
+      tags.push('<span class="hf-tag arc">' + r.rows_archive + ' ' + T.tagArchived + '</span>');
+    }
+    tags.push('<span class="hf-tag same">' + r.rows_same + ' ' + T.tagUnchanged + '</span>');
+    if (r.orphan_rows) {
+      tags.push('<span class="hf-tag orphan">' + r.orphan_rows + ' ' + T.tagNoId + '</span>');
+    }
+
+    var missing = r.missing_values.length
+      ? '<div class="hf-tl-missing"><i class="fas fa-exclamation-triangle mr-1"></i>' +
+        T.notRegistered + ' ' + esc(r.missing_values.slice(0, 10).join(', ')) + '</div>'
+      : '';
+
+    // Declared before use, an undefined here would silently blank the message
+    var msgText = historyMessage(r);
+
+    return '<div class="hf-tl-dim is-' + r.state + '">' +
+      '<div class="hf-tl-dim-head">' +
+        '<span class="hf-tl-dim-name">' + esc(rowDimLabel(r)) + '</span>' +
+        '<span class="hf-tl-dim-file" title="' + esc(r.file_name) + '">' +
+        '<i class="fas fa-file-alt mr-1 text-muted"></i>' + fileSummary(r.file_name) +
+        '</span>' +
+      '</div>' +
+      '<div class="hf-tl-dim-tags">' + tags.join('') + '</div>' +
+      (msgText ? '<div class="hf-tl-msg">' + esc(msgText) + '</div>' : '') + missing +
+    '</div>';
+  }
+
+  // Header carries the first write of the batch, that is when submit was pressed
+  function submitCard(items, index) {
+    var head = items[0];
+    // Green is reserved for the newest submit, older ones read as history
+    var past = index > 0 ? ' is-past' : '';
+    return '<div class="hf-tl-item">' +
+      '<div class="hf-tl-icon is-' + groupState(items) + past + '">' +
+      '<i class="fas fa-folder-open"></i></div>' +
+      '<div class="hf-tl-card">' +
+        '<div class="hf-tl-head">' +
+          '<span class="hf-tl-name"><i class="fas fa-layer-group mr-2 text-muted"></i>' +
+          esc(submitLabel(items)) + '</span>' +
+          '<span class="hf-tl-when"><i class="far fa-clock mr-1"></i>' +
+          head.date + ' &middot; ' + head.time +
+          ' &middot; ' + esc(head.user) + '</span>' +
+        '</div>' +
+        '<div class="hf-tl-body">' + items.map(dimBlock).join('') + '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  // Resets to table on every page load, kept while the user stays here
+  var historyView = 'table';
+  var historyTimer = null;
+  var historySort = '';
+  var historyDir = 'desc';
+
+  // key is the sort field the backend accepts, empty means not sortable.
+  // Archived lives in the detail json, there is no column to order it by.
+  var HISTORY_COLS = [
+    { key: 'timestamp', label: T.colTime },
+    { key: 'dimension_label', label: T.colDimension },
+    { key: 'file_name', label: T.colFile },
+    { key: 'user', label: T.colUser },
+    { key: 'rows_insert', label: T.colInserted },
+    { key: 'rows_update', label: T.colUpdated },
+    { key: 'rows_same', label: T.colUnchanged },
+    { key: '', label: T.colArchived },
+    { key: 'orphan_rows', label: T.colNoId },
+    { key: 'state', label: T.colStatus }
+  ];
+
+  function renderHistoryHead() {
+    $('#hf-history-head').html(HISTORY_COLS.map(function (c) {
+      if (!c.key) { return '<th>' + c.label + '</th>'; }
+      var active = c.key === historySort;
+      var icon = !active ? 'fa-sort'
+               : (historyDir === 'desc' ? 'fa-sort-down' : 'fa-sort-up');
+      return '<th class="' + (active ? 'is-sorted' : '') + '" data-sort="' +
+        c.key + '">' + c.label + '<i class="fas ' + icon + '"></i></th>';
+    }).join(''));
+  }
+
+  function historyRow(r) {
+    return '<tr>' +
+      '<td>' + r.date + ' ' + r.time + '</td>' +
+      '<td>' + esc(rowDimLabel(r)) + '</td>' +
+      '<td>' + esc(r.file_name) + '</td>' +
+      '<td>' + esc(r.user) + '</td>' +
+      '<td class="text-success">+' + r.rows_insert + '</td>' +
+      '<td class="text-primary">' + r.rows_update + '</td>' +
+      '<td>' + r.rows_same + '</td>' +
+      '<td>' + r.rows_archive + '</td>' +
+      '<td' + (r.orphan_rows ? ' class="text-danger font-weight-bold"' : '') + '>' +
+        r.orphan_rows + '</td>' +
+      '<td><span class="hf-state ' + r.state + '">' + r.state + '</span></td>' +
+      '</tr>';
+  }
+
+  function renderHistoryTable(res) {
+    if (!res.rows.length) {
+      $('#hf-history-tbody').html(
+        '<tr><td colspan="10"><div class="hf-empty">' + T.noHistory + '</div></td></tr>'
+      );
+      return;
+    }
+    $('#hf-history-tbody').html(res.rows.map(historyRow).join(''));
+    $('#hf-history-table-wrap').css({
+      'height': 'auto',
+      'max-height': Math.min(HEAD_H + res.rows.length * ROW_H, TABLE_MAX_H) + 'px'
+    });
+  }
+
+  function renderHistoryTimeline(res) {
+    if (!res.rows.length) {
+      $('#hf-history-list').html('<div class="hf-empty">' + T.noHistory + '</div>');
+      return;
+    }
+    var html = '<div class="hf-timeline">';
+    var lastDate = null;
+    groupByBatch(res.rows).forEach(function (items, index) {
+      // Date badge follows the submit start, not the last dimension written
+      var date = items[0].date;
+      if (date !== lastDate) {
+        html += '<div class="hf-tl-date' + (index === 0 ? ' is-latest' : '') + '">' +
+                date + '</div>';
+        lastDate = date;
+      }
+      html += submitCard(items, index);
+    });
+    html += '</div>';
+    $('#hf-history-list').html(html);
+  }
+
+  function applyHistoryView() {
+    var isTable = historyView === 'table';
+    $('#hf-history-table-wrap').toggle(isTable);
+    $('#hf-history-list').toggle(!isTable);
+    $('.hf-view-opt').each(function () {
+      $(this).toggleClass('active', $(this).data('view') === historyView);
+    });
+  }
+
+  // Commit mode groups by submit and one batch can span a dozen rows.
+  // At 20 a batch would be cut at the page edge and read as two half boxes.
+  function historyPageSize() {
+    return historyView === 'commit' ? 100 : 20;
+  }
+
+  // History is global, the dimension picker only drives the data table
+  function loadHistory() {
+    $.get("{% url 'analytics:iqvia_import_history' %}", {
+      page: historyPage,
+      page_size: historyPageSize(),
+      sort: historySort,
+      dir: historyDir,
+      q: $('#hf-history-search').val()
+    }).done(function (res) {
+      historySort = res.sort;
+      historyDir = res.dir;
+      renderHistoryHead();
+      renderHistoryTable(res);
+      renderHistoryTimeline(res);
+      applyHistoryView();
+
+      var first = res.total ? (res.page - 1) * res.page_size + 1 : 0;
+      var last = Math.min(res.page * res.page_size, res.total);
+      var info = showingText(first, last, res.total);
+      if (historyView === 'commit') {
+        info += ' (' + groupByBatch(res.rows).length + ' ' + T.submitUnit + ')';
+      }
+      $('#hf-history-info').text(info);
+
+      renderPagination($('#hf-history-pagination'), res.page, res.num_pages, function (p) {
+        historyPage = p; loadHistory();
+      });
+    });
+  }
+
+  $('.hf-view-opt').on('click', function () {
+    if (historyView === $(this).data('view')) { return; }
+    historyView = $(this).data('view');
+    // Page size differs per view, the rows have to be fetched again
+    historyPage = 1;
+    applyHistoryView();
+    loadHistory();
+  });
+
+  // Same column flips direction, a new column starts ascending
+  $('#hf-history-table').on('click', 'th[data-sort]', function () {
+    var key = $(this).data('sort');
+    if (key === historySort) {
+      historyDir = historyDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      historySort = key;
+      historyDir = 'asc';
+    }
+    historyPage = 1;
+    loadHistory();
+  });
+
+  $('#hf-history-search').on('keyup', function () {
+    clearTimeout(historyTimer);
+    historyTimer = setTimeout(function () { historyPage = 1; loadHistory(); }, 350);
+  });
+
+  $('#hf-tabs').on('click', '[data-tab]', function (e) {
+    e.preventDefault();
+    $('#hf-tabs [data-tab]').removeClass('active');
+    $(this).addClass('active');
+    var tab = $(this).data('tab');
+    $('#hf-tab-table').toggle(tab === 'table');
+    $('#hf-tab-history').toggle(tab === 'history');
+    if (tab === 'history') { historyPage = 1; loadHistory(); }
+  });
+
+  $('#hf-page-size').on('change', function () { tablePage = 1; loadTable(); });
+
+  // Same column flips direction, a new column starts ascending
+  $('#hf-table-head').on('click', 'th[data-sort]', function () {
+    var key = $(this).data('sort');
+    if (key === tableSort) {
+      tableDir = tableDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      tableSort = key;
+      tableDir = 'asc';
+    }
+    tablePage = 1;
+    loadTable();
+  });
+
+  // ── Flow helper ────────────────────────────────────────────
+  // Reads the same group order the dropdown uses, so it can never drift
+  function renderFlow() {
+    var steps = GROUPS.map(function (group, index) {
+      var items = [];
+      if (group.subgroups && group.subgroups.length) {
+        group.subgroups.forEach(function (sub) { items = items.concat(sub.items); });
+      } else {
+        items = group.items;
+      }
+
+      var pending = items.filter(function (it) {
+        var info = STATUS[it.key];
+        return info && info.flag !== 'ok';
+      });
+
+      function chain(list) {
+        return list.map(function (it) {
+          var info = STATUS[it.key];
+          return (info && info.flag !== 'ok')
+            ? '<b>' + esc(it.label) + '</b>'
+            : esc(it.label);
+        }).join(' <span class="hf-arrow">&rarr;</span> ');
+      }
+
+      // Nested groups read as a chain per family, flat groups as one list
+      var names;
+      if (group.subgroups && group.subgroups.length) {
+        names = group.subgroups.map(function (sub) {
+          return '<div class="hf-flow-chain">' + chain(sub.items) + '</div>';
+        }).join('');
+      } else {
+        names = '<div class="hf-flow-chain">' + chain(items) + '</div>';
+      }
+
+      return '<div class="hf-flow-step">' +
+        '<div class="hf-flow-num' + (pending.length ? '' : ' done') + '">' +
+        (pending.length ? (index + 1) : '<i class="fas fa-check"></i>') + '</div>' +
+        '<div class="hf-flow-body">' +
+          '<div class="hf-flow-name">' + esc(group.label) + '</div>' +
+          '<div class="hf-flow-dims">' + names + '</div>' +
+        '</div></div>';
+    }).join('');
+
+    $('#hf-flow-panel').html(
+      '<div class="hf-flow-title">' + T.flowTitle + '</div>' +
+      '<div class="hf-flow-sub">' + T.flowSub + '</div>' +
+      steps +
+      '<div class="hf-flow-note"><i class="fas fa-hand-pointer"></i>' +
+      T.flowNote1 + '</div>' +
+      '<div class="hf-flow-note"><i class="fas fa-layer-group"></i>' +
+      T.flowNote2 + '</div>' +
+      '<div class="hf-flow-note"><i class="fas fa-exclamation-triangle"></i>' +
+      T.flowNote3 + '</div>'
+    );
+  }
+
+  // Export follows the active dimension and the search box, not the page
+  $('.hf-type-opt.is-export').on('click', function () {
+    if (!currentDim) { return; }
+    var url = "{% url 'analytics:iqvia_import_export' %}" +
+      '?dim=' + encodeURIComponent(currentDim) +
+      '&format=' + encodeURIComponent($(this).data('export')) +
+      '&q=' + encodeURIComponent($('#hf-search').val());
+    window.location.href = url;
+  });
+
+  $('#hf-search').on('keyup', function () {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(function () { tablePage = 1; loadTable(); }, 350);
+  });
+
+  // ── Import modal ───────────────────────────────────────────
+  var modalDim = null;
+  var modalBatch = '';
+  var stagedFiles = [];
+  var canSubmit = false;
+
+  function notice(kind, text) {
+    $('#hf-modal-notice').html(
+      '<div class="alert alert-' + kind + ' py-2 px-3 mb-3" style="font-size:.82rem;">' +
+      text + '</div>'
+    );
+  }
+
+  // Two blockers, an empty parent table and rows that resolved to no id
+  // Blockers: an empty parent table, rows without an id, or missing slices
+  function collectGaps() {
+    var keys = [];
+    function add(key) {
+      if (key && keys.indexOf(key) === -1) { keys.push(key); }
+    }
+    stagedFiles.forEach(function (g) {
+      (g.chain || []).forEach(function (c) {
+        if (c.status === 'missing') { add(c.key); }
+      });
+      var p = g.preview;
+      if (p && (p.orphan_rows > 0 || p.state === 'failed')) {
+        add(p.orphan_parent || g.dimension);
+      }
+      if (g.slices && g.slice_have < g.slice_total) { add(g.dimension); }
+    });
+    return keys;
+  }
+
+  function gapLabels(keys) {
+    return keys.map(function (k) {
+      return (DIM[k] && DIM[k].label) || k;
+    });
+  }
+
+  function refreshSubmit() {
+    var gaps = collectGaps();
+    $('#hf-modal-cascade').toggleClass('is-blocked', gaps.length > 0);
+    // Own slot, otherwise renderSummaryBadge would overwrite it
+    $('#hf-modal-gap').html(gaps.length ? redDots(gaps.length) : '');
+    $('#hf-block-note').remove();
+    if (gaps.length) {
+      // Sits under the upload notice, the summary is read first
+      $('#hf-modal-notice').after(
+        '<div class="hf-block-note" id="hf-block-note">' +
+        '<i class="fas fa-exclamation-triangle mr-1"></i>' +
+        T.blocked + ' <b>' +
+        esc(gapLabels(gaps).join(', ')) + '</b>.' +
+        '</div>'
+      );
+    }
+    $('#hf-btn-submit').prop('disabled', !stagedFiles.length || gaps.length > 0);
+    GAPS = gaps;
+    buildCascade('#hf-modal-family');
+  }
+
+  function resetStaging() {
+    modalBatch = '';
+    stagedFiles = [];
+    canSubmit = false;
+    $('#hf-file-list').empty();
+    $('#hf-modal-notice').empty();
+    // Only renderFiles writes this, and it never runs on an empty batch
+    $('#hf-filebar-count').empty();
+    refreshSubmit();
+  }
+
+  function dropStaging() {
+    if (!modalBatch) { return; }
+    $.ajax({
+      url: "{% url 'analytics:iqvia_import_cancel' %}",
+      method: 'POST',
+      data: { batch: modalBatch },
+      headers: { 'X-CSRFToken': CSRF }
+    });
+  }
+
+  // Switching dimension keeps every staged file, only the target changes
+  function setModalDimension(key) {
+    modalDim = key;
+    $('#hf-modal-cascade').removeClass('is-open');
+    $('#hf-modal-dim, #hf-modal-label').text(DIM[key].label);
+    $('#hf-modal-cascade').removeClass('is-open');
+    clearNoticeIfIdle();
+  }
+
+  function clearNoticeIfIdle() {
+    if (!stagedFiles.length) { $('#hf-modal-notice').empty(); }
+  }
+
+  // One file can feed several dimensions, count staging ids not card rows.
+  // Only the type actually present is named.
+  function stagedFileCount() {
+    var seen = {};
+    var excel = 0;
+    var csv = 0;
+    stagedFiles.forEach(function (g) {
+      (g.files || []).forEach(function (f) {
+        if (seen[f.staging_id]) { return; }
+        seen[f.staging_id] = true;
+        var kind = detectType(f.file_name);
+        if (kind === 'csv') { csv += 1; }
+        else if (kind === 'excel') { excel += 1; }
+      });
+    });
+    var parts = [];
+    if (excel) { parts.push(excel + ' ' + T.excel); }
+    if (csv) { parts.push(csv + ' ' + T.csv); }
+    return parts.join(', ');
+  }
+
+  // One card per dimension, every file that feeds it listed inside
+  function renderFiles() {
+    $('#hf-filebar-count').text(stagedFileCount());
+
+    if (!stagedFiles.length) {
+      $('#hf-file-list').empty();
+      refreshSubmit();
+      return;
+    }
+
+    $('#hf-file-list').html(stagedFiles.map(function (g) {
+      var chips = (g.chain || []).map(function (c) {
+        var icon = c.status === 'ok' ? 'fa-check-circle'
+                 : c.status === 'staged' ? 'fa-clock'
+                 : c.status === 'waiting' ? 'fa-circle-notch'
+                 : 'fa-exclamation-triangle';
+        var text = c.status === 'ok' ? T.verified
+                 : c.status === 'staged' ? T.queued
+                 : c.status === 'waiting' ? T.unverified
+                 : T.notUploaded;
+        return '<span class="hf-chip ' + c.status + '">' +
+               '<i class="fas ' + icon + ' mr-1"></i>' +
+               esc(c.label) + ' ' + text + '</span>';
+      }).join('');
+
+      // Declared before use, var hoisting left this undefined and hid every message
+      var p = g.preview;
+
+      var warn = '';
+      if (p && p.state === 'failed') {
+        warn = '<div class="hf-stat text-danger">' + esc(p.message) + '</div>';
+      }
+
+      var slices = '';
+      if (g.slices) {
+        var full = g.slice_have === g.slice_total;
+        slices =
+          '<div class="hf-slice-count' + (full ? ' full' : '') + '">' + T.packParts +
+          ' ' + g.slice_have + '/' + g.slice_total + '</div>' +
+          '<div class="hf-slices">' + g.slices.map(function (s) {
+            return '<span class="hf-slot ' + (s.have ? 'have' : 'miss') + '">' +
+              (s.have ? '<i class="fas fa-check mr-1"></i>' : '') +
+              esc(s.part) + '</span>';
+          }).join('') + '</div>';
+      }
+
+      var stats = '';
+      // Pack has no numbers until every slice is in, then it counts like the rest
+      if (p && (!g.slices || g.slice_have === g.slice_total)) {
+        stats = '<div class="hf-stat">' +
+          '<span class="add">+' + p.rows_insert + ' ' + T.newWord + '</span>, ' +
+          '<span class="mod">' + p.rows_update + ' ' + T.updatedWord + '</span>, ' +
+          '<span class="same">' + p.rows_same + ' ' + T.same + '</span>' +
+          (p.orphan_rows ? ', <span class="text-danger font-weight-bold">' +
+            p.orphan_rows + ' ' + T.withoutId + ' ' + esc(p.orphan_field) + '</span>' : '') +
+          '</div>';
+      }
+
+      var files = g.files.map(function (f) {
+        var shared = f.shared_with.length
+          ? '<span class="hf-shared">' + T.alsoFor + ' ' + esc(f.shared_with.join(', ')) + '</span>'
+          : '';
+        return '<div class="hf-file-line">' +
+          '<span class="fname"><i class="fas fa-file-alt mr-1 text-muted"></i>' +
+          esc(f.file_name) + shared + '</span>' +
+          '<span class="frows">' + f.rows_read + ' ' + T.rows + '</span>' +
+          '<button type="button" class="fx" data-staging="' + f.staging_id +
+          '" title="' + T.delFile + '">&times;</button>' +
+          '</div>';
+      }).join('');
+
+      return '<div class="hf-file-row">' +
+        '<div class="hf-file-dim"><span>' + esc(g.label) + '</span></div>' +
+        stats + warn + slices + files +
+        (chips ? '<div class="hf-chain">' + chips + '</div>' : '') +
+        '</div>';
+    }).join(''));
+
+    refreshSubmit();
+  }
+
+  // Extension decides the reader, the radio only filters the file picker
+  function detectType(name) {
+    var lower = String(name || '').toLowerCase();
+    if (lower.slice(-4) === '.csv') { return 'csv'; }
+    if (lower.slice(-5) === '.xlsx' || lower.slice(-4) === '.xls') { return 'excel'; }
+    return null;
+  }
+
+  // Drop can carry several files, this dimension takes the first one
+    // Queue survives rejections, one bad file must not stop the rest
+  var QUEUE = null;
+
+  function uploadQueue(files) {
+    if (!files.length) { return; }
+
+    // Same file dropped twice in one go, keep the first
+    var seenSig = {};
+    var accepted = [];
+    var rejected = [];
+    files.forEach(function (file) {
+      var sig = file.name + '|' + file.size;
+      if (seenSig[sig]) {
+        rejected.push({ name: file.name, reason: T.dupInDrop });
+        return;
+      }
+      seenSig[sig] = true;
+      if (!detectType(file.name)) {
+        rejected.push({ name: file.name, reason: T.badExt });
+        return;
+      }
+      accepted.push(file);
+    });
+
+    QUEUE = { list: accepted, index: 0, done: [], failed: rejected };
+    runQueue();
+  }
+
+  function runQueue() {
+    if (!QUEUE) { return; }
+    if (QUEUE.index >= QUEUE.list.length) {
+      finishQueue();
+      return;
+    }
+    var file = QUEUE.list[QUEUE.index];
+    QUEUE.index += 1;
+    notice('info', T.processing + ' ' + esc(file.name) +
+      ' (' + QUEUE.index + '/' + QUEUE.list.length + ')...');
+    uploadFile(file);
+  }
+
+  function finishQueue() {
+    var q = QUEUE;
+    QUEUE = null;
+    if (!q) { return; }
+
+    var lines = [];
+    if (q.done.length) {
+      lines.push('<b>' + q.done.length + ' ' + T.filesIn + '</b> ' +
+        esc(q.done.join(', ')));
+    }
+    if (q.failed.length) {
+      lines.push('<b>' + q.failed.length + ' ' + T.filesRejected + '</b><br>' +
+        q.failed.map(function (f) {
+          return '&bull; ' + esc(f.name) + ' &mdash; ' + esc(f.reason);
+        }).join('<br>'));
+    }
+    notice(q.failed.length ? 'warning' : 'success', lines.join('<br>'));
+  }
+
+  function noteQueue(name, reason) {
+    if (!QUEUE) { return; }
+    if (reason) { QUEUE.failed.push({ name: name, reason: reason }); }
+    else { QUEUE.done.push(name); }
+  }
+
+  function uploadFile(file) {
+    if (!modalDim) { return; }
+
+    var fileType = detectType(file.name);
+    if (!fileType) {
+      noteQueue(file.name, T.badExt);
+      runQueue();
+      return;
+    }
+
+    var form = new FormData();
+    form.append('dim', modalDim);
+    form.append('file_type', fileType);
+    form.append('file', file);
+    form.append('batch', modalBatch);
+
+    $('#hf-btn-submit').prop('disabled', true);
+
+    $.ajax({
+      url: "{% url 'analytics:iqvia_import_upload' %}",
+      method: 'POST',
+      data: form,
+      processData: false,
+      contentType: false,
+      headers: { 'X-CSRFToken': CSRF }
+    }).done(function (res) {
+      if (res.duplicate) {
+        noteQueue(file.name, T.alreadyStaged);
+        if (res.files) { stagedFiles = res.files; renderFiles(); }
+        return;
+      }
+      modalBatch = res.batch;
+      stagedFiles = res.files || [];
+      if (res.pending) { PENDING = res.pending; }
+      renderFiles();
+      buildCascade('#hf-modal-family');
+      buildCascade('#hf-cascade-family');
+      renderSummaryBadge();
+      noteQueue(file.name, null);
+    }).fail(function (xhr) {
+      var body = xhr.responseJSON;
+      var reason;
+      if (body && body.error) {
+        reason = body.error;
+      } else {
+        reason = 'HTTP ' + xhr.status + ' ' + (xhr.statusText || '');
+      }
+      noteQueue(file.name, reason);
+      refreshSubmit();
+    }).always(function () {
+      // Always advance, a rejected file must not stall the queue
+      runQueue();
+    });
+  }
+
+  $('#hf-modal-toggle').on('click', function (event) {
+    event.stopPropagation();
+    var $box = $('#hf-modal-cascade').toggleClass('is-open');
+    if ($box.hasClass('is-open')) {
+      showFamily('#hf-modal-family', '#hf-modal-level', '#hf-modal-leaf',
+        DIM[modalDim].family, modalDim);
+    }
+  });
+
+  $('#hf-modal-family').on('mouseenter click', '.hf-cascade-item', function () {
+    showFamily('#hf-modal-family', '#hf-modal-level', '#hf-modal-leaf',
+      $(this).data('family'), modalDim);
+  });
+
+  $('#hf-modal-level').on('mouseenter', '[data-sub]', function () {
+    var family = $('#hf-modal-family .hf-cascade-item.active').data('family');
+    $('#hf-modal-level .hf-cascade-item').removeClass('active');
+    $(this).addClass('active');
+    showLeaf('#hf-modal-leaf', family, $(this).data('sub'), modalDim);
+  });
+
+  // Clicking the family itself targets every level under it
+  $('#hf-modal-level').on('click', '[data-sub]', function () {
+    setModalDimension($(this).data('sub'));
+  });
+
+  $('#hf-modal-level').on('click', '.hf-cascade-item', function () {
+    var key = $(this).data('dim');
+    if (key) { setModalDimension(key); }
+  });
+
+  $('#hf-modal-leaf').on('click', '.hf-cascade-item', function () {
+    setModalDimension($(this).data('dim'));
+  });
+
+  $('#hf-import-modal').on('click', function (event) {
+    if (!$(event.target).closest('#hf-modal-cascade').length) {
+      $('#hf-modal-cascade').removeClass('is-open');
+    }
+  });
+
+  $('#hf-filebar').on('click', function () { $('#hf-file-input').click(); });
+
+  $('#hf-file-input').on('change', function () {
+    uploadQueue(Array.prototype.slice.call(this.files));
+    this.value = '';
+  });
+
+  // Bound to modal-content, not document. The modal element itself fills the
+  // viewport, so binding there would arm the overlay across the whole page.
+  // Child elements fire their own dragenter and dragleave, so a plain toggle
+  // flickers. dragenter on the new target fires before dragleave on the old
+  // one, so a depth counter never reaches zero until the pointer really leaves.
+  var dragDepth = 0;
+  var $modalBox = $('#hf-import-modal .modal-content');
+
+  // types is a DOMStringList in some browsers, indexOf is not available
+  function isFileDrag(event) {
+    var dt = event.originalEvent && event.originalEvent.dataTransfer;
+    if (!dt || !dt.types) { return false; }
+    for (var i = 0; i < dt.types.length; i++) {
+      if (dt.types[i] === 'Files') { return true; }
+    }
+    return false;
+  }
+
+  // uploadFile returns silently without a dimension, a drop then vanishes
+  function dragArmed() {
+    return !!modalDim;
+  }
+
+  function hideMask() {
+    dragDepth = 0;
+    $('#hf-dragmask').removeClass('is-on');
+  }
+
+  $modalBox.on('dragenter', function (e) {
+    if (!isFileDrag(e) || !dragArmed()) { return; }
+    e.preventDefault();
+    dragDepth += 1;
+    $('#hf-dragmask').addClass('is-on');
+  });
+
+  $modalBox.on('dragleave', function (e) {
+    if (!isFileDrag(e) || !dragArmed()) { return; }
+    dragDepth -= 1;
+    if (dragDepth <= 0) { hideMask(); }
+  });
+
+  // Without this the browser navigates to the file and drop never fires
+  $modalBox.on('dragover', function (e) {
+    if (!isFileDrag(e)) { return; }
+    e.preventDefault();
+  });
+
+  $modalBox.on('drop', function (e) {
+    if (!isFileDrag(e)) { return; }
+    e.preventDefault();
+    // Keeps the document handler below from seeing this drop a second time
+    e.stopPropagation();
+    hideMask();
+    if (!dragArmed()) { return; }
+    var dt = e.originalEvent.dataTransfer;
+    if (dt && dt.files && dt.files.length) {
+      uploadQueue(Array.prototype.slice.call(dt.files));
+    }
+  });
+
+  // A file dropped outside the box would otherwise navigate the tab away
+  $(document).on('dragover drop', function (e) {
+    if (isFileDrag(e)) { e.preventDefault(); }
+  });
+
+  // A cancelled drag never sends drop, the mask would stay on screen
+  $modalBox.on('dragend', hideMask);
+  $('#hf-import-modal').on('hidden.bs.modal', hideMask);
+
+  $('#hf-file-list').on('click', '.fx', function () {
+    var stagingId = $(this).data('staging');
+    $.ajax({
+      url: "{% url 'analytics:iqvia_import_cancel' %}",
+      method: 'POST',
+      data: { batch: modalBatch, staging_id: stagingId },
+      headers: { 'X-CSRFToken': CSRF }
+    }).done(function (res) {
+      stagedFiles = res.files || [];
+      if (res.pending) { PENDING = res.pending; }
+      renderFiles();
+      buildCascade('#hf-modal-family');
+      buildCascade('#hf-cascade-family');
+      renderSummaryBadge();
+      clearNoticeIfIdle();
+    });
+  });
+
+  $('#hf-btn-submit').on('click', function () {
+    if (collectGaps().length) {
+      var $box = $('#hf-modal-cascade').addClass('is-shake');
+      setTimeout(function () { $box.removeClass('is-shake'); }, 400);
+      return;
+    }
+    canSubmit = false;
+    $('#hf-btn-submit').prop('disabled', true).text(T.saving);
+
+    $.ajax({
+      url: "{% url 'analytics:iqvia_import_commit' %}",
+      method: 'POST',
+      data: { batch: modalBatch },
+      headers: { 'X-CSRFToken': CSRF }
+    }).done(function (res) {
+      STATUS = res.dimension_status;
+      if (res.pending) { PENDING = res.pending; }
+      renderFlow();
+      buildCascade('#hf-cascade-family');
+      renderSummaryBadge();
+      var lines = res.results.map(function (item) {
+        var mark = item.result.state === 'failed'
+          ? '<i class="fas fa-times-circle text-danger mr-1"></i>'
+          : '<i class="fas fa-check-circle text-success mr-1"></i>';
+        return mark + '<b>' + esc(item.label) + '</b> ' + esc(item.result.message);
+      }).join('<br>');
+      notice(res.failed_count ? 'warning' : 'success', lines);
+
+      stagedFiles = res.files || [];
+      renderFiles();
+      loadTable();
+      if (!res.failed_count) {
+        modalBatch = '';
+        setTimeout(function () { $('#hf-import-modal').modal('hide'); }, 2200);
+      }
+    }).fail(function (xhr) {
+      var body = xhr.responseJSON;
+      var text;
+      if (body && body.error) {
+        text = esc(body.error);
+      } else {
+        var raw = (xhr.responseText || '').replace(/<[^>]*>/g, ' ')
+                    .replace(/\s+/g, ' ').trim().slice(0, 400);
+        text = T.submitFailed + ' ' + xhr.status + ' ' + esc(xhr.statusText || '') +
+               '<br><small>' + esc(raw || T.noBody) + '</small>';
+      }
+      notice('danger', text);
+    }).always(function () {
+      $('#hf-btn-submit').text(T.btnSubmit);
+      refreshSubmit();
+    });
+  });
+
+  // Only Cancel throws the batch away, closing just hides the window
+  $('#hf-btn-cancel').on('click', function () {
+    dropStaging();
+    resetStaging();
+    $('#hf-import-modal').modal('hide');
+  });
+
+  $('#hf-btn-import').on('click', function () {
+    if (!currentDim) { return; }
+    buildModalCascade();
+    // Keep whatever is already staged, only retarget the picker
+    if (!stagedFiles.length) { setModalDimension(currentDim); }
+    else { modalDim = modalDim || currentDim; }
+    $('#hf-import-modal').modal('show');
+  });
+
+  function buildModalCascade() { buildCascade('#hf-modal-family'); }
+
+  // First selectable dimension, works whether the group nests or not
+  function firstDimension() {
+    var first = GROUPS[0];
+    return (first.subgroups && first.subgroups.length)
+      ? first.subgroups[0].items[0].key
+      : first.items[0].key;
+  }
+
+  // Leaving the page ends the session, staged files go with it.
+  // sendBeacon still fires while the tab is closing, ajax would be cancelled.
+  window.addEventListener('pagehide', function () {
+    if (!modalBatch) { return; }
+    var payload = new FormData();
+    payload.append('batch', modalBatch);
+    payload.append('csrfmiddlewaretoken', CSRF);
+    navigator.sendBeacon("{% url 'analytics:iqvia_import_discard' %}", payload);
+  });
+
+  buildCascade('#hf-cascade-family');
+  setDimension(firstDimension());
+  renderFlow();
+  renderSummaryBadge();
+});
+</script>
+{% endblock %}

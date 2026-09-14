@@ -1,13 +1,13 @@
 {% extends "main.html" %}
 {% comment %} FaisalS | HF-30 - Area Matrix UI {% endcomment %}
-{% load i18n static sales_tag %}
+{% load i18n static sales_tags %}
 
 {% block datatable_css %}
-  {{ block.super }}
-  <!-- <link href="{% static 'custom/css/select2.min.css' %}" rel="stylesheet" /> -->
-  <link rel="stylesheet" href="{% static 'vendor/bootstrap-multiselect/bootstrap-multiselect.css' %}">
-    
- <style>
+{{  block.super  }}
+<!-- <link href="{% static 'custom/css/select2.min.css' %}" rel="stylesheet" /> -->
+<link rel="stylesheet" href="{% static 'vendor/bootstrap-multiselect/bootstrap-multiselect.css' %}">
+
+<style>
     .area-matrix-wrapper {
         max-height: 70vh;
         overflow-y: auto;
@@ -173,324 +173,356 @@
 {% endblock %}
 
 {% block content %}
-    <h1>Area Matrix</h1>
+<h1>Area Matrix</h1>
 
-    <div class="mb-2">
-        <form method="post" class="form-inline mb-3" id="filter-form">
-            {% csrf_token %}
-            <!-- Island Filter -->
-            <label for="islandFilter" class="ml-2 mr-2">Islands:</label>
-            <select id="islandFilter" name="island[]" multiple>
-                {% for island in islands %}
-                <option value="{{ island.id }}" {% if island.id|stringformat:"s" in selected_island_ids %}selected{% endif %}>{{ island.name }}</option>
-                {% endfor %}
-            </select>
+<div class="mb-2">
+    <form method="post" class="form-inline mb-3 track-form" id="filter-form" data-feature="Area Matrix Filter Form"
+        data-description="User applied filters on Area Matrix">
+        {% csrf_token %}
+        <!-- Island Filter -->
+        <label for="islandFilter" class="ml-2 mr-2">Islands:</label>
+        <select id="islandFilter" name="island[]" multiple>
+            {% for island in islands %}
+            <option value="{{  island.id  }}" {% if island.id|stringformat:"s" in selected_island_ids %}selected{%endif%}>{{  island.name  }}</option>
+            {% endfor %}
+        </select>
 
-            <!-- Province Filter -->
-            <label for="provinceFilter" class="ml-2 mr-2">Provinces:</label>
-            <select id="provinceFilter" name="province[]" multiple>
-                <!-- Will be filled by AJAX -->
-                {% for province in selected_provinces %}
-                <option value="{{ province.id }}" {% if province.id|stringformat:"s" in selected_province_ids %}selected{% endif %}>{{ province.name }}</option>
-                {% endfor %}
-            </select>
+        <!-- Province Filter -->
+        <label for="provinceFilter" class="ml-2 mr-2">Provinces:</label>
+        <select id="provinceFilter" name="province[]" multiple>
+            <!-- Will be filled by AJAX -->
+            {% for province in selected_provinces %}
+            <option value="{{  province.id  }}" {% if province.id|stringformat:"s" in selected_province_ids %}selected{%endif%}>{{  province.name  }}</option>
+            {% endfor %}
+        </select>
 
-            <!-- Business Filter -->
-            <label for="businessFilter" class="ml-2 mr-2">Businesses:</label>
-            <select id="businessFilter" name="business[]" multiple>
-                {% for biz in businesses %}
-                <option value="{{ biz.id }}" {% if biz.id|stringformat:"s" in selected_business_ids %}selected{% endif %}>
-                    {{ biz.initial }}
-                </option>
-                {% endfor %}
-            </select>
+        <!-- separator: geographic filters (island/province) end, organizational filters (business/organization/region) start -->
+        <span class="mx-2" style="align-self: stretch; border-left: 3px solid #adb5bd;"></span>
 
-            <!-- Organization Filter -->
-            <label for="organizationFilter" class="ml-2 mr-2">Organizations:</label>
-            <select id="organizationFilter" name="organization[]" multiple>
-                {% for org in selected_organizations %}
-                <option value="{{ org.id }}" {% if org.id|stringformat:"s" in selected_organization_ids %}selected{% endif %}>
-                    {{ org.shortname }}
-                </option>
-                {% endfor %}
-            </select>
+        <!-- Business Filter -->
+        <label for="businessFilter" class="ml-2 mr-2">Businesses:</label>
+        <select id="businessFilter" name="business[]" multiple>
+            {% for biz in businesses %}
+            <option value="{{  biz.id  }}" {% if biz.id|stringformat:"s" in selected_business_ids %}selected{% endif %}>
+                {{  biz.initial  }}
+            </option>
+            {% endfor %}
+        </select>
 
-            <!-- Region Filter -->
-            <label for="regionFilter" class="ml-2 mr-2">Region:</label>
-            <select id="regionFilter" name="region[]" multiple>
-                {% for reg in selected_regions %}
-                <option value="{{ reg.id }}" {% if reg.id|stringformat:"s" in selected_region_ids %}selected{% endif %}>
-                    {{ reg.shortname }}
-                </option>
-                {% endfor %}
-            </select>
-            <button type="submit" class="btn btn-primary ml-2">Apply</button>
-        </form>
-        {% comment %} <button class="btn btn-sm btn-primary" id="expand-all">Expand All</button>
-        <button class="btn btn-sm btn-secondary" id="collapse-all">Collapse All</button> {% endcomment %}
+        <!-- Organization Filter -->
+        <label for="organizationFilter" class="ml-2 mr-2">Organizations:</label>
+        <select id="organizationFilter" name="organization[]" multiple>
+            {% for org in selected_organizations %}
+            <option value="{{  org.id  }}" {% if org.id|stringformat:"s" in selected_organization_ids %}selected{%endif%}>
+                {{  org.shortname  }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <!-- Region Filter -->
+        <label for="regionFilter" class="ml-2 mr-2">Region:</label>
+        <select id="regionFilter" name="region[]" multiple>
+            {% for reg in selected_regions %}
+            <option value="{{  reg.id  }}" {% if reg.id|stringformat:"s" in selected_region_ids %}selected{% endif %}>
+                {{  reg.shortname  }}
+            </option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary ml-2 track-click" data-feature="Apply Area Matrix Filter Button"
+            data-description="User clicked Apply Filter on Area Matrix">Apply</button>
+    </form>
+</div>
+
+{% if mode == "no_island" %}
+<div class="alert alert-info">Please select at least one island to begin.</div>
+{% else %}
+<!-- ✅ Show Island Table -->
+<div class="card mt-4">
+    <div class="card-header">
+        <strong>Selected Regencies & Areas</strong>
     </div>
-
-    {% if mode == "no_island" %}
-    <div class="alert alert-info">Please select at least one island to begin.</div>
-    {% else %}
-    <!-- ✅ Show Island Table -->
-    <div class="card mt-4">
-        <div class="card-header">
-            <strong>Selected Regencies & Areas</strong>
-        </div>
-        <div class="card-body p-0">
-            <div class="table-responsive area-matrix-wrapper">
-                <table id="area-matrix-table" class="table table-bordered">
-                    <thead class="thead-light">
-                        <tr>
-                            <th rowspan="5" class="col-25 hv-sticky-col">#</th>
-                            <th rowspan="5" class="col-50 hv-sticky-col">ICode</th>
-                            <th rowspan="5" class="col-75 hv-sticky-col">Island</th>
-                            {% if selected_province_ids %}
-                            <th rowspan="5" class="col-50 hv-sticky-col">PCode</th>
-                            <th rowspan="5" class="col-100 hv-sticky-col">Province</th>
-                            <th rowspan="5" class="col-50 hv-sticky-col">RCode</th>
-                            <th rowspan="5" class="col-200 hv-sticky-col">Regency</th>
-                            {% endif %}
-
-                            {# 1st Header Row: Business #}
-                            {% for business in selected_businesses %}
-                            {% with key=business.id|stringformat:"s" %}
-                            {% with colspan=colspan_by_business|get_item:key %}
-                            <th colspan="{{ colspan }}" class="text-center">{{ business.initial }}</th>
-                            {% endwith %}
-                            {% endwith %}
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            {# 2nd Header Row: Organizations #}
-                            {% for business in selected_businesses %}
-                            {% with biz_key=business.id|stringformat:"s" %}
-                            {% with orgs=organizations_by_business|get_item:biz_key %}
-                            {% for org in orgs %}
-                            {% with org_key=org.id|stringformat:"s" %}
-                            {% with count=area_counts_by_org|get_item:org_key %}
-                            <th colspan="{{ count }}" class="text-center">{{ org.shortname }}</th>
-                            {% endwith %}
-                            {% endwith %}
-                            {% endfor %}
-                            {% endwith %}
-                            {% endwith %}
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            {# 3rd Header Row: Regions #}
-                            {% for business in selected_businesses %}
-                            {% with biz_key=business.id|stringformat:"s" %}
-                            {% with orgs=organizations_by_business|get_item:biz_key %}
-                            {% for org in orgs %}
-                            {% with org_key=org.id|stringformat:"s" %}
-                            {% with regions=regions_by_organization|get_item:org_key %}
-                            {% for region in regions %}
-                            {% with region_key=region.id|stringformat:"s" %}
-                            {% with count=area_counts_by_region|get_item:region_key %}
-                            <th colspan="{{ count }}" class="text-center">{{ region.shortname }}</th>
-                            {% endwith %}
-                            {% endwith %}
-                            {% endfor %}
-                            {% endwith %}
-                            {% endwith %}
-                            {% endfor %}
-                            {% endwith %}
-                            {% endwith %}
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            {# 4th Header Row: Areas #}
-                            {% for business in selected_businesses %}
-                            {% with biz_key=business.id|stringformat:"s" %}
-                            {% with orgs=organizations_by_business|get_item:biz_key %}
-                            {% for org in orgs %}
-                            {% with org_key=org.id|stringformat:"s" %}
-                            {% with regions=regions_by_organization|get_item:org_key %}
-                            {% for region in regions %}
-                            {% with region_key=region.id|stringformat:"s" %}
-                            {% with areas=areas_by_region|get_item:region_key %}
-                            {% for area in areas %}
-                            <th class="text-center">
-                                {{ area.initial }}
-                            </th>
-                            {% endfor %}
-                            {% endwith %}
-                            {% endwith %}
-                            {% endfor %}
-                            {% endwith %}
-                            {% endwith %}
-                            {% endfor %}
-                            {% endwith %}
-                            {% endwith %}
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            {# 5th Header Row: Areas (clean) #}
-                            {% for business in selected_businesses %}
-                            {% with biz_key=business.id|stringformat:"s" %}
-                            {% with orgs=organizations_by_business|get_item:biz_key %}
-                            {% for org in orgs %}
-                            {% with org_key=org.id|stringformat:"s" %}
-                            {% with regions=regions_by_organization|get_item:org_key %}
-                            {% for region in regions %}
-                            {% with region_key=region.id|stringformat:"s" %}
-                            {% with areas=areas_by_region|get_item:region_key %}
-                            {% for area in areas %}
-                            <th class="text-center">
-                                <i class="fas fa-check-square text-info select-all-col" title="Select all regencies for this area" style="cursor:pointer;font-size:11px;" data-area-id="{{ area.id }}"></i>
-                            </th>
-                            {% endfor %}
-                            {% endwith %}
-                            {% endwith %}
-                            {% endfor %}
-                            {% endwith %}
-                            {% endwith %}
-                            {% endfor %}
-                            {% endwith %}
-                            {% endwith %}
-                            {% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for island in selected_islands %}
+    <div class="card-body p-0">
+        <div class="table-responsive area-matrix-wrapper">
+            <table id="area-matrix-table" class="table table-bordered">
+                <thead class="thead-light">
+                    <tr>
+                        <th rowspan="5" class="col-25 hv-sticky-col">#</th>
+                        <th rowspan="5" class="col-50 hv-sticky-col">ICode</th>
+                        <th rowspan="5" class="col-75 hv-sticky-col">Island</th>
                         {% if selected_province_ids %}
-                        {% for province in selected_provinces %}
-                        {% if province.island.id == island.id %}
-                        {% for regency in province.regency_set.all %}
-                        <tr class="collapse show regency-row">
-                            <td class="col-25 hv-sticky-col">{{ forloop.counter }}</td>
-                            <td class="col-50 hv-sticky-col">{{ island.code }}</td>
-                            <td class="col-75 hv-sticky-col">{{ island.name }}</td>
-                            <td class="col-50 hv-sticky-col">{{ province.code }}</td>
-                            <td class="col-100 hv-sticky-col">{{ province.name }}</td>
-                            <td class="col-50 hv-sticky-col">{{ regency.code }}</td>
-                            <td class="col-200 hv-sticky-col">
-                                {% if regency.type.code == "Kab" %}
-                                {{ regency.type.code }}. {{ regency.name }}
-                                {% else %}
-                                {{ regency.name }}
-                                {% endif %}
-                            </td>
-                            {# render empty cells for each selected business #}
-                            {% for business in selected_businesses %}
-                            {% with business_key=business.id|stringformat:"s" %}
-                            {% for org in organizations_by_business|get_item:business_key %}
-                            {% with org_key=org.id|stringformat:"s" %}
-                            {% for region in regions_by_organization|get_item:org_key %}
-                            {% with region_key=region.id|stringformat:"s" %}
-                            {% for area in areas_by_region|get_item:region_key %}
-                            {% get_area_mapping active_map regency.id area.id as active %}
-                            <td class="text-center">
-                                {% if active %}
-                                {% if active.status == 1 %}
-                                {% if regency.id in shared_regency_ids %}
-                                <i class="fas fa-check-circle text-primary matrix-toggle" data-regency-id="{{ regency.id }}" data-regency-name="{{ regency.name }}" data-area-id="{{ area.id }}" data-area-name="{{area.name}}-{{regency.type.code}}. {{regency.name}}" data-effective="{{ active.effective|date:'Y-m-d' }}" data-terminated="{{ active.terminated|date:'Y-m-d' }}" data-status="1" style="cursor:pointer;"></i>
-                                {% else %}
-                                <i class="fas fa-check-circle text-success matrix-toggle" data-regency-id="{{ regency.id }}" data-regency-name="{{ regency.name }}" data-area-id="{{ area.id }}" data-area-name="{{area.name}}-{{regency.type.code}}. {{regency.name}}" data-effective="{{ active.effective|date:'Y-m-d' }}" data-terminated="{{ active.terminated|date:'Y-m-d' }}" data-status="1" style="cursor:pointer;"></i>
-                                {% endif %}
-                                {% else %}
-                                <i class="far fa-circle text-muted matrix-toggle" data-regency-id="{{ regency.id }}" data-regency-name="{{ regency.name }}" data-area-id="{{ area.id }}" data-area-name="{{area.name}}-{{regency.type.code}}. {{regency.name}}" data-effective="{{ active.effective|date:'Y-m-d' }}" data-terminated="{{ active.terminated|date:'Y-m-d' }}" data-status="0" style="cursor:pointer;"></i>
-                                {% endif %}
-                                {% else %}
-                                <i class="far fa-circle text-muted matrix-toggle" data-regency-id="{{ regency.id }}" data-regency-name="{{ regency.name }}" data-area-id="{{ area.id }}" data-area-name="{{area.name}}-{{regency.type.code}}. {{regency.name}}" style="cursor:pointer;"></i>
-                                {% endif %}
-                            </td>
-                            {% endfor %}
-                            {% endwith %}
-                            {% endfor %}
-                            {% endwith %}
-                            {% endfor %}
-                            {% endwith %}
-                            {% endfor %}
-                        </tr>
-                        {% endfor %}
+                        <th rowspan="5" class="col-50 hv-sticky-col">PCode</th>
+                        <th rowspan="5" class="col-100 hv-sticky-col">Province</th>
+                        <th rowspan="5" class="col-50 hv-sticky-col">RCode</th>
+                        <th rowspan="5" class="col-200 hv-sticky-col">Regency</th>
                         {% endif %}
+
+                        {# 1st Header Row: Business #}
+                        {% for business in selected_businesses %}
+                        {% with key=business.id|stringformat:"s" %}
+                        {% with colspan=colspan_by_business|get_item:key %}
+                        <th colspan="{{  colspan  }}" class="text-center">{{  business.initial  }}</th>
+                        {% endwith %}
+                        {% endwith %}
                         {% endfor %}
-                        {% endif %}
+                    </tr>
+                    <tr>
+                        {# 2nd Header Row: Organizations #}
+                        {% for business in selected_businesses %}
+                        {% with biz_key=business.id|stringformat:"s" %}
+                        {% with orgs=organizations_by_business|get_item:biz_key %}
+                        {% for org in orgs %}
+                        {% with org_key=org.id|stringformat:"s" %}
+                        {% with count=area_counts_by_org|get_item:org_key %}
+                        <th colspan="{{  count  }}" class="text-center">{{  org.shortname  }}</th>
+                        {% endwith %}
+                        {% endwith %}
                         {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                        {% endwith %}
+                        {% endwith %}
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        {# 3rd Header Row: Regions #}
+                        {% for business in selected_businesses %}
+                        {% with biz_key=business.id|stringformat:"s" %}
+                        {% with orgs=organizations_by_business|get_item:biz_key %}
+                        {% for org in orgs %}
+                        {% with org_key=org.id|stringformat:"s" %}
+                        {% with regions=regions_by_organization|get_item:org_key %}
+                        {% for region in regions %}
+                        {% with region_key=region.id|stringformat:"s" %}
+                        {% with count=area_counts_by_region|get_item:region_key %}
+                        <th colspan="{{  count  }}" class="text-center">{{  region.shortname  }}</th>
+                        {% endwith %}
+                        {% endwith %}
+                        {% endfor %}
+                        {% endwith %}
+                        {% endwith %}
+                        {% endfor %}
+                        {% endwith %}
+                        {% endwith %}
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        {# 4th Header Row: Areas #}
+                        {% for business in selected_businesses %}
+                        {% with biz_key=business.id|stringformat:"s" %}
+                        {% with orgs=organizations_by_business|get_item:biz_key %}
+                        {% for org in orgs %}
+                        {% with org_key=org.id|stringformat:"s" %}
+                        {% with regions=regions_by_organization|get_item:org_key %}
+                        {% for region in regions %}
+                        {% with region_key=region.id|stringformat:"s" %}
+                        {% with areas=areas_by_region|get_item:region_key %}
+                        {% for area in areas %}
+                        <th class="text-center">
+                            {{  area.initial  }}
+                        </th>
+                        {% endfor %}
+                        {% endwith %}
+                        {% endwith %}
+                        {% endfor %}
+                        {% endwith %}
+                        {% endwith %}
+                        {% endfor %}
+                        {% endwith %}
+                        {% endwith %}
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        {# 5th Header Row: Areas (clean) #}
+                        {% for business in selected_businesses %}
+                        {% with biz_key=business.id|stringformat:"s" %}
+                        {% with orgs=organizations_by_business|get_item:biz_key %}
+                        {% for org in orgs %}
+                        {% with org_key=org.id|stringformat:"s" %}
+                        {% with regions=regions_by_organization|get_item:org_key %}
+                        {% for region in regions %}
+                        {% with region_key=region.id|stringformat:"s" %}
+                        {% with areas=areas_by_region|get_item:region_key %}
+                        {% for area in areas %}
+                        <th class="text-center">
+                            <i class="fas fa-check-square text-info select-all-col"
+                                title="Select all regencies for this area" style="cursor:pointer;font-size:11px;"
+                                data-area-id="{{  area.id  }}"></i>
+                        </th>
+                        {% endfor %}
+                        {% endwith %}
+                        {% endwith %}
+                        {% endfor %}
+                        {% endwith %}
+                        {% endwith %}
+                        {% endfor %}
+                        {% endwith %}
+                        {% endwith %}
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for island in selected_islands %}
+                    {% if selected_province_ids %}
+                    {% for province in selected_provinces %}
+                    {% if province.island.id == island.id %}
+                    {% for regency in province.regency_set.all %}
+                    <tr class="collapse show regency-row">
+                        <td class="col-25 hv-sticky-col">{{  forloop.counter  }}</td>
+                        <td class="col-50 hv-sticky-col">{{  island.code  }}</td>
+                        <td class="col-75 hv-sticky-col">{{  island.name  }}</td>
+                        <td class="col-50 hv-sticky-col">{{  province.code  }}</td>
+                        <td class="col-100 hv-sticky-col">{{  province.name  }}</td>
+                        <td class="col-50 hv-sticky-col">{{  regency.code  }}</td>
+                        <td class="col-200 hv-sticky-col">
+                            {% if regency.type.code == "Kab" %}
+                            {{  regency.type.code  }}. {{  regency.name  }}
+                            {% else %}
+                            {{  regency.name  }}
+                            {% endif %}
+                        </td>
+                        {# render empty cells for each selected business #}
+                        {% for business in selected_businesses %}
+                        {% with business_key=business.id|stringformat:"s" %}
+                        {% for org in organizations_by_business|get_item:business_key %}
+                        {% with org_key=org.id|stringformat:"s" %}
+                        {% for region in regions_by_organization|get_item:org_key %}
+                        {% with region_key=region.id|stringformat:"s" %}
+                        {% for area in areas_by_region|get_item:region_key %}
+                        {% get_area_mapping active_map regency.id area.id as active %}
+                        <td class="text-center">
+                            {% if active %}
+                            {% if active.status == 1 %}
+                            {% if regency.id in shared_regency_ids %}
+                            <i class="fas fa-check-circle text-primary matrix-toggle" data-regency-id="{{  regency.id  }}"
+                                data-regency-name="{{  regency.name  }}" data-area-id="{{  area.id  }}"
+                                data-area-name="{{  area.name  }}-{{  regency.type.code  }}. {{  regency.name  }}"
+                                data-effective="{{  active.effective|date:'Y-m-d'  }}"
+                                data-terminated="{{  active.terminated|date:'Y-m-d'  }}" data-status="1"
+                                style="cursor:pointer;"></i>
+                            {% else %}
+                            <i class="fas fa-check-circle text-success matrix-toggle" data-regency-id="{{  regency.id  }}"
+                                data-regency-name="{{  regency.name  }}" data-area-id="{{  area.id  }}"
+                                data-area-name="{{  area.name  }}-{{  regency.type.code  }}. {{  regency.name  }}"
+                                data-effective="{{  active.effective|date:'Y-m-d'  }}"
+                                data-terminated="{{  active.terminated|date:'Y-m-d'  }}" data-status="1"
+                                style="cursor:pointer;"></i>
+                            {% endif %}
+                            {% else %}
+                            <i class="far fa-circle text-muted matrix-toggle" data-regency-id="{{  regency.id  }}"
+                                data-regency-name="{{  regency.name  }}" data-area-id="{{  area.id  }}"
+                                data-area-name="{{  area.name  }}-{{  regency.type.code  }}. {{  regency.name  }}"
+                                data-effective="{{  active.effective|date:'Y-m-d'  }}"
+                                data-terminated="{{  active.terminated|date:'Y-m-d'  }}" data-status="0"
+                                style="cursor:pointer;"></i>
+                            {% endif %}
+                            {% else %}
+                            <i class="far fa-circle text-muted matrix-toggle" data-regency-id="{{  regency.id  }}"
+                                data-regency-name="{{  regency.name  }}" data-area-id="{{  area.id  }}"
+                                data-area-name="{{  area.name  }}-{{  regency.type.code  }}. {{  regency.name  }}"
+                                style="cursor:pointer;"></i>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                        {% endwith %}
+                        {% endfor %}
+                        {% endwith %}
+                        {% endfor %}
+                        {% endwith %}
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
+</div>
 
-    <!-- Modal: Area-Regency Mapping Edit -->
-    <div class="modal fade" id="areaMatrixModal" tabindex="-1" role="dialog" aria-labelledby="areaMatrixModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title" id="areaMatrixModalLabel">Edit Area Mapping</h3>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+<!-- Modal: Area-Regency Mapping Edit -->
+<div class="modal fade" id="areaMatrixModal" tabindex="-1" role="dialog" aria-labelledby="areaMatrixModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="areaMatrixModalLabel">Edit Area Mapping</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <p>Regency: <strong id="modalRegencyName">[regency]</strong></p>
+                <p>Area: <strong id="modalAreaName">[area]</strong></p>
+                <input type="hidden" id="modalRegencyId" />
+                <input type="hidden" id="modalAreaId" />
+                <div id="areaMatrixActionSection" class="mb-2 text-danger small"></div>
+                <div class="form-group">
+                    <label>Status:</label>
+                    <div id="modalAreaStatus" class="font-weight-bold text-sm"></div>
                 </div>
-                <div class="modal-body">
-                    <p>Regency: <strong id="modalRegencyName">[regency]</strong></p>
-                    <p>Area: <strong id="modalAreaName">[area]</strong></p>
-                    <input type="hidden" id="modalRegencyId" />
-                    <input type="hidden" id="modalAreaId" />
-                    <div id="areaMatrixActionSection" class="mb-2 text-danger small"></div>
-                    <div class="form-group">
-                        <label>Status:</label>
-                        <div id="modalAreaStatus" class="font-weight-bold text-sm"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="modalAreaEffective">Effective Date</label>
-                        <input type="date" class="form-control form-control-sm" id="modalAreaEffective" />
-                    </div>
-                    <div class="form-group">
-                        <label for="modalAreaTerminated">Terminated Date</label>
-                        <input type="date" class="form-control form-control-sm" id="modalAreaTerminated" />
-                    </div>
+                <div class="form-group">
+                    <label for="modalAreaEffective">Effective Date</label>
+                    <input type="date" class="form-control form-control-sm" id="modalAreaEffective" {%if not can_edit_effective_date%}readonly{% endif %} />
                 </div>
-                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
-                <div class="modal-footer d-flex justify-content-between">
-                    <div>
-                        <button type="button" class="btn btn-sm btn-danger" data-action="delete" id="areaMatrixDelete">Delete</button>
-                    </div>
-                    <div>
-                        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-sm btn-success" data-action="save" id="areaMatrixSave">Save</button>
-                    </div>
+                <div class="form-group">
+                    <label for="modalAreaTerminated">Terminated Date</label>
+                    <input type="date" class="form-control form-control-sm" id="modalAreaTerminated" />
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Modal: Bulk Area Mapping -->
-    <div class="modal fade" id="bulkAreaModal" tabindex="-1" role="dialog" aria-labelledby="bulkAreaModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title" id="bulkAreaModalLabel">Bulk Map Area</h3>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                </div>
-                <div class="modal-body">
-                    <p>Area ID: <strong id="bulkAreaIdDisplay">[area]</strong></p>
-                    <input type="hidden" id="bulkAreaId" />
-                    <div class="form-group">
-                        <label for="bulkEffective">Effective Date</label>
-                        <input type="date" class="form-control form-control-sm" id="bulkEffective" />
-                    </div>
-                    <div class="form-group">
-                        <label for="bulkTerminated">Terminated Date</label>
-                        <input type="date" class="form-control form-control-sm" id="bulkTerminated" />
-                    </div>
-                </div>
-                <div class="modal-footer d-flex justify-content-between">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{  csrf_token  }}" />
+            <div class="modal-footer d-flex justify-content-between">
+                <div>
                     <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-sm btn-success" id="bulkAreaSave">Apply</button>
+                </div>
+                <div>
+                    {% if is_admin or user_site_id == 1 %}
+                    <button type="button" class="btn btn-sm btn-danger" data-action="delete"
+                        id="areaMatrixDelete">Delete</button>
+                    {% endif %}
+                    <button type="button" class="btn btn-sm btn-success" data-action="save"
+                        id="areaMatrixSave">Save</button>
                 </div>
             </div>
         </div>
     </div>
-    {% endif %}
+</div>
+
+<!-- Modal: Bulk Area Mapping -->
+<div class="modal fade" id="bulkAreaModal" tabindex="-1" role="dialog" aria-labelledby="bulkAreaModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="bulkAreaModalLabel">Bulk Map Area</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <p>Area ID: <strong id="bulkAreaIdDisplay">[area]</strong></p>
+                <input type="hidden" id="bulkAreaId" />
+                <div class="form-group">
+                    <label for="bulkEffective">Effective Date</label>
+                    <input type="date" class="form-control form-control-sm" id="bulkEffective" />
+                </div>
+                <div class="form-group">
+                    <label for="bulkTerminated">Terminated Date</label>
+                    <input type="date" class="form-control form-control-sm" id="bulkTerminated" />
+                </div>
+            </div>
+            <div class="modal-footer d-flex justify-content-between">
+                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-sm btn-success" id="bulkAreaSave">Apply</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
 <script src="{% static 'vendor/bootstrap-multiselect/bootstrap-multiselect.min.js' %}"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    const canEditAreaEffectiveDate = {{  can_edit_effective_date|yesno:"true,false"  }};
+    document.addEventListener('DOMContentLoaded', function () {
         function applyStickyHeaderPositions() {
             const wrapper = document.querySelector('.area-matrix-wrapper');
             if (!wrapper) return;
@@ -523,11 +555,11 @@
         window.addEventListener('scroll', applyStickyHeaderPositions);
     });
 
-    $(document).ready(function() {
+    $(document).ready(function () {
         $('#expand-all').on('click', () => $('.regency-row').slideDown());
         $('#collapse-all').on('click', () => $('.regency-row').slideUp());
 
-        $('.select-all-col').on('click', function(e) {
+        $('.select-all-col').on('click', function (e) {
             e.preventDefault();
             const areaId = $(this).data('area-id');
             $('#bulkAreaId').val(areaId);
@@ -555,7 +587,7 @@
             $('#bulkAreaModal').modal('show');
         });
 
-        $(document).on('click', '#bulkActivate', function(e) {
+        $(document).on('click', '#bulkActivate', function (e) {
             e.preventDefault();
             const areaId = $('#bulkAreaId').val();
             const effectiveVal = $('#bulkEffective').val() || new Date().toISOString().slice(0, 10);
@@ -575,7 +607,7 @@
 
             $('#bulkActivate').prop('disabled', true).text('Activating...');
 
-            $cells.each(function() {
+            $cells.each(function () {
                 const $icon = $(this);
                 const regencyId = $icon.data('regency-id');
                 const currentStatus = $icon.data('status');
@@ -603,7 +635,7 @@
                     url: "{% url 'sales:area_matrix_update' %}",
                     method: 'POST',
                     data: payload,
-                    success: function(response) {
+                    success: function (response) {
                         if (response.status === 'created' || response.status === 'updated') {
                             $icon.removeClass('far fa-circle text-muted')
                                 .addClass('fas fa-check-circle text-success');
@@ -611,13 +643,13 @@
                             activatedCount++;
                         }
                     },
-                    complete: function() {
+                    complete: function () {
                         completed++;
                         if (completed === total) {
                             finishActivation();
                         }
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         console.error('Bulk activate error', xhr.status, xhr.responseText);
                         completed++;
                         if (completed === total) {
@@ -640,7 +672,7 @@
             }
         });
 
-        $(document).on('click', '#bulkDeactivate', function(e) {
+        $(document).on('click', '#bulkDeactivate', function (e) {
             e.preventDefault();
             const areaId = $('#bulkAreaId').val();
             const terminatedVal = $('#bulkTerminated').val();
@@ -665,7 +697,7 @@
 
             $('#bulkDeactivate').prop('disabled', true).text('Deactivating...');
 
-            $cells.each(function() {
+            $cells.each(function () {
                 const $icon = $(this);
                 const regencyId = $icon.data('regency-id');
                 const currentStatus = $icon.data('status');
@@ -693,7 +725,7 @@
                     url: "{% url 'sales:area_matrix_update' %}",
                     method: 'POST',
                     data: payload,
-                    success: function(response) {
+                    success: function (response) {
                         if (response.status === 'updated') {
                             $icon.removeClass('fas fa-check-circle text-success text-primary')
                                 .addClass('far fa-circle text-muted');
@@ -701,13 +733,13 @@
                             deactivatedCount++;
                         }
                     },
-                    complete: function() {
+                    complete: function () {
                         completed++;
                         if (completed === total) {
                             finishDeactivation();
                         }
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         console.error('Bulk deactivate error', xhr.status, xhr.responseText);
                         completed++;
                         if (completed === total) {
@@ -730,13 +762,13 @@
             }
         });
 
-        $('.select-all-row').on('click', function(e) {
+        $('.select-all-row').on('click', function (e) {
             e.preventDefault();
             const regencyId = $(this).data('regency-id');
             const $row = $(this).closest('tr');
             const csrfToken = $('[name="csrfmiddlewaretoken"]').val();
 
-            const $targets = $row.find('.matrix-toggle').filter(function() {
+            const $targets = $row.find('.matrix-toggle').filter(function () {
                 const st = $(this).data('status');
                 return !(st === 1 || st === '1');
             });
@@ -753,7 +785,7 @@
             const total = $targets.length;
             let activatedCount = 0;
 
-            $targets.each(function() {
+            $targets.each(function () {
                 const $icon = $(this);
                 const areaId = $icon.data('area-id');
 
@@ -771,7 +803,7 @@
                     url: "{% url 'sales:area_matrix_update' %}",
                     method: 'POST',
                     data: payload,
-                    success: function(response) {
+                    success: function (response) {
                         if (response.status === 'created' || response.status === 'updated') {
                             $icon.removeClass('far fa-circle text-muted text-primary')
                                 .addClass('fas fa-check-circle text-success');
@@ -779,7 +811,7 @@
                             activatedCount++;
                         }
                     },
-                    complete: function() {
+                    complete: function () {
                         completed++;
                         if (completed === total) {
                             $bulkIcon.addClass('text-success').removeClass('text-muted').css('pointer-events', '');
@@ -789,158 +821,251 @@
                             }
                         }
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         console.error('Bulk map error', xhr.status, xhr.responseText);
                     }
                 });
             });
         });
 
-        $('.matrix-toggle').on('click', function() {
-            const $el = $(this);
+        // Full-access edit flag passed from Django context
+        const canEditEffectiveDate = {{  can_edit_effective_date|yesno:"true,false"  }};
 
-            const regencyId = $el.data('regency-id');
-            const regencyName = $el.data('regency-name');
-            const areaId = $el.data('area-id');
-            const areaName = $el.data('area-name');
+    $('.matrix-toggle').on('click', function () {
+        const $el = $(this);
 
-            const effective = $el.data('effective') || '';
-            const terminated = $el.data('terminated') || '';
-            const statusRaw = $el.data('status');
-            const status = (statusRaw == 1) ? 1 : (statusRaw == 0 ? 0 : null);
+        const regencyId = $el.data('regency-id');
+        const regencyName = $el.data('regency-name');
+        const areaId = $el.data('area-id');
+        const areaName = $el.data('area-name');
 
-            $('#modalRegencyName').text(regencyName);
-            $('#modalAreaName').text(areaName);
-            $('#modalRegencyId').val(regencyId);
-            $('#modalAreaId').val(areaId);
-            $('#modalAreaEffective').val(effective);
-            $('#modalAreaTerminated').val(terminated);
+        const effective = $el.data('effective') || '';
+        const terminated = $el.data('terminated') || '';
+        const statusRaw = $el.data('status');
+        const status = (statusRaw == 1) ? 1 : (statusRaw == 0 ? 0 : null);
 
-            if (status === null) {
-                $('#modalAreaStatus').text('No Mapping').data('status', null);
-                $('#modalAreaEffective').prop('readonly', false);
-            } else if (status === 1) {
-                $('#modalAreaStatus').text('Active').data('status', 1);
-                $('#modalAreaEffective').prop('readonly', true);
-            } else {
-                $('#modalAreaStatus').text('Inactive').data('status', 0);
-                $('#modalAreaEffective').prop('readonly', true);
-            }
+        $('#modalRegencyName').text(regencyName);
+        $('#modalAreaName').text(areaName);
+        $('#modalRegencyId').val(regencyId);
+        $('#modalAreaId').val(areaId);
+        $('#modalAreaEffective').val(effective);
+        $('#modalAreaTerminated').val(terminated);
 
-            $('#areaMatrixModal').modal('show');
-        });
-
-        $('#areaMatrixSave, #areaMatrixDelete').on('click', function(e) {
-            e.preventDefault();
-
-            const action = $(this).data('action');
-            const token = $('[name="csrfmiddlewaretoken"]').val();
-            const regencyId = $('#modalRegencyId').val();
-            const areaId = $('#modalAreaId').val();
-            const effectiveVal = $('#modalAreaEffective').val();
-            const terminatedVal = $('#modalAreaTerminated').val();
-            const currentStatus = $('#modalAreaStatus').data('status');
-
-            let postData = {
-                csrfmiddlewaretoken: token,
-                regency_id: regencyId,
-                area_id: areaId,
-                action: action
-            };
-
-            if (action === 'save') {
-                if (currentStatus === null) {
-                    postData.effective = effectiveVal || new Date().toISOString().slice(0, 10);
-                }
-                if (terminatedVal) postData.terminated = terminatedVal;
-            }
-
-            $.ajax({
-                url: "{% url 'sales:area_matrix_update' %}",
-                method: 'POST',
-                data: postData,
-                success: () => {
-                    $('#areaMatrixModal').modal('hide');
-                    location.reload();
-                },
-                error: (xhr) => {
-                    alert('Error saving area mapping: ' + xhr.responseText);
-                }
-            });
-        });
-
-        const initMultiselect = (id, width, allText) => {
-            $(id).multiselect({
-                includeSelectAllOption: true,
-                enableFiltering: true,
-                buttonWidth: width,
-                maxHeight: 300,
-                nonSelectedText: 'Select',
-                allSelectedText: allText,
-                numberDisplayed: 1,
-            });
-        };
-
-        initMultiselect('#businessFilter', '120px', 'All Businesses');
-        initMultiselect('#organizationFilter', '200px', 'All Organizations');
-        initMultiselect('#regionFilter', '150px', 'All Regions');
-
-        if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
-            ['#islandFilter', '#provinceFilter', '#businessFilter', '#organizationFilter', '#regionFilter']
-            .forEach(id => $(id).multiselect('deselectAll', false).multiselect('updateButtonText'));
+        if (status === null) {
+            $('#modalAreaStatus').text('No Mapping').data('status', null);
+            // allow edit only when user has permission
+            $('#modalAreaEffective').prop('readonly', !canEditEffectiveDate);
+        } else if (status === 1) {
+            $('#modalAreaStatus').text('Active').data('status', 1);
+            // allow editing effective for permitted roles even when active
+            $('#modalAreaEffective').prop('readonly', !canEditEffectiveDate);
+        } else {
+            $('#modalAreaStatus').text('Inactive').data('status', 0);
+            $('#modalAreaEffective').prop('readonly', !canEditEffectiveDate);
         }
 
+        $('#areaMatrixModal').modal('show');
+    });
+
+    $('#areaMatrixSave, #areaMatrixDelete').on('click', function (e) {
+        e.preventDefault();
+
+        const action = $(this).data('action');
+        const token = $('[name="csrfmiddlewaretoken"]').val();
+        const regencyId = $('#modalRegencyId').val();
+        const areaId = $('#modalAreaId').val();
+        const effectiveVal = $('#modalAreaEffective').val();
+        const terminatedVal = $('#modalAreaTerminated').val();
+        const currentStatus = $('#modalAreaStatus').data('status');
+
+        let postData = {
+            csrfmiddlewaretoken: token,
+            regency_id: regencyId,
+            area_id: areaId,
+            action: action
+        };
+
+        if (action === 'save') {
+            // Always include effective when user provided a value (edit or activation).
+            if (effectiveVal) {
+                postData.effective = effectiveVal;
+            } else if (currentStatus === null) {
+                // For new mappings, default to today when empty
+                postData.effective = new Date().toISOString().slice(0, 10);
+            }
+            if (terminatedVal) postData.terminated = terminatedVal;
+        }
+
+        $.ajax({
+            url: "{% url 'sales:area_matrix_update' %}",
+            method: 'POST',
+            data: postData,
+            success: () => {
+                $('#areaMatrixModal').modal('hide');
+                location.reload();
+            },
+            error: (xhr) => {
+                alert('Error saving area mapping: ' + xhr.responseText);
+            }
+        });
+    });
+
+    // Auto-select a filter when it only has one possible option (typically
+    // because a scoped user — e.g. Regional Manager — only sees one
+    // island/region/etc). Triggers 'change' so the next filter in the
+    // cascade (province/organization/region) fills in on its own too,
+    // instead of requiring the user to click through each dropdown.
+    function autoSelectIfSingleOption($select) {
+        const $options = $select.find('option');
+        const currentValue = $select.val() || [];
+        if ($options.length === 1 && currentValue.length === 0) {
+            const onlyValue = $options.first().val();
+            $select.val([onlyValue]);
+            $select.multiselect('rebuild');
+            $select.trigger('change');
+        }
+    }
+
+    // Refill a cascaded filter's <option> list from an AJAX response while
+    // keeping whatever was already selected (as long as that value is
+    // still present in the new list). Plain $select.empty() + re-append
+    // loses the "selected" state entirely, since the server-rendered
+    // "selected" attribute is gone and the freshly-appended <option>s
+    // carry no selection info of their own.
+    function refillOptionsPreservingSelection($select, items, valueKey, labelKey) {
+        const previousValue = ($select.val() || []).map(String);
+        $select.empty();
+        items.forEach(item => {
+            $select.append(`<option value="${item[valueKey]}">${item[labelKey]}</option>`);
+        });
+        const availableValues = items.map(item => String(item[valueKey]));
+        const preservedValue = previousValue.filter(v => availableValues.includes(v));
+        if (preservedValue.length > 0) {
+            $select.val(preservedValue);
+        }
+        $select.multiselect('rebuild');
+    }
+
+    const initMultiselect = (id, width, allText) => {
+        $(id).multiselect({
+            includeSelectAllOption: true,
+            enableFiltering: false,
+            buttonWidth: width,
+            maxHeight: 300,
+            nonSelectedText: 'Select',
+            allSelectedText: allText,
+            numberDisplayed: 1,
+        });
+    };
+
+    initMultiselect('#islandFilter', '150px', 'All Islands');
+    initMultiselect('#businessFilter', '120px', 'All Businesses');
+    initMultiselect('#organizationFilter', '200px', 'All Organizations');
+    initMultiselect('#regionFilter', '150px', 'All Regions');
+    initMultiselect('#provinceFilter', '150px', 'All Provinces');
+
+    if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
         ['#islandFilter', '#provinceFilter', '#businessFilter', '#organizationFilter', '#regionFilter']
+            .forEach(id => $(id).multiselect('deselectAll', false).multiselect('updateButtonText'));
+    }
+
+    ['#islandFilter', '#provinceFilter', '#businessFilter', '#organizationFilter', '#regionFilter']
         .forEach(id => $(id).multiselect('rebuild'));
 
-        $('#islandFilter').on('change', function() {
-            $.ajax({
-                url: "{% url 'sales:ajax_filter_provinces' %}",
-                data: {
-                    'island_ids[]': $(this).val() || []
-                },
-                traditional: true,
-                success: function(data) {
-                    const $prov = $('#provinceFilter');
-                    $prov.empty();
-                    data.forEach(p => $prov.append(`<option value="${p.id}">${p.name}</option>`));
-                    $prov.multiselect('rebuild');
-                }
-            });
+    $('#islandFilter').on('change', function () {
+        $.ajax({
+            url: "{% url 'sales:ajax_filter_provinces' %}",
+            data: {
+                'island_ids[]': $(this).val() || []
+            },
+            traditional: true,
+            success: function (data) {
+                const $prov = $('#provinceFilter');
+                refillOptionsPreservingSelection($prov, data, 'id', 'name');
+                autoSelectIfSingleOption($prov);
+            }
+        });
+    });
+
+    $('#businessFilter').on('change', function () {
+        $.ajax({
+            url: "{% url 'sales:ajax_filter_organizations' %}",
+            data: {
+                'business_ids[]': $(this).val() || []
+            },
+            traditional: true,
+            success: function (data) {
+                const $org = $('#organizationFilter');
+                refillOptionsPreservingSelection($org, data, 'id', 'shortname');
+                autoSelectIfSingleOption($org);
+            }
+        });
+    });
+
+    $('#organizationFilter').on('change', function () {
+        $.ajax({
+            url: "{% url 'sales:ajax_filter_regions' %}",
+            data: {
+                'organization_ids[]': $(this).val() || []
+            },
+            traditional: true,
+            success: function (data) {
+                const $region = $('#regionFilter');
+                refillOptionsPreservingSelection($region, data, 'id', 'shortname');
+                autoSelectIfSingleOption($region);
+            }
+        });
+    });
+
+    const islandHadValue = ($('#islandFilter').val() || []).length > 0;
+    autoSelectIfSingleOption($('#islandFilter'));
+    if (islandHadValue) {
+        $('#islandFilter').trigger('change');
+    }
+
+    const businessHadValue = ($('#businessFilter').val() || []).length > 0;
+    autoSelectIfSingleOption($('#businessFilter'));
+    if (businessHadValue) {
+        $('#businessFilter').trigger('change');
+    }
+
+    function logSalesClick(feature, description, metadata) {
+        const url = '/api/log-click/';
+        const body = JSON.stringify({
+            module: 'Sales',
+            feature: feature,
+            description: description,
+            metadata: metadata || {}
         });
 
-        $('#businessFilter').on('change', function() {
-            $.ajax({
-                url: "{% url 'sales:ajax_filter_organizations' %}",
-                data: {
-                    'business_ids[]': $(this).val() || []
-                },
-                traditional: true,
-                success: function(data) {
-                    const $org = $('#organizationFilter');
-                    $org.empty();
-                    data.forEach(o => $org.append(`<option value="${o.id}">${o.shortname}</option>`));
-                    $org.multiselect('rebuild');
-                }
-            });
-        });
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{  csrf_token  }}'
+            },
+            body: body,
+            keepalive: true
+        }).catch(err => console.error('Click logging failed', err));
+    }
 
-        $('#organizationFilter').on('change', function() {
-            $.ajax({
-                url: "{% url 'sales:ajax_filter_regions' %}",
-                data: {
-                    'organization_ids[]': $(this).val() || []
-                },
-                traditional: true,
-                success: function(data) {
-                    const $region = $('#regionFilter');
-                    $region.empty();
-                    data.forEach(r => $region.append(`<option value="${r.id}">${r.shortname}</option>`));
-                    $region.multiselect('rebuild');
-                }
-            });
-        });
+    $(document).on('click', '.track-click', function () {
+        const feature = $(this).attr('data-feature');
+        const description = $(this).attr('data-description');
+        const metadata = JSON.parse($(this).attr('data-metadata') || '{}');
+        if (feature) {
+            logSalesClick(feature, description, metadata);
+        }
+    });
 
+    $(document).on('submit', '.track-form', function () {
+        const feature = $(this).attr('data-feature');
+        const description = $(this).attr('data-description');
+        const metadata = JSON.parse($(this).attr('data-metadata') || '{}');
+        if (feature) {
+            logSalesClick(feature, description, metadata);
+        }
+    });
     });
 </script>
 {% endblock %}

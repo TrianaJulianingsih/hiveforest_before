@@ -1,5 +1,5 @@
 from django import forms
-from apps.supplychain.models.distributions import Branch
+from apps.supplychain.models.distributions_models import Branch
 
 
 class BranchsForm(forms.ModelForm):
@@ -35,3 +35,7 @@ class BranchsForm(forms.ModelForm):
             "type": forms.Select(attrs={"class": "form-select select2"}),
             "shipto": forms.TextInput(attrs={"class": "form-control"}),
         }
+
+
+# Alias for consistent naming
+BranchForm = BranchsForm

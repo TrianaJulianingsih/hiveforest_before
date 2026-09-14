@@ -4,7 +4,7 @@ from apps.base.forms.profileforms import UserProfileForm
 
 @login_required
 def profile_view(request):
-    profile = request.user.userprofile
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
     if request.method == 'POST':
         form = UserProfileForm(request.POST, request.FILES, instance=profile)
         print(request.FILES)

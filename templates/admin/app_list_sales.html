@@ -3,48 +3,87 @@
     <h6 class="list-group hiveforest">Products</h6>
   </li>
   <li class="list-group-item hiveforest">
-    <a href="{% url 'admin:sales_product_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Products</a> |
-    <a href="{% url 'admin:sales_productgroup_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Groups</a> |
-    <a href="{% url 'admin:sales_productsubgroup_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Subgroups</a>
+    <a href="{% url 'admin:sales_product_changelist' %}" class="track-click" data-feature="Products Link"
+      data-description="Clicked Products list link"
+      data-metadata='{"target": "{% url "admin:sales_product_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Products</a> |
+    <a href="{% url 'admin:sales_productgroup_changelist' %}" class="track-click" data-feature="Product Groups Link"
+      data-description="Clicked Product Groups list link"
+      data-metadata='{"target": "{% url "admin:sales_productgroup_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Groups</a> |
+    <a href="{% url 'admin:sales_productsubgroup_changelist' %}" class="track-click"
+      data-feature="Product Subgroups Link" data-description="Clicked Product Subgroups list link"
+      data-metadata='{"target": "{% url "admin:sales_productsubgroup_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Subgroups</a>
   </li>
   <li class="list-group-item hiveforest">
-    <a href="{% url 'admin:sales_productcategory_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Category</a> |
-    <a href="{% url 'admin:sales_productpackage_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Packaging</a>
+    <a href="{% url 'admin:sales_productcategory_changelist' %}" class="track-click"
+      data-feature="Product Category Link" data-description="Clicked Product Category list link"
+      data-metadata='{"target": "{% url "admin:sales_productcategory_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Category</a> |
+    <a href="{% url 'admin:sales_productpackage_changelist' %}" class="track-click"
+      data-feature="Product Packaging Link" data-description="Clicked Product Packaging list link"
+      data-metadata='{"target": "{% url "admin:sales_productpackage_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Packaging</a>
   </li>
   <li class="list-group-item hiveforest">
     <h6 class="list-group hiveforest">Customers</h6>
   </li>
   <li class="list-group-item hiveforest">
-    <a href="{% url 'admin:sales_customer_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Customers</a> |
-    <a href="{% url 'admin:sales_customertype_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Types</a> |
-    <a href="{% url 'admin:sales_customergroup_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Groups</a>
+    <a href="{% url 'admin:sales_customer_changelist' %}" class="track-click" data-feature="Customers Link"
+      data-description="Clicked Customers list link"
+      data-metadata='{"target": "{% url "admin:sales_customer_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Customers</a> |
+    <a href="{% url 'admin:sales_customertype_changelist' %}" class="track-click" data-feature="Customer Types Link"
+      data-description="Clicked Customer Types list link"
+      data-metadata='{"target": "{% url "admin:sales_customertype_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Types</a> |
+    <a href="{% url 'admin:sales_customergroup_changelist' %}" class="track-click" data-feature="Customer Groups Link"
+      data-description="Clicked Customer Groups list link"
+      data-metadata='{"target": "{% url "admin:sales_customergroup_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Groups</a>
   </li>
   <li class="list-group-item hiveforest">
     <h6 class="list-group hiveforest">Outlets</h6>
   </li>
   <li class="list-group-item hiveforest">
-    <a href="{% url 'admin:sales_outlet_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Outlets</a> |
-    <a href="{% url 'admin:sales_outletgroup_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Groups</a>
+    <a href="{% url 'admin:sales_outlet_changelist' %}" class="track-click" data-feature="Outlets Link"
+      data-description="Clicked Outlets list link"
+      data-metadata='{"target": "{% url "admin:sales_outlet_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Outlets</a> |
+    <a href="{% url 'admin:sales_outletgroup_changelist' %}" class="track-click" data-feature="Outlet Groups Link"
+      data-description="Clicked Outlet Groups list link"
+      data-metadata='{"target": "{% url "admin:sales_outletgroup_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Groups</a>
   </li>
   <li class="list-group-item hiveforest">
     <h6 class="list-group hiveforest">Sales</h6>
   </li>
   <li class="list-group-item hiveforest">
-    <a href="{% url 'admin:sales_rawmuso_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Raw MUP-SO</a> |
-    <a href="{% url 'admin:sales_rawrnso_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Raw RN-SO</a> |
-    <a href="{% url 'admin:sales_rawlmsso_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Raw LMS-SO</a> |
-    <a href="{% url 'admin:sales_rawkfso_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Raw KFTD-SO</a> |
-    <a href="{% url 'admin:sales_rawigso_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Raw IGM-SO</a> |
-    <a href="{% url 'admin:sales_rawppso_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Raw PPI-SO</a> |
-    <a href="{% url 'admin:sales_rawaplso_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Raw APL-SO</a> |
-    <a href="{% url 'admin:sales_rawappso_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Raw APP-SO</a> |
-    <button type="button" id="btn-import-rawappso" class="btn btn-primary btn-sm"
-            data-url="{% url 'sales:import_rawappso' %}">Import APP-SO</button> |
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#syncModal">Sync</button>
+    <a href="{% url 'admin:sales_rawmuso_changelist' %}" class="track-click" data-feature="Raw MUP-SO Link"
+      data-description="Clicked Raw MUP-SO list link"
+      data-metadata='{"target": "{% url "admin:sales_rawmuso_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Raw MUP-SO</a> |
+    <a href="{% url 'admin:sales_rawrnso_changelist' %}" class="track-click" data-feature="Raw RN-SO Link"
+      data-description="Clicked Raw RN-SO list link"
+      data-metadata='{"target": "{% url "admin:sales_rawrnso_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Raw RN-SO</a> |
+    <a href="{% url 'admin:sales_rawlmsso_changelist' %}" class="track-click" data-feature="Raw LMS-SO Link"
+      data-description="Clicked Raw LMS-SO list link"
+      data-metadata='{"target": "{% url "admin:sales_rawlmsso_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Raw LMS-SO</a> |
+    <a href="{% url 'admin:sales_rawkfso_changelist' %}" class="track-click" data-feature="Raw KFTD-SO Link"
+      data-description="Clicked Raw KFTD-SO list link"
+      data-metadata='{"target": "{% url "admin:sales_rawkfso_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Raw KFTD-SO</a> |
+    <a href="{% url 'admin:sales_rawigso_changelist' %}" class="track-click" data-feature="Raw IGM-SO Link"
+      data-description="Clicked Raw IGM-SO list link"
+      data-metadata='{"target": "{% url "admin:sales_rawigso_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Raw IGM-SO</a> |
+    <a href="{% url 'admin:sales_rawppso_changelist' %}" class="track-click" data-feature="Raw PPI-SO Link"
+      data-description="Clicked Raw PPI-SO list link"
+      data-metadata='{"target": "{% url "admin:sales_rawppso_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Raw PPI-SO</a> |
+    <a href="{% url 'admin:sales_rawaplso_changelist' %}" class="track-click" data-feature="Raw APL-SO Link"
+      data-description="Clicked Raw APL-SO list link"
+      data-metadata='{"target": "{% url "admin:sales_rawaplso_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Raw APL-SO</a> |
+    <a href="{% url 'admin:sales_rawappso_changelist' %}" class="track-click" data-feature="Raw APP-SO Link"
+      data-description="Clicked Raw APP-SO list link"
+      data-metadata='{"target": "{% url "admin:sales_rawappso_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Raw APP-SO</a> |
+    <button type="button" class="btn btn-primary track-click" data-toggle="modal" data-target="#syncModal"
+      data-feature="Open Sync Modal Button" data-description="Clicked Open Sync Modal Button"
+      data-metadata='{"modal": "#syncModal"}'>Sync</button>
     <!-- Sync Modal -->
-    <div class="modal fade" id="syncModal" tabindex="-1" role="dialog" aria-labelledby="syncModalLabel" aria-hidden="true">
+    <div class="modal fade" id="syncModal" tabindex="-1" role="dialog" aria-labelledby="syncModalLabel"
+      aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
-        <form class="modal-content" id="syncForm">
+        <form class="modal-content track-form" id="syncForm" data-feature="Sync SO Form Submission"
+          data-description="Submitted Sync SO via modal form"
+          data-metadata='{"action_url": "{% url "sales:sync-so" %}"}'>
           <div class="modal-header">
             <h5 class="modal-title" id="syncModalLabel">Sync Data</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -63,7 +102,7 @@
                 <option value="closed_so">Closed Selling Out</option>
               </select>
             </div>
-            
+
             <!-- DISTRIBUTOR -->
             <div class="form-group">
               <label for="dist">Distributor</label>
@@ -90,7 +129,8 @@
           </div>
           <div class="modal-footer">
             <button type="submit" class="btn btn-primary" id="startSyncBtn">
-              <span id="syncBtnSpinner" class="spinner-border spinner-border-sm mr-1" role="status" aria-hidden="true" style="display:none;"></span>
+              <span id="syncBtnSpinner" class="spinner-border spinner-border-sm mr-1" role="status" aria-hidden="true"
+                style="display:none;"></span>
               Start Sync
             </button>
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -98,19 +138,28 @@
         </form>
       </div>
     </div>
-    <a href="{% url 'admin:sales_sellingout_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Selling Out</a> |
-    <a href="{% url 'admin:sales_salestype_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Types</a> |
-    <a href="{% url 'admin:sales_repoffice_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Representative Offices</a>
+    <a href="{% url 'admin:sales_sellingout_changelist' %}" class="track-click" data-feature="Selling Out Link"
+      data-description="Clicked Selling Out list link"
+      data-metadata='{"target": "{% url "admin:sales_sellingout_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Selling Out</a> |
+    <a href="{% url 'admin:sales_salestype_changelist' %}" class="track-click" data-feature="Sales Types Link"
+      data-description="Clicked Sales Types list link"
+      data-metadata='{"target": "{% url "admin:sales_salestype_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Types</a> |
+    <a href="{% url 'admin:sales_repoffice_changelist' %}" class="track-click"
+      data-feature="Representative Offices Link" data-description="Clicked Representative Offices list link"
+      data-metadata='{"target": "{% url "admin:sales_repoffice_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Representative Offices</a>
   </li>
   <li class="list-group-item hiveforest">
     <h6 class="list-group hiveforest">Reconciliation</h6>
   </li>
   <li class="list-group-item hiveforest">
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#reconExportModal">Export Recon (Excel)</button>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#reconExportModal">Export Recon
+      (Excel)</button>
     <!-- Recon Export Modal -->
-    <div class="modal fade" id="reconExportModal" tabindex="-1" role="dialog" aria-labelledby="reconExportLabel" aria-hidden="true">
+    <div class="modal fade" id="reconExportModal" tabindex="-1" role="dialog" aria-labelledby="reconExportLabel"
+      aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
-        <form class="modal-content" id="reconExportForm" method="get" action="{% url 'sales:export_so_recon' %}" target="_blank">
+        <form class="modal-content" id="reconExportForm" method="get" action="{% url 'sales:export_so_recon' %}"
+          target="_blank">
           <div class="modal-header">
             <h5 class="modal-title" id="reconExportLabel">Export Rekonsiliasi Selling Out</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -153,37 +202,119 @@
     <h6 class="list-group hiveforest">ECatalog Sales</h6>
   </li>
   <li class="list-group-item hiveforest">
-    <a href="{% url 'admin:sales_ecatalog_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Ecatalog</a> |
-    <a href="{% url 'admin:sales_satker_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Satker</a>
+    <a href="{% url 'admin:sales_ecatalog_changelist' %}" class="track-click" data-feature="E-Catalog Link"
+      data-description="Clicked E-Catalog list link"
+      data-metadata='{"target": "{% url "admin:sales_ecatalog_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Ecatalog</a> |
+    <a href="{% url 'admin:sales_satker_changelist' %}" class="track-click" data-feature="Satker Link"
+      data-description="Clicked Satker list link"
+      data-metadata='{"target": "{% url "admin:sales_satker_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Satker</a>
   </li>
   <li class="list-group-item hiveforest">
     <h6 class="list-group hiveforest">Reports</h6>
   </li>
   <li class="list-group-item hiveforest">
-    <a href="{% url 'sales:sellingout_reports' %}"{% if request.resolver_match.url_name == 'sellingout_reports' %} aria-current="page"{% endif %}>Sellingout Reports</a>
+    <a href="{% url 'sales:sellingout_reports' %}" {% if request.resolver_match.url_name == 'sellingout_reports' %}
+      aria-current="page" {% endif %}>Sellingout Reports</a>
   </li>
   <li class="list-group-item hiveforest">
     <h6 class="list-group hiveforest">Target</h6>
   </li>
   <li class="list-group-item hiveforest">
-    <a href="{% url 'admin:sales_annualtarget_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Annual Target</a> |
-    <a href="{% url 'admin:sales_cycletarget_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Cycle Target</a> |
+    <a href="{% url 'admin:sales_annualtarget_changelist' %}" class="track-click" data-feature="Annual Target Link"
+      data-description="Clicked Annual Target list link"
+      data-metadata='{"target": "{% url "admin:sales_annualtarget_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Annual Target</a> |
+    <a href="{% url 'admin:sales_cycletarget_changelist' %}" class="track-click" data-feature="Cycle Target Link"
+      data-description="Clicked Cycle Target list link"
+      data-metadata='{"target": "{% url "admin:sales_cycletarget_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Cycle Target</a> |
   </li>
   <li class="list-group-item hiveforest">
-    <h6 class="list-group hiveforest">Territories</h6>
+    <h6 class="list-group hiveforest">Territory Management</h6>
   </li>
   <li class="list-group-item hiveforest">
-    <a href="{% url 'admin:sales_salesarea_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Sales Areas</a> |
-    <a href="{% url 'admin:sales_arearegency_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Area Regencies</a> |
-    <a href="{% url 'admin:sales_salesregion_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Sales Regions</a> |
-    <a href="{% url 'admin:sales_regionprovince_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Regions Province</a> |    
-    <a href="{% url 'admin:sales_kamarea_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>KAM Areas</a> |
-    <a href="{% url 'admin:sales_salesteam_changelist' %}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>Sales Teams</a>
+    <a href="{% url 'sales:region_matrix' %}" {% if request.resolver_match.url_name == 'region_matrix' %}
+      aria-current="page" {% endif %}>Region Matrix</a> |
+    <a href="{% url 'sales:area_matrix' %}" {% if request.resolver_match.url_name == 'area_matrix' %} aria-current="page"
+      {% endif %}>Area Matrix</a> |
+    <a href="{% url 'sales:territory_assignment' %}" {% if request.resolver_match.url_name == 'territory_assignment' %}
+      aria-current="page" {% endif %}>Territory Assignment</a> |
+    <a href="{% url 'sales:territory_assignment_summary' %}" {% if request.resolver_match.url_name == 'territory_assignment_summary' %} aria-current="page" {% endif %}>Assignment
+      Summary</a> |
+  </li>
+  <li class="list-group-item hiveforest">
+    <h6 class="list-group hiveforest">Territories (Admin)</h6>
+  </li>
+  <li class="list-group-item hiveforest">
+    <a href="{% url 'admin:sales_territoryassignment_changelist' %}" class="track-click"
+      data-feature="Territory Assignment Link" data-description="Clicked Territory Assignment list link"
+      data-metadata='{"target": "{% url "admin:sales_territoryassignment_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Territory Assignment</a> |
+    <a href="{% url 'admin:sales_salesterritory_changelist' %}" class="track-click"
+      data-feature="Sales Territories Link" data-description="Clicked Sales Territories list link"
+      data-metadata='{"target": "{% url "admin:sales_salesterritory_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Sales Territories</a> |
+    <a href="{% url 'admin:sales_salesarea_changelist' %}" class="track-click" data-feature="Sales Areas Link"
+      data-description="Clicked Sales Areas list link"
+      data-metadata='{"target": "{% url "admin:sales_salesarea_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Sales Areas</a> |
+    <a href="{% url 'admin:sales_arearegency_changelist' %}" class="track-click" data-feature="Area Regencies Link"
+      data-description="Clicked Area Regencies list link"
+      data-metadata='{"target": "{% url "admin:sales_arearegency_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Area Regencies</a> |
+    <a href="{% url 'admin:sales_salesregion_changelist' %}" class="track-click" data-feature="Sales Regions Link"
+      data-description="Clicked Sales Regions list link"
+      data-metadata='{"target": "{% url "admin:sales_salesregion_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Sales Regions</a> |
+    <a href="{% url 'admin:sales_regionprovince_changelist' %}" class="track-click" data-feature="Regions Province Link"
+      data-description="Clicked Regions Province list link"
+      data-metadata='{"target": "{% url "admin:sales_regionprovince_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Regions Province</a> |
+    <a href="{% url 'admin:sales_kamarea_changelist' %}" class="track-click" data-feature="KAM Areas Link"
+      data-description="Clicked KAM Areas list link"
+      data-metadata='{"target": "{% url "admin:sales_kamarea_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>KAM Areas</a> |
+    <a href="{% url 'admin:sales_salesteam_changelist' %}" class="track-click" data-feature="Sales Teams Link"
+      data-description="Clicked Sales Teams list link"
+      data-metadata='{"target": "{% url "admin:sales_salesteam_changelist" %}"}' {%if model.admin_url in request.path|urlencode%} aria-current="page" {% endif %}>Sales Teams</a>
   </li>
 </ul>
 
 <script>
-$('#syncForm').on('submit', function(e){
+  document.addEventListener('DOMContentLoaded', function () {
+    function logSalesClick(feature, description, metadata) {
+      const url = '/api/log-click/';
+      const body = JSON.stringify({
+        module: 'Sales',
+        feature: feature,
+        description: description,
+        metadata: metadata || {}
+      });
+
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{  csrf_token  }}'
+        },
+        body: body,
+        keepalive: true
+      }).catch(err => console.error('Sales click logging failed', err));
+    }
+
+    // Track links and buttons
+    document.querySelectorAll('.track-click').forEach(elem => {
+      elem.addEventListener('click', function (e) {
+        const feature = this.getAttribute('data-feature');
+        const description = this.getAttribute('data-description');
+        const metadata = JSON.parse(this.getAttribute('data-metadata') || '{}');
+        logSalesClick(feature, description, metadata);
+      });
+    });
+
+    // Track forms
+    document.querySelectorAll('.track-form').forEach(form => {
+      form.addEventListener('submit', function (e) {
+        const feature = this.getAttribute('data-feature');
+        const description = this.getAttribute('data-description');
+        const metadata = JSON.parse(this.getAttribute('data-metadata') || '{}');
+        logSalesClick(feature, description, metadata);
+      });
+    });
+  });
+
+  $('#syncForm').on('submit', function (e) {
     e.preventDefault();
 
     $('#syncProgress').show();
@@ -193,116 +324,116 @@ $('#syncForm').on('submit', function(e){
 
     var formData = new FormData(this);
     $.ajax({
-        url: "{% url 'sales:sync-so' %}",
-        type: 'POST',
-        data: formData,
-        contentType: false,
-        processData: false,
-        headers: {
-          'X-CSRFToken': '{{ csrf_token }}'
-        },
-        success: function(data){
-            if(data.success){
-                $('#syncResult').removeClass('text-danger').addClass('text-success').text(data.message);
-                $('#syncProgress .progress-bar').addClass('bg-success');
-            } else {
-                $('#syncResult').removeClass('text-success').addClass('text-danger').text(data.message);
-                $('#syncProgress .progress-bar').addClass('bg-danger');
-            }
-        },
-        error: function(){
-            $('#syncResult').removeClass('text-success').addClass('text-danger').text('Failed to connect to server!');
-            $('#syncProgress .progress-bar').addClass('bg-danger');
-        },
-        complete: function(){
-            $('#startSyncBtn').prop('disabled', false);
-            $('#syncBtnSpinner').hide();
+      url: "{% url 'sales:sync-so' %}",
+      type: 'POST',
+      data: formData,
+      contentType: false,
+      processData: false,
+      headers: {
+        'X-CSRFToken': '{{  csrf_token  }}'
+      },
+      success: function (data) {
+        if (data.success) {
+          $('#syncResult').removeClass('text-danger').addClass('text-success').text(data.message);
+          $('#syncProgress .progress-bar').addClass('bg-success');
+        } else {
+          $('#syncResult').removeClass('text-success').addClass('text-danger').text(data.message);
+          $('#syncProgress .progress-bar').addClass('bg-danger');
         }
+      },
+      error: function () {
+        $('#syncResult').removeClass('text-success').addClass('text-danger').text('Failed to connect to server!');
+        $('#syncProgress .progress-bar').addClass('bg-danger');
+      },
+      complete: function () {
+        $('#startSyncBtn').prop('disabled', false);
+        $('#syncBtnSpinner').hide();
+      }
     });
-});
+  });
 
-$('#syncModal').on('show.bs.modal', function () {
+  $('#syncModal').on('show.bs.modal', function () {
     $('#syncForm')[0].reset();              // Reset form
     $('#syncResult').removeClass('text-success text-danger').text('');
     $('#syncProgress').hide();
     $('#syncProgress .progress-bar').removeClass('bg-success bg-danger');
     $('#startSyncBtn').prop('disabled', false);
     $('#syncBtnSpinner').hide();
-});
+  });
 </script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-  const importButton = document.getElementById('btn-import-rawappso');
-  if (!importButton) return;
+  document.addEventListener('DOMContentLoaded', function () {
+    const importButton = document.getElementById('btn-import-rawappso');
+    if (!importButton) return;
 
-  importButton.addEventListener('click', function () {
-    const importUrl = this.dataset.url;
+    importButton.addEventListener('click', function () {
+      const importUrl = this.dataset.url;
 
-    Swal.fire({
-      title: 'Import APP Selling Out',
-      html: `
+      Swal.fire({
+        title: 'Import APP Selling Out',
+        html: `
         <input type="file" id="rawappso-file" accept=".csv,.xlsx,.xls" class="form-control">
         <label class="mt-3 d-block text-left">
           <input type="checkbox" id="rawappso-dry-run"> Dry-run (validate only)
         </label>
       `,
-      showCancelButton: true,
-      confirmButtonText: 'Upload',
-      preConfirm: function () {
-        const file = document.getElementById('rawappso-file').files[0];
-        if (!file) {
-          Swal.showValidationMessage('Select a CSV or Excel file.');
-          return false;
-        }
+        showCancelButton: true,
+        confirmButtonText: 'Upload',
+        preConfirm: function () {
+          const file = document.getElementById('rawappso-file').files[0];
+          if (!file) {
+            Swal.showValidationMessage('Select a CSV or Excel file.');
+            return false;
+          }
 
-        return {
-          file: file,
-          dryRun: document.getElementById('rawappso-dry-run').checked,
-        };
-      },
-    }).then(function (result) {
-      if (!result.isConfirmed) return;
-
-      const formData = new FormData();
-      formData.append('file', result.value.file);
-      if (result.value.dryRun) formData.append('dry_run', '1');
-
-      Swal.fire({
-        title: 'Processing...',
-        text: 'The APP Selling Out file is being processed.',
-        allowOutsideClick: false,
-        didOpen: function () {
-          Swal.showLoading();
+          return {
+            file: file,
+            dryRun: document.getElementById('rawappso-dry-run').checked,
+          };
         },
-      });
+      }).then(function (result) {
+        if (!result.isConfirmed) return;
 
-      fetch(importUrl, {
-        method: 'POST',
-        body: formData,
-        headers: {'Accept': 'application/json'},
-      })
-        .then(function (response) {
-          return response.json().then(function (data) {
-            return {ok: response.ok, data: data};
-          });
-        })
-        .then(function (result) {
-          const succeeded = result.ok && result.data.status === 'success';
-          Swal.fire({
-            icon: succeeded ? 'success' : 'error',
-            title: succeeded ? 'Success' : 'Failed',
-            text: result.data.message || 'Something happened.',
-          });
-        })
-        .catch(function () {
-          Swal.fire({
-            icon: 'error',
-            title: 'Network Error',
-            text: 'Please try again.',
-          });
+        const formData = new FormData();
+        formData.append('file', result.value.file);
+        if (result.value.dryRun) formData.append('dry_run', '1');
+
+        Swal.fire({
+          title: 'Processing...',
+          text: 'The APP Selling Out file is being processed.',
+          allowOutsideClick: false,
+          didOpen: function () {
+            Swal.showLoading();
+          },
         });
+
+        fetch(importUrl, {
+          method: 'POST',
+          body: formData,
+          headers: { 'Accept': 'application/json' },
+        })
+          .then(function (response) {
+            return response.json().then(function (data) {
+              return { ok: response.ok, data: data };
+            });
+          })
+          .then(function (result) {
+            const succeeded = result.ok && result.data.status === 'success';
+            Swal.fire({
+              icon: succeeded ? 'success' : 'error',
+              title: succeeded ? 'Success' : 'Failed',
+              text: result.data.message || 'Something happened.',
+            });
+          })
+          .catch(function () {
+            Swal.fire({
+              icon: 'error',
+              title: 'Network Error',
+              text: 'Please try again.',
+            });
+          });
+      });
     });
   });
-});
 </script>

@@ -1,14 +1,14 @@
 {% extends "main.html" %}
 {% load i18n static %}
 {% block datatable_css %}
-    {{ block.super }}
+    {{  block.super  }}
 {% endblock %}
 {% block datatable_js %}
-    {{ block.super }}
+    {{  block.super  }}
     <script src="{% static 'custom/js/change_list_datatable.js' %}"></script>
 {% endblock %}
 {% block content %}
-<form method="post">
+<form method="post" class="track-form" data-feature="Order Add Form Submit" data-description="User submitted Add Order form">
     {% csrf_token %}
     <div class="card card-primary card-outline hiveforest">
         <div class="card-header">
@@ -19,7 +19,7 @@
                 <ul>
                     {% for field, errors in order_form.errors.items %}
                         {% for error in errors %}
-                            <li>{{ field|title }}: {{ error }}</li>
+                            <li>{{  field|title  }}: {{  error  }}</li>
                         {% endfor %}
                     {% endfor %}
                 </ul>
@@ -43,60 +43,60 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="hv-form-group">
-                                {{ order_form.distributor.label_tag }}
-                                {{ order_form.distributor }}
+                                {{  order_form.distributor.label_tag  }}
+                                {{  order_form.distributor  }}
                             </div>
                             <div class="hv-form-group">
-                                {{ order_form.branch.label_tag }}
-                                {{ order_form.branch }}
+                                {{  order_form.branch.label_tag  }}
+                                {{  order_form.branch  }}
                             </div>
                             <div class="hv-form-group">
-                                {{ order_form.ordertype.label_tag }}
-                                {{ order_form.ordertype }}
+                                {{  order_form.ordertype.label_tag  }}
+                                {{  order_form.ordertype  }}
                             </div>
                             <div class="hv-form-group">
-                                {{ order_form.orderno.label_tag }}
-                                {{ order_form.orderno }}
+                                {{  order_form.orderno.label_tag  }}
+                                {{  order_form.orderno  }}
                             </div>
                             <div class="hv-form-group">
-                                {{ order_form.orderdate.label_tag }}
-                                {{ order_form.orderdate }}
+                                {{  order_form.orderdate.label_tag  }}
+                                {{  order_form.orderdate  }}
                             </div>
                             <div class="hv-form-group">
-                                {{ order_form.orderdue.label_tag }}
-                                {{ order_form.orderdue }}
+                                {{  order_form.orderdue.label_tag  }}
+                                {{  order_form.orderdue  }}
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="hv-form-group">
-                                {{ order_form.description.label_tag }}
-                                {{ order_form.description }}
+                                {{  order_form.description.label_tag  }}
+                                {{  order_form.description  }}
                             </div>
                             <div class="hv-form-group">
-                                {{ order_form.remark.label_tag }}
-                                {{ order_form.remark }}
+                                {{  order_form.remark.label_tag  }}
+                                {{  order_form.remark  }}
                             </div>
                             <div class="hv-form-group">
-                                {{ order_form.progress.label_tag }}
-                                {{ order_form.progress }}
+                                {{  order_form.progress.label_tag  }}
+                                {{  order_form.progress  }}
                             </div>
                             <div class="hv-form-group">
-                                {{ order_form.status.label_tag }}
-                                {{ order_form.status }}
+                                {{  order_form.status.label_tag  }}
+                                {{  order_form.status  }}
                             </div>
                         </div>
                     </div>
                 </div>
                 <!-- Tab 2 -->
                 <div class="tab-pane fade" id="tab2" role="tabpanel">
-                    {{ detail_formset.management_form }}
+                    {{  detail_formset.management_form  }}
                     {% for form in detail_formset %}
                         {% if form.errors %}
                             <div class="alert alert-danger">
                                 <ul>
                                     {% for field, errors in form.errors.items %}
                                         {% for error in errors %}
-                                            <li>{{ field|title }}: {{ error }}</li>
+                                            <li>{{  field|title  }}: {{  error  }}</li>
                                         {% endfor %}
                                     {% endfor %}
                                 </ul>
@@ -121,15 +121,15 @@
                         <tbody>
                         {% for form in detail_formset %}
                             <tr>
-                                <td>{{ form.orderline }}</td>
-                                <td>{{ form.itemgroup }}</td>
-                                <td>{{ form.item }}</td>
-                                <td><input type="number" name="{{ form.qty.name }}" class="qty form-control" min="1" value="{{ form.qty.value|default_if_none:'' }}"></td>
-                                <td>{{ form.uom }}</td>
-                                <td><input type="number" name="{{ form.price.name }}" class="price form-control" step="0.01" value="{{ form.price.value|default_if_none:'' }}"></td>
-                                <td><input type="text" name="{{ form.amount.name }}" class="amount form-control" readonly></td>
-                                <td>{{ form.progress }}</td>
-                                <td>{{ form.status }}</td>
+                                <td>{{  form.orderline  }}</td>
+                                <td>{{  form.itemgroup  }}</td>
+                                <td>{{  form.item  }}</td>
+                                <td><input type="number" name="{{  form.qty.name  }}" class="qty form-control" min="1" value="{{  form.qty.value|default_if_none:''  }}"></td>
+                                <td>{{  form.uom  }}</td>
+                                <td><input type="number" name="{{  form.price.name  }}" class="price form-control" step="0.01" value="{{  form.price.value|default_if_none:''  }}"></td>
+                                <td><input type="text" name="{{  form.amount.name  }}" class="amount form-control" readonly></td>
+                                <td>{{  form.progress  }}</td>
+                                <td>{{  form.status  }}</td>
                                 <td><button type="button" class="remove-row btn-danger btn-sm">Remove</button></td>
                             </tr>
                         {% endfor %}
@@ -234,6 +234,44 @@
         } else {
             branchDropdown.innerHTML = '<option value="">Select a branch</option>'; // Reset if no distributor selected
             ordertypeDropdown.innerHTML = '<option value="">Select an order type</option>'; // Reset if no distributor selected
+        }
+    });
+
+    function logClick(feature, description, metadata) {
+        const url = '/api/log-click/';
+        const body = JSON.stringify({
+            module: 'SupplyChain',
+            feature: feature,
+            description: description,
+            metadata: metadata || {}
+        });
+        
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{  csrf_token  }}'
+            },
+            body: body,
+            keepalive: true
+        }).catch(err => console.error('Click logging failed', err));
+    }
+
+    $(document).on('click', '.track-click', function() {
+        const feature = $(this).attr('data-feature');
+        const description = $(this).attr('data-description');
+        const metadata = JSON.parse($(this).attr('data-metadata') || '{}');
+        if (feature) {
+            logClick(feature, description, metadata);
+        }
+    });
+
+    $(document).on('submit', '.track-form', function() {
+        const feature = $(this).attr('data-feature');
+        const description = $(this).attr('data-description');
+        const metadata = JSON.parse($(this).attr('data-metadata') || '{}');
+        if (feature) {
+            logClick(feature, description, metadata);
         }
     });
 </script>

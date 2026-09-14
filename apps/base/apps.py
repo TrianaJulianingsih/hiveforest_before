@@ -11,8 +11,18 @@ class BaseConfig(AppConfig):
         from django.contrib.contenttypes.models import ContentType
         import apps.base.authentication_signals  # noqa: F401
         import apps.base.signals  # noqa: F401
+        import apps.base.system_log_signals  # noqa: F401
 
         Permission._meta.verbose_name = "Permission"
         Permission._meta.verbose_name_plural = "Permissions"
         ContentType._meta.verbose_name = "Content Type"
         ContentType._meta.verbose_name_plural = "Content Types"
+
+        # Dynamically create schemas on test database connection
+        from django.db.backends.signals import connection_created
+        def create_test_schemas(sender, connection, **kwargs):
+            if connection.vendor == 'postgresql':
+                with connection.cursor() as cursor:
+                    cursor.execute("CREATE SCHEMA IF NOT EXISTS analytics;")
+        connection_created.connect(create_test_schemas)
+

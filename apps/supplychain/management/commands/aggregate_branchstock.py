@@ -75,12 +75,18 @@ class Command(BaseCommand):
                 SELECT
                     wp.branch_id,
                     di.product_id,
-                    COALESCE(sd.nm_prod, '') AS product_name,
+                    COALESCE(sd.namaprod, '') AS product_name,
                     p.subgroup_id AS team_id,
                     sps.group_id,
-                    (sd.tgl_proses AT TIME ZONE 'Asia/Jakarta')::date AS trx_date,
-                    SUM(COALESCE(sd.reg, 0)) AS total_reg
-                FROM supplychain_stdistdaily sd
+                    (sd.cat AT TIME ZONE 'Asia/Jakarta')::date AS trx_date,
+                    SUM(
+                        CASE
+                            WHEN sd.subinven = 'Reguler'
+                            THEN COALESCE(sd.akhir, 0)
+                            ELSE 0
+                        END
+                    ) AS total_reg
+                FROM supplychain_rawmust sd
                 JOIN supplychain_distributoritem di
                     ON di.id = sd.distributoritem_id
                 JOIN base_warehousepalette wp
@@ -90,10 +96,18 @@ class Command(BaseCommand):
                 LEFT JOIN sales_productsubgroup sps
                     ON sps.id = p.subgroup_id
                 WHERE sd.branch_id IS NOT NULL
-                  AND sd.distributoritem_id IS NOT NULL
-                  AND (sd.tgl_proses AT TIME ZONE 'Asia/Jakarta')::date BETWEEN %(start_date)s AND %(end_date)s
-                                GROUP BY 1, 2, 3, 4, 5, 6
+                AND sd.distributoritem_id IS NOT NULL
+                AND (sd.cat AT TIME ZONE 'Asia/Jakarta')::date
+                        BETWEEN %(start_date)s AND %(end_date)s
+                GROUP BY
+                    wp.branch_id,
+                    di.product_id,
+                    sd.namaprod,
+                    p.subgroup_id,
+                    sps.group_id,
+                    (sd.cat AT TIME ZONE 'Asia/Jakarta')::date
             )
+
             INSERT INTO supplychain_branchstock (
                 name,
                 description,
@@ -116,7 +130,12 @@ class Command(BaseCommand):
                 total_reg
             )
             SELECT
-                CONCAT_WS('-', b.code, COALESCE(p.code, agg.product_name), TO_CHAR(agg.trx_date, 'YYYYMMDD')) AS name,
+                CONCAT_WS(
+                    '-',
+                    b.code,
+                    COALESCE(p.code, agg.product_name),
+                    TO_CHAR(agg.trx_date, 'YYYYMMDD')
+                ) AS name,
                 '',
                 '',
                 1,
@@ -136,15 +155,19 @@ class Command(BaseCommand):
                 agg.trx_date,
                 agg.total_reg
             FROM aggregated agg
-            JOIN supplychain_branch b ON b.id = agg.branch_id
-            LEFT JOIN sales_product p ON p.id = agg.product_id
+            JOIN supplychain_branch b
+                ON b.id = agg.branch_id
+            LEFT JOIN sales_product p
+                ON p.id = agg.product_id
             ON CONFLICT (branch_id, product_name, trx_date)
             DO NOTHING;
         """
 
         with connection.cursor() as cursor:
-            cursor.execute(sql, {"start_date": start_date, "end_date": end_date})
-            # rowcount returns upserts count (number of rows inserted OR updated)
+            cursor.execute(sql, {
+                "start_date": start_date,
+                "end_date": end_date,
+            })
             return cursor.rowcount
 
     def _parse_date(self, value: str | None):

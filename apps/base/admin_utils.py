@@ -11,7 +11,7 @@ from django.contrib import admin
 from django.utils.translation import gettext as _
 from django.http import HttpResponseForbidden
 from apps.base.models.permissions import Role
-from apps.cms.models.appmanagers import ApplicationList
+from apps.cms.models.app_managers_models import ApplicationList
 from django.db import transaction
 
 csrf_protect_m = method_decorator(csrf_protect)
@@ -71,6 +71,22 @@ class MassActionMixin:
         with transaction.atomic():
             updated_count = queryset.update(**{self.status_field: status_value})
 
+        # Log the bulk update action
+        try:
+            from apps.base.services.system_log_service import SystemLogService
+            from apps.base.models.system_log import LogAction
+            SystemLogService.log_bulk(
+                action=LogAction.BULK_UPDATE,
+                model=self.model,
+                affected_count=updated_count,
+                request=request,
+                module=self.model._meta.app_label.title(),
+                feature=f"{self.model._meta.verbose_name} Mass Action",
+                description=f"Mass updated ({action_name}) {updated_count} records."
+            )
+        except Exception:
+            pass
+
         # Provide feedback to the user
         # self.message_user(request, f"{updated_count} item(s) successfully {action_name}.", messages.SUCCESS)
 
@@ -87,6 +103,22 @@ class MassActionMixin:
         for obj in queryset:
             self.log_deletion(request, obj, f"{obj}")
 
+        # Log the bulk soft-delete action
+        try:
+            from apps.base.services.system_log_service import SystemLogService
+            from apps.base.models.system_log import LogAction
+            SystemLogService.log_bulk(
+                action=LogAction.BULK_DELETE,
+                model=self.model,
+                affected_count=updated_count,
+                request=request,
+                module=self.model._meta.app_label.title(),
+                feature=f"{self.model._meta.verbose_name} Mass Action",
+                description=f"Mass soft-deleted {updated_count} records."
+            )
+        except Exception:
+            pass
+
         message = ngettext(
             f"Successfully deleted {updated_count} {self.model._meta.verbose_name}.",
             f"Successfully deleted {updated_count} {self.model._meta.verbose_name_plural}.",
@@ -99,6 +131,22 @@ class MassActionMixin:
 
         for obj in queryset:
             self.log_deletion(request, obj, f"{obj}")
+
+        # Log the bulk restore action
+        try:
+            from apps.base.services.system_log_service import SystemLogService
+            from apps.base.models.system_log import LogAction
+            SystemLogService.log_bulk(
+                action=LogAction.BULK_UPDATE,
+                model=self.model,
+                affected_count=updated_count,
+                request=request,
+                module=self.model._meta.app_label.title(),
+                feature=f"{self.model._meta.verbose_name} Mass Action",
+                description=f"Mass restored {updated_count} records."
+            )
+        except Exception:
+            pass
 
         message = ngettext(
             f"Successfully restored {updated_count} {self.model._meta.verbose_name}.",
@@ -134,4 +182,15 @@ class MassActionMixin:
         actions['delete_selected'] = (delete_selected, 'delete_selected', 'Purge %(verbose_name_plural)s')
 
         return actions
+
+
+def register_if_not_registered(*models, site=None):
+    if site is None:
+        site = admin.site
+    def _model_admin_wrapper(admin_class):
+        for model in models:
+            if not site.is_registered(model):
+                site.register(model, admin_class=admin_class)
+        return admin_class
+    return _model_admin_wrapper
 

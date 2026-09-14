@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block extrahead %}
-  {{ block.super }}
+  {{  block.super  }}
   {% if active_job_count %}
     <meta http-equiv="refresh" content="5">
   {% endif %}
@@ -10,7 +10,7 @@
 
 {% block content %}
   <div id="content-main">
-    <h1>{{ title }}</h1>
+    <h1>{{  title  }}</h1>
     <div class="module" style="padding: 16px; margin-bottom: 20px;">
       <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
@@ -18,11 +18,11 @@
           <label for="file"><strong>Upload file freight cost</strong></label><br>
           <input type="file" name="file" id="file" required>
         </p>
-        <p>Allowed extensions: {{ allowed_extensions }}</p>
+        <p>Allowed extensions: {{  allowed_extensions  }}</p>
         <p>
           <button type="submit" class="button default">Start Background Import</button>
-          <a href="{{ changelist_url }}" class="button">Back to Freight Cost Detail</a>
-          <a href="{{ legacy_import_url }}" class="button">Legacy Import Page</a>
+          <a href="{{  changelist_url  }}" class="button">Back to Freight Cost Detail</a>
+          <a href="{{  legacy_import_url  }}" class="button">Legacy Import Page</a>
         </p>
       </form>
       <p style="margin-bottom: 0; color: #57606a;">
@@ -54,22 +54,22 @@
           <tbody>
             {% for job in jobs %}
               <tr>
-                <td style="padding: 8px; vertical-align: top;">#{{ job.pk }}</td>
-                <td style="padding: 8px; vertical-align: top;">{{ job.original_filename }}</td>
-                <td style="padding: 8px; vertical-align: top;">{{ job.get_status_display }}</td>
-                <td style="padding: 8px; vertical-align: top;">{{ job.total_rows|default:"-" }}</td>
-                <td style="padding: 8px; vertical-align: top;">{{ job.processed_rows }}</td>
-                <td style="padding: 8px; vertical-align: top;">{{ job.created_rows }}</td>
-                <td style="padding: 8px; vertical-align: top;">{{ job.skipped_rows }}</td>
-                <td style="padding: 8px; vertical-align: top;">{{ job.chunk_count }}</td>
-                <td style="padding: 8px; vertical-align: top;">{{ job.requested_by|default:"-" }}</td>
-                <td style="padding: 8px; vertical-align: top;">{{ job.background_pid|default:"-" }}</td>
-                <td style="padding: 8px; vertical-align: top;">{{ job.started_at|date:"Y-m-d H:i:s"|default:"-" }}</td>
-                <td style="padding: 8px; vertical-align: top;">{{ job.completed_at|date:"Y-m-d H:i:s"|default:"-" }}</td>
+                <td style="padding: 8px; vertical-align: top;">#{{  job.pk  }}</td>
+                <td style="padding: 8px; vertical-align: top;">{{  job.original_filename  }}</td>
+                <td style="padding: 8px; vertical-align: top;">{{  job.get_status_display  }}</td>
+                <td style="padding: 8px; vertical-align: top;">{{  job.total_rows|default:"-"  }}</td>
+                <td style="padding: 8px; vertical-align: top;">{{  job.processed_rows  }}</td>
+                <td style="padding: 8px; vertical-align: top;">{{  job.created_rows  }}</td>
+                <td style="padding: 8px; vertical-align: top;">{{  job.skipped_rows  }}</td>
+                <td style="padding: 8px; vertical-align: top;">{{  job.chunk_count  }}</td>
+                <td style="padding: 8px; vertical-align: top;">{{  job.requested_by|default:"-"  }}</td>
+                <td style="padding: 8px; vertical-align: top;">{{  job.background_pid|default:"-"  }}</td>
+                <td style="padding: 8px; vertical-align: top;">{{  job.started_at|date:"Y-m-d H:i:s"|default:"-"  }}</td>
+                <td style="padding: 8px; vertical-align: top;">{{  job.completed_at|date:"Y-m-d H:i:s"|default:"-"  }}</td>
                 <td style="padding: 8px; vertical-align: top; max-width: 320px;">
-                  {{ job.message|default:"-" }}
+                  {{  job.message|default:"-"  }}
                   {% if job.error_message %}
-                    <div style="margin-top: 6px; color: #b42318;">{{ job.error_message }}</div>
+                    <div style="margin-top: 6px; color: #b42318;">{{  job.error_message  }}</div>
                   {% endif %}
                 </td>
               </tr>

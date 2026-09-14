@@ -2,7 +2,7 @@
 {% load static custom_filters %}
 
 {% block extrastyle %}
-{{ block.super }}
+{{  block.super  }}
 <link rel="stylesheet" href="{% static 'vendor/bootstrap-multiselect/bootstrap-multiselect.css' %}">
 <style>
   #branchStockFilters .multiselect-container>li>a>label,
@@ -48,7 +48,7 @@
         <label for="branch_id" class="form-label mb-1">Branch</label>
         <select id="branch_id" name="branch_id[]" class="form-select form-select-sm" multiple>
           {% for option in branch_options %}
-          <option value="{{ option.id }}" {% if option.selected %}selected{% endif %}>{{ option.label }}</option>
+          <option value="{{  option.id  }}" {% if option.selected %}selected{% endif %}>{{  option.label  }}</option>
           {% endfor %}
         </select>
       </div>
@@ -56,7 +56,7 @@
         <label for="team_id" class="form-label mb-1">Team</label>
         <select id="team_id" name="team_id[]" class="form-select form-select-sm" multiple {% if not team_options %}disabled{% endif %}>
           {% for option in team_options %}
-          <option value="{{ option.id }}" {% if option.selected %}selected{% endif %}>{{ option.label }}</option>
+          <option value="{{  option.id  }}" {% if option.selected %}selected{% endif %}>{{  option.label  }}</option>
           {% endfor %}
         </select>
       </div>
@@ -64,17 +64,17 @@
         <label for="product_name" class="form-label mb-1">Product</label>
         <select id="product_name" name="product_name[]" class="form-select form-select-sm" multiple {% if not product_options %}disabled{% endif %}>
           {% for option in product_options %}
-          <option value="{{ option.name }}" {% if option.selected %}selected{% endif %}>{{ option.name }}</option>
+          <option value="{{  option.name  }}" {% if option.selected %}selected{% endif %}>{{  option.name  }}</option>
           {% endfor %}
         </select>
       </div>
       <div class="col-auto">
         <label for="start_date" class="form-label mb-1">Start</label>
-        <input id="start_date" name="start_date" type="date" class="form-control form-control-sm" value="{{ start_date|date:'Y-m-d' }}">
+        <input id="start_date" name="start_date" type="date" class="form-control form-control-sm" value="{{  start_date|date:'Y-m-d'  }}">
       </div>
       <div class="col-auto">
         <label for="end_date" class="form-label mb-1">End</label>
-        <input id="end_date" name="end_date" type="date" class="form-control form-control-sm" value="{{ end_date|date:'Y-m-d' }}">
+        <input id="end_date" name="end_date" type="date" class="form-control form-control-sm" value="{{  end_date|date:'Y-m-d'  }}">
       </div>
       <div class="col-auto mt-1 mt-md-0 d-flex align-items-center gap-2">
         <button type="submit" class="btn btn-primary btn-sm btn-branch-action">Apply</button>
@@ -96,7 +96,7 @@
           <th scope="col">Team</th>
           <th scope="col">Product</th>
           {% for day in date_columns %}
-          <th scope="col" class="text-end">{{ day|date:"d M Y" }}</th>
+          <th scope="col" class="text-end">{{  day|date:"d M Y"  }}</th>
           {% endfor %}
           <th scope="col" class="text-center">Action</th>
         </tr>
@@ -106,11 +106,11 @@
           {% for team in branch.teams %}
             {% for product in team.products %}
             <tr>
-              <td>{{ branch.branch_name|default:branch.branch_label }}</td>
-              <td>{{ team.team_name|default:team.team_label }}</td>
-              <td>{{ product.product_name }}</td>
+              <td>{{  branch.branch_name|default:branch.branch_label  }}</td>
+              <td>{{  team.team_name|default:team.team_label  }}</td>
+              <td>{{  product.product_name  }}</td>
               {% for value in product.value_list %}
-              <td class="text-end">{{ value|default:0 }}</td>
+              <td class="text-end">{{  value|default:0  }}</td>
               {% endfor %}
               <td class="text-center">
                 {% if product.record_id %}
@@ -127,20 +127,20 @@
             {% endfor %}
             <tr class="table-secondary fw-semibold">
               <td>&nbsp;</td>
-              <td><b>{{ team.team_name|default:team.team_label }} Total</b></td>
+              <td><b>{{  team.team_name|default:team.team_label  }} Total</b></td>
               <td>-</td>
               {% for value in team.totals_list %}
-              <td class="text-end">{{ value|default:0 }}</td>
+              <td class="text-end">{{  value|default:0  }}</td>
               {% endfor %}
               <td class="text-center">-</td>
             </tr>
           {% endfor %}
           <tr class="table-primary fw-semibold">
-            <td><b>{{ branch.branch_name|default:branch.branch_label }} Total</b></td>
+            <td><b>{{  branch.branch_name|default:branch.branch_label  }} Total</b></td>
             <td>&nbsp;</td>
             <td>-</td>
             {% for value in branch.team_totals_list %}
-            <td class="text-end">{{ value|default:0 }}</td>
+            <td class="text-end">{{  value|default:0  }}</td>
             {% endfor %}
             <td class="text-center">-</td>
           </tr>
@@ -152,7 +152,7 @@
           <td>-</td>
           <td>-</td>
           {% for value in grand_totals_list %}
-          <td class="text-end">{{ value|default:0 }}</td>
+          <td class="text-end">{{  value|default:0  }}</td>
           {% endfor %}
           <td class="text-center">-</td>
         </tr>
@@ -175,7 +175,7 @@
 
     let graph = {}
     try {
-      graph = JSON.parse('{{ filter_graph_json|default:"{}"|escapejs }}') || {}
+      graph = JSON.parse('{{  filter_graph_json|default:"{}"|escapejs  }}') || {}
     } catch (error) {
       graph = {}
     }

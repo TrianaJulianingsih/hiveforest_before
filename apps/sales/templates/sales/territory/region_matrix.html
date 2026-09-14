@@ -1,320 +1,346 @@
 {% extends 'main.html' %}
 {% comment %} FaisalS | HF-23 - Region Matrix UI {% endcomment %}
-{% load i18n static sales_tag %}
+{% load i18n static sales_tags translation_tags %}
 
 {% block datatable_css %}
-  {{ block.super }}
-  <link href="{% static 'custom/css/select2.min.css' %}" rel="stylesheet" />
-  <style>
-    .region-matrix-wrapper {
-      max-height: 70vh;
-      overflow-y: auto;
-    }
-    .region-matrix-wrapper table {
-      border-collapse: separate;
-    }
-    .region-matrix-wrapper thead th {
-      background: #f8f9fa;
-      position: sticky;
-    }
-    .region-matrix-wrapper thead tr:nth-child(1) th {
-      top: 0;
-      z-index: 30;
-    }
-    .region-matrix-wrapper thead tr:nth-child(2) th {
-      top: var(--rm-row1-height, 40px);
-      z-index: 29;
-    }
-    .region-matrix-wrapper thead tr:nth-child(3) th {
-      top: calc(var(--rm-row1-height, 40px) + var(--rm-row2-height, 40px));
-      z-index: 28;
-    }
-    .region-matrix-wrapper tbody td {
-      position: relative;
-      z-index: 1;
-    }
-  </style>
+{{  block.super  }}
+<link href="{% static 'custom/css/select2.min.css' %}" rel="stylesheet" />
+<style>
+  .region-matrix-wrapper {
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .region-matrix-wrapper table {
+    border-collapse: separate;
+  }
+
+  .region-matrix-wrapper thead th {
+    background: #f8f9fa;
+    position: sticky;
+  }
+
+  .region-matrix-wrapper thead tr:nth-child(1) th {
+    top: 0;
+    z-index: 30;
+  }
+
+  .region-matrix-wrapper thead tr:nth-child(2) th {
+    top: var(--rm-row1-height, 40px);
+    z-index: 29;
+  }
+
+  .region-matrix-wrapper thead tr:nth-child(3) th {
+    top: calc(var(--rm-row1-height, 40px) + var(--rm-row2-height, 40px));
+    z-index: 28;
+  }
+
+  .region-matrix-wrapper tbody td {
+    position: relative;
+    z-index: 1;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
-  <h1>Region Matrix</h1>
+{% get_translations 'region_matrix' as t %}
 
-  <!-- Expand/Collapse Buttons -->
-  <div class="mb-2">
-    <button class="btn btn-sm btn-primary" id="expand-all">Expand All</button>
-    <button class="btn btn-sm btn-secondary" id="collapse-all">Collapse All</button>
-  </div>
+<h1>{{  t.page_title|default:"Region Matrix"  }}</h1>
 
-  <!-- Table -->
-  <div class="table-responsive region-matrix-wrapper">
-    <table class="table table-bordered">
-      <thead>
-        <!-- Row 1: Parent Organization -->
-        <tr>
-          <th rowspan="3">Island</th>
-          <th rowspan="3">Province</th>
-          {% regroup regions by business as parent_groups %}
-          {% for parent in parent_groups %}
-            <th colspan="{{ parent.list|length }}">
-              <!-- {{ parent.grouper.shortname|default:"-" }} -->
-              {{ parent.grouper.shortname|default:'-' }}
-            </th>
-          {% endfor %}
-        </tr>
+<!-- Expand/Collapse Buttons -->
+<div class="mb-2">
+  <button class="btn btn-sm btn-primary track-click" id="expand-all" data-feature="Expand All Region Matrix"
+    data-description="User clicked Expand All on Region Matrix">{{  t.btn_expand_all|default:"Expand All"  }}</button>
+  <button class="btn btn-sm btn-secondary track-click" id="collapse-all" data-feature="Collapse All Region Matrix"
+    data-description="User clicked Collapse All on Region Matrix">{{  t.btn_collapse_all|default:"Collapse All"  }}</button>
+</div>
 
-        <!-- Row 2: Child Organization -->
-        <tr>
-          {% for parent in parent_groups %}
-            {% regroup parent.list by group_organization as org_groups %}
-            {% for org in org_groups %}
-              <th colspan="{{ org.list|length }}">{{ org.grouper.shortname|default:'-' }}</th>
-            {% endfor %}
-          {% endfor %}
-        </tr>
-
-        <!-- Row 3: Region Shortnames -->
-        <tr>
-          {% for region in regions %}
-            <th>{{ region.display_shortname }}</th>
-          {% endfor %}
-        </tr>
-      </thead>
-
-      <tbody>
-        {% regroup provinces by island as island_groups %}
-        {% for group in island_groups %}
-          <!-- Island Header Row -->
-          <tr class="table-secondary font-weight-bold">
-            <td colspan="{{ 2|add:regions|length }}">
-              <a data-toggle="collapse" href=".island-{{ forloop.counter }}" role="button" class="island-toggle text-dark" style="text-decoration:none;"><span class="mr-2">&#x25BC;</span>{{ group.grouper.name }}</a>
-            </td>
-          </tr>
-
-          <!-- Collapsible Province Rows -->
-          {% for province in group.list %}
-            <tr class="collapse show island-section island-{{ forloop.parentloop.counter }}" data-province-id="{{ province.id }}">
-              <td>{{ province.code }}</td>
-              <td>{{ province.name }}</td>
-              {% for region in regions %}
-                {% get_region_mapping active_map province.id region.id as active %}
-                <td class="text-center">
-                  {% if active %}
-                    {% if active.status == 1 %}
-                      {% if province.id in shared_province_ids %}
-                        <i class="fas fa-check-circle text-primary matrix-toggle" data-province-id="{{ province.id }}" data-province-name="{{ province.name }}" data-region-id="{{ region.id }}" data-region-name="{{ region.name }}" data-effective="{{ active.effective|date:'Y-m-d' }}" data-terminated="{{ active.terminated|date:'Y-m-d' }}" data-status="1" style="cursor:pointer;"></i>
-                      {% else %}
-                        <i class="fas fa-check-circle text-success matrix-toggle" data-province-id="{{ province.id }}" data-province-name="{{ province.name }}" data-region-id="{{ region.id }}" data-region-name="{{ region.name }}" data-effective="{{ active.effective|date:'Y-m-d' }}" data-terminated="{{ active.terminated|date:'Y-m-d' }}" data-status="1" style="cursor:pointer;"></i>
-                      {% endif %}
-                    {% else %}
-                      <i class="far fa-circle text-muted matrix-toggle" data-province-id="{{ province.id }}" data-province-name="{{ province.name }}" data-region-id="{{ region.id }}" data-region-name="{{ region.name }}" data-effective="{{ active.effective|date:'Y-m-d' }}" data-terminated="{{ active.terminated|date:'Y-m-d' }}" data-status="0" style="cursor:pointer;"></i>
-                    {% endif %}
-                  {% else %}
-                    <i class="far fa-circle text-muted matrix-toggle" data-province-id="{{ province.id }}" data-province-name="{{ province.name }}" data-region-id="{{ region.id }}" data-region-name="{{ region.name }}" style="cursor:pointer;"></i>
-                  {% endif %}
-                </td>
-              {% endfor %}
-            </tr>
-          {% endfor %}
+<!-- Table -->
+<div class="table-responsive region-matrix-wrapper">
+  <table class="table table-bordered">
+    <thead>
+      <!-- Row 1: Parent Organization -->
+      <tr>
+        <th rowspan="3">{{  t.col_island|default:"Island"  }}</th>
+        <th rowspan="3">{{  t.col_province|default:"Province"  }}</th>
+        {% regroup regions by business as parent_groups %}
+        {% for parent in parent_groups %}
+        <th colspan="{{  parent.list|length  }}">
+          <!-- {{  parent.grouper.shortname|default:"-"  }} -->
+          {{  parent.grouper.shortname|default:'-'  }}
+        </th>
         {% endfor %}
-      </tbody>
-    </table>
-  </div>
+      </tr>
 
-  <!-- Modal: Region Mapping Edit -->
-  <div class="modal fade" id="matrixModal" tabindex="-1" role="dialog" aria-labelledby="matrixModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3 class="modal-title" id="matrixModalLabel">Edit Region Mapping</h3>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <!-- Row 2: Child Organization -->
+      <tr>
+        {% for parent in parent_groups %}
+        {% regroup parent.list by group_organization as org_groups %}
+        {% for org in org_groups %}
+        <th colspan="{{  org.list|length  }}">{{  org.grouper.shortname|default:'-'  }}</th>
+        {% endfor %}
+        {% endfor %}
+      </tr>
+
+      <!-- Row 3: Region Shortnames -->
+      <tr>
+        {% for region in regions %}
+        <th>{{  region.display_shortname  }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+
+    <tbody>
+      {% regroup provinces by island as island_groups %}
+      {% for group in island_groups %}
+      <!-- Island Header Row -->
+      <tr class="table-secondary font-weight-bold">
+        <td colspan="{{  2|add:regions|length  }}">
+          <a data-toggle="collapse" href=".island-{{  forloop.counter  }}" role="button" class="island-toggle text-dark"
+            style="text-decoration:none;"><span class="mr-2">&#x25BC;</span>{{  group.grouper.name  }}</a>
+        </td>
+      </tr>
+
+      <!-- Collapsible Province Rows -->
+      {% for province in group.list %}
+      <tr class="collapse show island-section island-{{  forloop.parentloop.counter  }}"
+        data-province-id="{{  province.id  }}">
+        <td>{{  province.code  }}</td>
+        <td>{{  province.name  }}</td>
+        {% for region in regions %}
+        {% get_region_mapping active_map province.id region.id as active %}
+        <td class="text-center">
+          {% if active %}
+          {% if active.status == 1 %}
+          {% if province.id in shared_province_ids %}
+          <i class="fas fa-check-circle text-primary matrix-toggle" data-province-id="{{  province.id  }}"
+            data-province-name="{{  province.name  }}" data-region-id="{{  region.id  }}"
+            data-region-name="{{  region.name  }}" data-effective="{{  active.effective|date:'Y-m-d'  }}"
+            data-terminated="{{  active.terminated|date:'Y-m-d'  }}" data-status="1" style="cursor:pointer;"></i>
+          {% else %}
+          <i class="fas fa-check-circle text-success matrix-toggle" data-province-id="{{  province.id  }}"
+            data-province-name="{{  province.name  }}" data-region-id="{{  region.id  }}"
+            data-region-name="{{  region.name  }}" data-effective="{{  active.effective|date:'Y-m-d'  }}"
+            data-terminated="{{  active.terminated|date:'Y-m-d'  }}" data-status="1" style="cursor:pointer;"></i>
+          {% endif %}
+          {% else %}
+          <i class="far fa-circle text-muted matrix-toggle" data-province-id="{{  province.id  }}"
+            data-province-name="{{  province.name  }}" data-region-id="{{  region.id  }}"
+            data-region-name="{{  region.name  }}" data-effective="{{  active.effective|date:'Y-m-d'  }}"
+            data-terminated="{{  active.terminated|date:'Y-m-d'  }}" data-status="0" style="cursor:pointer;"></i>
+          {% endif %}
+          {% else %}
+          <i class="far fa-circle text-muted matrix-toggle" data-province-id="{{  province.id  }}"
+            data-province-name="{{  province.name  }}" data-region-id="{{  region.id  }}"
+            data-region-name="{{  region.name  }}" style="cursor:pointer;"></i>
+          {% endif %}
+        </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Modal: Region Mapping Edit -->
+<div class="modal fade" id="matrixModal" tabindex="-1" role="dialog" aria-labelledby="matrixModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="matrixModalLabel">{{  t.modal_title|default:"Edit Region Mapping"  }}</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+            aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <p>
+          {{  t.lbl_province|default:"Province"  }}: <strong id="modalProvinceName"></strong>
+        </p>
+        <p>
+          {{  t.lbl_region|default:"Region"  }}: <strong id="modalRegionName"></strong>
+        </p>
+        <input type="hidden" id="modalProvinceId" />
+        <input type="hidden" id="modalRegionId" />
+
+        <!-- Action info will be updated dynamically -->
+        <div id="matrixActionSection" class="mb-2 text-danger small"></div>
+
+        <div class="form-group">
+          <label>{{  t.lbl_status|default:"Status"  }}:</label>
+          <div id="modalStatus" class="font-weight-bold text-sm"></div>
         </div>
-        <div class="modal-body">
-          <p>
-            Province: <strong id="modalProvinceName">[province]</strong>
-          </p>
-          <p>
-            Region: <strong id="modalRegionName">[region]</strong>
-          </p>
-          <input type="hidden" id="modalProvinceId" />
-          <input type="hidden" id="modalRegionId" />
 
-          <!-- Action info will be updated dynamically -->
-          <div id="matrixActionSection" class="mb-2 text-danger small"></div>
-
-          <div class="form-group">
-            <label>Status:</label>
-            <div id="modalStatus" class="font-weight-bold text-sm"></div>
-          </div>
-          <!-- Date inputs -->
-          <div class="form-group">
-            <label for="modalEffective">Effective Date</label>
-            <input type="date" class="form-control form-control-sm" id="modalEffective" />
-          </div>
-          <div class="form-group">
-            <label for="modalTerminated">Terminated Date</label>
-            <input type="date" class="form-control form-control-sm" id="modalTerminated" />
-          </div>
+        <!-- Date inputs -->
+        <div class="form-group">
+          <label for="modalEffective">{{  t.lbl_effective_date|default:"Effective Date"  }}</label>
+          <input type="date" class="form-control form-control-sm" id="modalEffective" {% if not can_edit_effective_date %}readonly{% endif %} />
         </div>
-        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
+        <div class="form-group mb-0">
+          <label for="modalTerminated">{{  t.lbl_terminated_date|default:"Terminated Date"  }}</label>
+          <input type="date" class="form-control form-control-sm" id="modalTerminated" />
+        </div>
+      </div>
+      <input type="hidden" name="csrfmiddlewaretoken" value="{{  csrf_token  }}" />
 
-        <div class="modal-footer d-flex justify-content-between">
-          <div>
-            <button type="button" class="btn btn-sm btn-danger" data-action="delete" id="matrixDelete">Delete</button>
-          </div>
-
-          <div>
-            <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-sm btn-success" data-action="save" id="matrixSave">Save</button>
-          </div>
+      <div class="modal-footer d-flex justify-content-between">
+        <div>
+          <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">{{  t.btn_cancel|default:"Cancel"  }}</button>
+        </div>
+        <div>
+          {% if is_admin or user_site_id == 1 %}
+          <button type="button" class="btn btn-sm btn-danger" data-action="inactive" id="matrixInactive">{{  t.btn_inactive|default:"Delete"  }}</button>
+          {% endif %}
+          <button type="button" class="btn btn-sm btn-success" data-action="save" id="matrixSave">{{  t.btn_save|default:"Save"  }}</button>
         </div>
       </div>
     </div>
   </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const wrapper = document.querySelector('.region-matrix-wrapper')
-      if (wrapper) {
-        const headRows = wrapper.querySelectorAll('thead tr')
-        if (headRows.length >= 3) {
-          const row1Height = headRows[0].getBoundingClientRect().height
-          const row2Height = headRows[1].getBoundingClientRect().height
-          wrapper.style.setProperty('--rm-row1-height', row1Height + 'px')
-          wrapper.style.setProperty('--rm-row2-height', row2Height + 'px')
-        }
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const wrapper = document.querySelector('.region-matrix-wrapper')
+    if (wrapper) {
+      const headRows = wrapper.querySelectorAll('thead tr')
+      if (headRows.length >= 3) {
+        const row1Height = headRows[0].getBoundingClientRect().height
+        const row2Height = headRows[1].getBoundingClientRect().height
+        wrapper.style.setProperty('--rm-row1-height', row1Height + 'px')
+        wrapper.style.setProperty('--rm-row2-height', row2Height + 'px')
       }
+    }
+  })
+
+  $(document).ready(function () {
+    // Full-access edit flag passed from Django context
+    const canEditEffectiveDate = {{  can_edit_effective_date|yesno:"true,false"  }}
+
+    // ── Modal open handler ───────────────────────────────────────────
+    $('.matrix-toggle').on('click', function () {
+      const $row = $(this).closest('tr')
+      const provinceId = $row.data('province-id')
+      const provinceName = $row.find('td:nth-child(2)').text().trim()
+      const regionId = $(this).data('region-id')
+      const regionName = $(this).data('region-name') || ''
+      const effectiveDate = $(this).data('effective') || ''
+      const terminatedDate = $(this).data('terminated') || ''
+      const status = parseInt($(this).data('status'))
+
+      // Populate modal fields
+      $('#modalProvinceName').text(provinceName)
+      $('#modalRegionName').text(regionName)
+      $('#modalProvinceId').val(provinceId)
+      $('#modalRegionId').val(regionId)
+      $('#modalEffective').val(effectiveDate)
+      $('#modalTerminated').val(terminatedDate)
+
+      // Status label
+      if (isNaN(status)) {
+        $('#modalStatus').text('{{  t.lbl_no_mapping|default:"No Mapping"  }}').data('status', null)
+      } else if (status === 1) {
+        $('#modalStatus').text('✅ {{  t.status_active|default:"Active"  }}').data('status', 1)
+      } else {
+        $('#modalStatus').text('❌ {{  t.status_inactive|default:"Inactive"  }}').data('status', 0)
+      }
+
+      // Effective Date: editable for full-access users (admin or site_id=1)
+      $('#modalEffective').prop('readonly', !canEditEffectiveDate)
+
+      $('#matrixModal').modal('show')
     })
-    $(document).ready(function () {
-      // Handle modal open
-      $('.matrix-toggle').on('click', function () {
-        const $row = $(this).closest('tr')
-        const provinceName = $row.find('td:nth-child(2)').text().trim()
-        const provinceId = $row.data('province-id')
-        const regionName = $(this).attr('title')
-        const regionId = $(this).data('region-id')
-        const effectiveDate = $(this).data('effective') || ''
-        const terminatedDate = $(this).data('terminated') || ''
-        //const status = $(this).data('status');
-        const status = parseInt($(this).data('status')) // Parse to integer
-        const isExisting = !!effectiveDate // if there is already a record
-    
-        $('#modalProvinceName').text(provinceName)
-        $('#modalRegionName').text($(this).data('region-name') || '[region]')
-        $('#modalProvinceId').val(provinceId)
-        $('#modalRegionId').val(regionId)
-        $('#modalTerminated').val(terminatedDate) // for editable input field
-        $('#modalEffectiveDisplay').text(effectiveDate)
-        $('#matrixModal').modal('show')
-        // Status label
-        if (typeof status === 'undefined') {
-          $('#modalStatus').text('No Mapping').data('status', null)
-        } else if (status == 1) {
-          $('#modalStatus').text('✅ Active').data('status', 1)
-        } else {
-          $('#modalStatus').text('❌ Inactive').data('status', 0)
-        }
-        // Effective label
-        $('#modalEffective').val(effectiveDate) // if you show this in a date input
-        $('#modalEffectiveDisplay').text(effectiveDate) // if showing as text
-        // Toggle read-only based on presence of data
-        if (isExisting) {
-          $('#modalEffective').prop('readonly', true)
-        } else {
-          $('#modalEffective').prop('readonly', false)
-        }
-      })
-    
-      // Common AJAX submit handler
-      function submitMatrixUpdate(action) {
-        const provinceId = $('#modalProvinceId').val()
-        const regionId = $('#modalRegionId').val()
-    
-        $.ajax({
-          url: "{% url 'sales:region_matrix_update' %}",
-          method: 'POST',
-          data: {
-            province_id: provinceId,
-            region_id: regionId,
-            action: action,
-            csrfmiddlewaretoken: '{{ csrf_token }}'
-          },
-          success: function (response) {
-            $('#matrixModal').modal('hide')
-            Swal.fire({
-              icon: 'success',
-              title: 'Updated',
-              text: 'Region mapping has been updated.',
-              timer: 1500,
-              showConfirmButton: false
-            }).then(() => {
-              location.reload()
-            })
-          },
-          error: function (xhr, status, error) {
-            console.error('Error:')
-            console.error('Status:', status)
-            console.error('Error:', error)
-            console.error('Response:', xhr.responseText)
-            alert('💥 Error. Check console for details.')
-          }
-        })
+
+      // ── Save / Inactive button handler ──────────────────────────────
+      $('#matrixSave, #matrixInactive').on('click', function (e) {
+      e.preventDefault()
+
+      const action = $(this).data('action') // save | inactive
+      const csrfToken = $('[name="csrfmiddlewaretoken"]').val()
+
+      const payload = {
+        province_id: $('#modalProvinceId').val(),
+        region_id: $('#modalRegionId').val(),
+        effective: $('#modalEffective').val(),
+        terminated: $('#modalTerminated').val(),
+        action: action,
+        csrfmiddlewaretoken: csrfToken
       }
-    
-      // Save button
-      $('#matrixSave, #matrixDelete').on('click', function (e) {
-        e.preventDefault()
-    
-        const action = $(this).data('action') // delete | update
-        const csrfToken = $('[name="csrfmiddlewaretoken"]').val()
-    
-        const payload = {
-          province_id: $('#modalProvinceId').val(),
-          region_id: $('#modalRegionId').val(),
-          effective: $('#modalEffective').val(),
-          terminated: $('#modalTerminated').val(),
-          action: action,
-          csrfmiddlewaretoken: csrfToken
-        }
-    
-        $.ajax({
-          type: 'POST',
-          url: '/en/sales/territory/region-matrix/update/',
-          data: payload,
-          success: function (response) {
-            $('#matrixModal').modal('hide')
+
+      $.ajax({
+        type: 'POST',
+        url: "{% url 'sales:region_matrix_update' %}",
+        data: payload,
+        success: function (response) {
+          $('#matrixModal').modal('hide')
+          Swal.fire({
+            icon: 'success',
+            title: '{{  t.msg_updated_title|default:"Updated"  }}',
+            text: '{{  t.msg_updated_text|default:"Region mapping has been updated."  }}',
+            timer: 1500,
+            showConfirmButton: false
+          }).then(() => {
             location.reload()
-          },
-          error: function (xhr) {
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              html: `${xhr.status} ${xhr.statusText}<br>${xhr.responseText}`
-            })
-          }
-        })
-      })
-    
-      // Expand/Collapse All
-      $('#expand-all').on('click', function () {
-        $('.island-section').collapse('show')
-        $('.island-toggle span').html('&#x25BC;')
-      })
-    
-      $('#collapse-all').on('click', function () {
-        $('.island-section').collapse('hide')
-        $('.island-toggle span').html('&#x25B6;')
-      })
-    
-      $('.island-toggle').on('click', function () {
-        const $icon = $(this).find('span')
-        const targetId = $(this).attr('href')
-        const isShown = $(targetId).hasClass('show')
-        setTimeout(() => {
-          $icon.html(isShown ? '&#x25B6;' : '&#x25BC;')
-        }, 250)
+          })
+        },
+        error: function (xhr) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            html: `${xhr.status} ${xhr.statusText}<br>${xhr.responseText}`
+          })
+        }
       })
     })
-  </script>
+
+      // ── Expand / Collapse All ────────────────────────────────────────
+      $('#expand-all').on('click', function () {
+      $('.island-section').collapse('show')
+      $('.island-toggle span').html('&#x25BC;')
+    })
+
+      $('#collapse-all').on('click', function () {
+      $('.island-section').collapse('hide')
+      $('.island-toggle span').html('&#x25B6;')
+    })
+
+      $('.island-toggle').on('click', function () {
+      const $icon = $(this).find('span')
+      const targetId = $(this).attr('href')
+      const isShown = $(targetId).hasClass('show')
+      setTimeout(() => {
+        $icon.html(isShown ? '&#x25B6;' : '&#x25BC;')
+      }, 250)
+    })
+      function logSalesClick(feature, description, metadata) {
+      const url = '/api/log-click/';
+      const body = JSON.stringify({
+        module: 'Sales',
+        feature: feature,
+        description: description,
+        metadata: metadata || {}
+      });
+
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{  csrf_token  }}'
+        },
+        body: body,
+        keepalive: true
+      }).catch(err => console.error('Click logging failed', err));
+    }
+
+      $(document).on('click', '.track-click', function () {
+      const feature = $(this).attr('data-feature');
+      const description = $(this).attr('data-description');
+      const metadata = JSON.parse($(this).attr('data-metadata') || '{}');
+      if (feature) {
+        logSalesClick(feature, description, metadata);
+      }
+    });
+    })
+</script>
 {% endblock %}

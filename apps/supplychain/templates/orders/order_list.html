@@ -1,7 +1,7 @@
 {% extends "main.html" %}
 {% load i18n static %}
 {% block datatable_css %}
-    {{ block.super }}
+    {{  block.super  }}
 {% endblock %}
 {% block content %}
 <div class="card hiveforest">
@@ -10,12 +10,12 @@
     </div> <!-- Card Header end -->
     <div class="card-body">
         <div class="card-toolbar hiveforest">
-            <a href="{% url 'supplychain:order_add' %}" class="btn btn-primary">Add Order</a>
+            <a href="{% url 'supplychain:order_add' %}" class="btn btn-primary track-click" data-feature="Add Order Button" data-description="User clicked Add Order button">Add Order</a>
         </div>
         <table id="header_table" class="table table-bordered table-striped table-responsive display compact">
             <thead>
                 <tr>
-                    <th class="hv-centered"><input type="checkbox" id="action-toggle" aria-label="Select all objects on this page for an action"></th>
+                    <th class="hv-centered"><input type="checkbox" id="action-toggle" class="track-click" data-feature="Order List Select All Checkbox" data-description="User toggled Select All checkbox in Order List" aria-label="Select all objects on this page for an action"></th>
                     <th class="hv-lefted">ID</th>
                     <th>Order No</th>
                     <th>Distributor</th>
@@ -40,31 +40,31 @@
                     <td class="hv-centered">
                         <input type="checkbox" name="_selected_action" value="9" class="action-select" aria-label="Select this object for an action">
                     </td>
-                    <td class="hv-lefted">{{ order.id }}</td>
-                    <td class="hv-lefted"><a href="{% url 'supplychain:order_view' order.id %}">{{ order.orderno }}</a></td>
-                    <td class="hv-centered">{{ order.distributor.initial }}</td>
-                    <td class="hv-lefted">{{ order.branch }}</td>
-                    <td class="hv-centered">{{ order.ordertype }}</td>
-                    <td class="hv-righted">{{ order.orderdate }}</td>
-                    <td class="hv-righted">{{ order.orderdue }}</td>
-                    <td class="hv-lefted">{{ order.description }}</td>
-                    <td class="hv-lefted">{{ order.remark }}</td>
-                    <td class="hv-righted">{{ order.lines|default:0 }}</td>
-                    <td class="hv-righted">{{ order.sum_amount|default:0|floatformat:"g" }}</td>
-                    <td class="hv-centered">{{ order.progress }}</td>
-                    <td class="hv-centered">{{ order.get_status_display }}</td>
-                    <td class="hv-righted">{{ order.cat }}</td>
-                    <td class="hv-lefted">{{ order.cby.first_name|default:order.cby.last_name|default:order.cby.username }}</td>
+                    <td class="hv-lefted">{{  order.id  }}</td>
+                    <td class="hv-lefted"><a href="{% url 'supplychain:order_view' order.id %}" class="track-click" data-feature="Order View Detail Link" data-description="User clicked Order No link for {{  order.orderno  }}" data-metadata='{"order_id": {{  order.id  }}, "order_no": "{{  order.orderno  }}"}'>{{  order.orderno  }}</a></td>
+                    <td class="hv-centered">{{  order.distributor.initial  }}</td>
+                    <td class="hv-lefted">{{  order.branch  }}</td>
+                    <td class="hv-centered">{{  order.ordertype  }}</td>
+                    <td class="hv-righted">{{  order.orderdate  }}</td>
+                    <td class="hv-righted">{{  order.orderdue  }}</td>
+                    <td class="hv-lefted">{{  order.description  }}</td>
+                    <td class="hv-lefted">{{  order.remark  }}</td>
+                    <td class="hv-righted">{{  order.lines|default:0  }}</td>
+                    <td class="hv-righted">{{  order.sum_amount|default:0|floatformat:"g"  }}</td>
+                    <td class="hv-centered">{{  order.progress  }}</td>
+                    <td class="hv-centered">{{  order.get_status_display  }}</td>
+                    <td class="hv-righted">{{  order.cat  }}</td>
+                    <td class="hv-lefted">{{  order.cby.first_name|default:order.cby.last_name|default:order.cby.username  }}</td>
                     <td class="hv-centered">
                         <div class="btn-group">
-                            <a href="{% url 'supplychain:order_view' order.id %}"  class="btn btn-sm btn-primary hv-btn-mini"><i class="far fa-eye"></i></a>
+                            <a href="{% url 'supplychain:order_view' order.id %}" class="btn btn-sm btn-primary hv-btn-mini track-click" data-feature="Order View Detail Button" data-description="User clicked View icon for Order ID {{  order.id  }}" data-metadata='{"order_id": {{  order.id  }}}'><i class="far fa-eye"></i></a>
                             <div class="btn-group">
                                 <button type="button" class="btn btn-sm dropdown-toggle dropdown-icon hv-btn-mini" data-toggle="dropdown" aria-expanded="true" style="border-color: blue;"></button>
                                 <div class="dropdown-menu" style="position: absolute; transform: translate3d(-69px, 38px, 0px); top: 0px; left: 0px; color:blue; will-change: transform; min-width: 14px !important; padding: 0.25rem;" x-placement="bottom-start">                                    
-                                    <a href="{% url 'supplychain:order_edit' order.id %}"  class="btn btn-sm btn-success hv-btn-mini hv-action-btn"><i class="far fa-edit"></i></a>                                         
+                                    <a href="{% url 'supplychain:order_edit' order.id %}" class="btn btn-sm btn-success hv-btn-mini hv-action-btn track-click" data-feature="Order Edit Button" data-description="User clicked Edit icon for Order ID {{  order.id  }}" data-metadata='{"order_id": {{  order.id  }}}'><i class="far fa-edit"></i></a>                                         
                                     <form action="#" method="POST" style="display: inline;">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-danger btn-sm hv-btn-mini hv-action-btn" onclick="return confirm('Are you sure?')"><i class="far fa-trash-alt"></i></button>
+                                        <button type="submit" class="btn btn-danger btn-sm hv-btn-mini hv-action-btn track-click" data-feature="Order Delete Button" data-description="User clicked Delete icon for Order ID {{  order.id  }}" onclick="return confirm('Are you sure?')"><i class="far fa-trash-alt"></i></button>
                                     </form>
                                 </div>
                             </div>
@@ -78,6 +78,36 @@
 </div> <!-- Card end -->
 {% endblock %}
 {% block datatable_js %}
-    {{ block.super }}
+    {{  block.super  }}
     <script src="{% static 'custom/js/header_table_datatable.js' %}"></script>
+    <script>
+    function logClick(feature, description, metadata) {
+        const url = '/api/log-click/';
+        const body = JSON.stringify({
+            module: 'SupplyChain',
+            feature: feature,
+            description: description,
+            metadata: metadata || {}
+        });
+        
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{  csrf_token  }}'
+            },
+            body: body,
+            keepalive: true
+        }).catch(err => console.error('Click logging failed', err));
+    }
+
+    $(document).on('click', '.track-click', function() {
+        const feature = $(this).attr('data-feature');
+        const description = $(this).attr('data-description');
+        const metadata = JSON.parse($(this).attr('data-metadata') || '{}');
+        if (feature) {
+            logClick(feature, description, metadata);
+        }
+    });
+    </script>
 {% endblock %}

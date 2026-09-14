@@ -5,13 +5,13 @@
   <div class="row" id="masonry-container">
   {% for app in app_list %}
     {% if app.name != "Django Summernote" %}
-      <div class="app-{{ app.app_label }} module{% if app.app_url in request.path|urlencode %} current-app{% endif %}">
+      <div class="app-{{  app.app_label  }} module{% if app.app_url in request.path|urlencode %} current-app{% endif %}">
         {% if app.models %}
         <div class="col-lg-3 col-md-4 col-sm-6 mb-3 masonry-item">
           <div class="card card-primary card-outline">
             <div class="card-header hiveforest">
               <h5 class="card-title hiveforest">
-                <a href="{{ app.app_url }}" class="section" title="{% blocktranslate with name=app.name %}Models in the {{ name }} application{% endblocktranslate %}">{{ app.name }}</a>
+                <a href="{{  app.app_url  }}" class="section" title="{% blocktranslate with name=app.name %}Models in the {{  name  }} application{% endblocktranslate %}">{{  app.name  }}</a>
               </h5>
             </div>
             <div class="card-body hiveforest">

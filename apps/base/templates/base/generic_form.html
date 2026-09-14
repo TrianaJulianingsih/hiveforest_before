@@ -10,7 +10,7 @@
 {% load i18n static %}
 {% load crispy_forms_tags %}
 
-{% block title %}{{ page_title|default:"HiveForest | Form Page" }}{% endblock %}
+{% block title %}{{  page_title|default:"HiveForest |Form Page"  }}{% endblock %}
 {% block content %}
 <div class="container mt-4">
     <div class="card card-primary card-outline hiveforest">
@@ -18,7 +18,7 @@
             {% csrf_token %}
             <button type="submit" id="hidden-default-submit" style="display:none;"></button>
             <div class="card-header ui-sortable-handle">
-                <h2>{{ card_title }}</h2>
+                <h2>{{  card_title  }}</h2>
                 <div class="card-tools">
                     {% block card_tools %}{% endblock %}
                 </div>
@@ -41,7 +41,7 @@
                                 <i class="fas fa-clone"></i> Clone
                             </button>
                         {% endif %}
-                        <a href="{{ back_url|default:'#' }}" class="btn btn-sm btn-secondary">
+                        <a href="{{  back_url|default:'#'  }}" class="btn btn-sm btn-secondary">
                             <i class="fas fa-arrow-alt-circle-left"></i> Back
                         </a>
                     {% endblock %}
@@ -53,7 +53,7 @@
                 {% block record_actions %}
                     {% if mode != 'add' %}
                         {% if employee.status == 1 %}
-                        <form method="POST" action="{{ toggle_status_action_url|default:'#' }}" style="display:inline;">
+                        <form method="POST" action="{{  toggle_status_action_url|default:'#'  }}" style="display:inline;">
                         {% csrf_token %}
                         <button type="submit" name="action" value="deactivate"
                                 class="btn btn-sm btn-secondary"
@@ -63,7 +63,7 @@
                         </button>
                         </form>
                         {% else %}
-                        <form method="POST" action="{{ toggle_status_action_url|default:'#' }}" style="display:inline;">
+                        <form method="POST" action="{{  toggle_status_action_url|default:'#'  }}" style="display:inline;">
                         {% csrf_token %}
                         <button type="submit" name="action" value="activate"
                                 class="btn btn-sm btn-success"
@@ -73,7 +73,7 @@
                         </button>
                         </form>
                         {% endif %}
-                        <form method="POST" action="{{ soft_delete_action_url|default:'#' }}" style="display:inline;">
+                        <form method="POST" action="{{  soft_delete_action_url|default:'#'  }}" style="display:inline;">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-danger btn-sm"
                                 style="margin-left:1px; margin-right:1px;"
@@ -89,6 +89,6 @@
 </div>
 {% endblock %}
 {% block datatable_js %}
-    {{ block.super }}
+    {{  block.super  }}
     <script src="{% static 'custom/js/select2.min.js' %}"></script>
 {% endblock %}

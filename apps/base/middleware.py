@@ -112,3 +112,109 @@ class ForcePasswordChangeMiddleware:
                         return redirect("password_force_change")
 
         return self.get_response(request)
+
+
+import threading
+import json
+from apps.base.services.system_log_service import SystemLogService
+from apps.base.models.system_log import LogAction, LogStatus
+
+_thread_locals = threading.local()
+
+class RequestProviderMiddleware:
+    """Stores the active HTTP request object in a thread-local variable."""
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        _thread_locals.request = request
+        try:
+            response = self.get_response(request)
+        finally:
+            if hasattr(_thread_locals, "request"):
+                del _thread_locals.request
+        return response
+
+    @classmethod
+    def get_current_request(cls):
+        return getattr(_thread_locals, "request", None)
+
+
+class SystemLogMiddleware:
+    """Automatically logs REST API requests/responses and unhandled exceptions globally."""
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # 1. Check if the request is an API endpoint
+        is_api = request.path.startswith('/api/')
+        
+        # 2. Extract API payload for POST, PUT, PATCH request methods
+        payload = None
+        if is_api and request.method in ['POST', 'PUT', 'PATCH']:
+            try:
+                if request.content_type == 'application/json':
+                    payload = json.loads(request.body)
+                else:
+                    payload = dict(request.POST)
+            except Exception:
+                pass
+
+        response = self.get_response(request)
+
+        # 3. Log API action details
+        if is_api:
+            resp_data = None
+            if response.headers.get('Content-Type', '').startswith('application/json'):
+                try:
+                    resp_data = json.loads(response.content)
+                except Exception:
+                    pass
+
+            status = LogStatus.SUCCESS if response.status_code < 400 else LogStatus.ERROR
+            error_msg = None
+            if status == LogStatus.ERROR:
+                if resp_data:
+                    error_msg = str(resp_data)
+                else:
+                    error_msg = f"HTTP {response.status_code} Error"
+
+            feature_name = "API Endpoint"
+            if request.resolver_match:
+                feature_name = request.resolver_match.view_name
+
+            SystemLogService.log(
+                request=request,
+                action=LogAction.API_REQUEST,
+                module="API",
+                feature=feature_name,
+                description=f"API Request: {request.method} {request.path}",
+                status=status,
+                response_code=response.status_code,
+                response_data=json.dumps(resp_data) if resp_data is not None else None,
+                new_data=payload,
+                error_message=error_msg,
+                log_type="API"
+            )
+
+        return response
+
+    def process_exception(self, request, exception):
+        """Catches and logs unhandled exceptions thrown during request resolution."""
+        import traceback
+        tb = traceback.format_exc()
+        
+        feature_name = "Unhandled Exception"
+        if request.resolver_match:
+            feature_name = f"Exception in {request.resolver_match.view_name}"
+
+        SystemLogService.error(
+            request=request,
+            module="System",
+            feature=feature_name,
+            error=exception,
+            stack_trace=tb,
+            log_type="SYSTEM"
+        )
+        return None
+

@@ -3,27 +3,6 @@
 from django.db import migrations
 
 
-def drop_whichever_table_exists(apps, schema_editor):
-    # The preceding migrations left this table under one of two possible
-    # names depending on the environment's history (bas_rekap_kunjungan_by_dokter
-    # or crm_doctorvisitrecap) - drop whichever one actually exists.
-    cursor = schema_editor.connection.cursor()
-    try:
-        for table_name in ('bas_rekap_kunjungan_by_dokter', 'crm_doctorvisitrecap'):
-            cursor.execute(
-                "SELECT 1 FROM information_schema.tables WHERE table_name=%s;",
-                [table_name],
-            )
-            if cursor.fetchone() is not None:
-                cursor.execute(f'DROP TABLE "{table_name}" CASCADE;')
-    finally:
-        cursor.close()
-
-
-def reverse_noop(apps, schema_editor):
-    pass
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -31,14 +10,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.SeparateDatabaseAndState(
-            database_operations=[
-                migrations.RunPython(drop_whichever_table_exists, reverse_noop),
-            ],
-            state_operations=[
-                migrations.DeleteModel(
-                    name='DoctorVisitRecap',
-                ),
-            ],
+        migrations.DeleteModel(
+            name='DoctorVisitRecap',
         ),
     ]

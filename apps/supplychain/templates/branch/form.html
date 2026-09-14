@@ -2,17 +2,17 @@
 {% load i18n static translation_tags %}
 
 {% block content %}
-{{ block.super }}
+{{  block.super  }}
 {% get_translations 'branch' as t %}
 
 <div class="card card-primary card-outline hiveforest pb-2">
   <div class="card-header">
-    <h2 class="card-title">{% if form.instance.pk %}{{ t.page_edit|default:'Edit Branch' }}{% else %}{{ t.page_add|default:'Add Branch' }}{% endif %}</h2>
+    <h2 class="card-title">{% if form.instance.pk %}{{  t.page_edit|default:'Edit Branch'  }}{% else %}{{  t.page_add|default:'Add Branch'  }}{% endif %}</h2>
   </div>
-    <form method="post">{% csrf_token %}
+    <form method="post" class="track-form" data-feature="Branch Form Submit" data-description="User submitted Branch form">{% csrf_token %}
         {% if form.errors %}
             <div class="alert alert-danger">
-                {{ form.errors }}
+                {{  form.errors  }}
             </div>
         {% endif %}
 
@@ -22,15 +22,15 @@
                 {% for field in form %}
                     {% if field.name not in 'has_sales has_stock has_order' %}
                     <div class="form-group mb-3">
-                        <label for="{{ field.id_for_label }}" class="form-label">
-                        {{ field.label }}
+                        <label for="{{  field.id_for_label  }}" class="form-label">
+                        {{  field.label  }}
                         </label>
-                        {{ field }}
+                        {{  field  }}
                         {% if field.help_text %}
-                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                        <small class="form-text text-muted">{{  field.help_text  }}</small>
                         {% endif %}
                         {% if field.errors %}
-                        <div class="text-danger">{{ field.errors }}</div>
+                        <div class="text-danger">{{  field.errors  }}</div>
                         {% endif %}
                     </div>
                     {% endif %}
@@ -42,24 +42,24 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-check">
-                                    {{ form.has_sales }}
-                                    <label class="form-check-label" for="{{ form.has_sales.id_for_label }}">
+                                    {{  form.has_sales  }}
+                                    <label class="form-check-label" for="{{  form.has_sales.id_for_label  }}">
                                         <b>Has Sales</b>
                                     </label>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-check">
-                                    {{ form.has_stock }}
-                                    <label class="form-check-label" for="{{ form.has_stock.id_for_label }}">
+                                    {{  form.has_stock  }}
+                                    <label class="form-check-label" for="{{  form.has_stock.id_for_label  }}">
                                         <b>Has Stock</b>
                                     </label>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-check">
-                                    {{ form.has_order }}
-                                    <label class="form-check-label" for="{{ form.has_order.id_for_label }}">
+                                    {{  form.has_order  }}
+                                    <label class="form-check-label" for="{{  form.has_order.id_for_label  }}">
                                         <b>Has Order</b>
                                     </label>
                                 </div>
@@ -75,11 +75,11 @@
             
         <div class="card-footer">
             <a href="{% url 'supplychain:branch_list' %}"
-                class="btn btn-primary">
-                <i class="fas fa-arrow-left"></i> {{ t.btn_back|default:'Back' }}
+                class="btn btn-primary track-click" data-feature="Branch Back Button" data-description="User clicked Back on Branch form">
+                <i class="fas fa-arrow-left"></i> {{  t.btn_back|default:'Back'  }}
             </a>
-            <button type="submit" class="btn btn-success">
-                {{ t.btn_save|default:'Save' }}
+            <button type="submit" class="btn btn-success track-click" data-feature="Branch Save Button" data-description="User clicked Save on Branch form">
+                {{  t.btn_save|default:'Save'  }}
             </button>
         </div>
     </form>
@@ -87,6 +87,44 @@
 
 {% block extra_js %}
 <script>
+    function logClick(feature, description, metadata) {
+        const url = '/api/log-click/';
+        const body = JSON.stringify({
+            module: 'SupplyChain',
+            feature: feature,
+            description: description,
+            metadata: metadata || {}
+        });
+        
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{  csrf_token  }}'
+            },
+            body: body,
+            keepalive: true
+        }).catch(err => console.error('Click logging failed', err));
+    }
+
+    $(document).on('click', '.track-click', function() {
+        const feature = $(this).attr('data-feature');
+        const description = $(this).attr('data-description');
+        const metadata = JSON.parse($(this).attr('data-metadata') || '{}');
+        if (feature) {
+            logClick(feature, description, metadata);
+        }
+    });
+
+    $(document).on('submit', '.track-form', function() {
+        const feature = $(this).attr('data-feature');
+        const description = $(this).attr('data-description');
+        const metadata = JSON.parse($(this).attr('data-metadata') || '{}');
+        if (feature) {
+            logClick(feature, description, metadata);
+        }
+    });
+
     $(document).ready(function() {
         $('.select2').select2({
             theme: 'bootstrap4',

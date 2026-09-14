@@ -1,6 +1,6 @@
 {% load i18n static %}<!DOCTYPE html>
 {% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
-<html lang="{{ LANGUAGE_CODE|default:'en-us' }}" dir="{{ LANGUAGE_BIDI|yesno:'rtl,ltr,auto' }}">
+<html lang="{{  LANGUAGE_CODE|default:'en-us'  }}" dir="{{  LANGUAGE_BIDI|yesno:'rtl,ltr,auto'  }}">
 <head>
 <title>{% block title %}{% endblock %}</title>
 <link rel="shortcut icon" href="{% static 'favicon.ico' %}" />
@@ -93,7 +93,7 @@
         {% block breadcrumbs %}
           <div class="breadcrumbs">
             <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
-            {% if title %} &rsaquo; {{ title }}{% endif %}
+            {% if title %} &rsaquo; {{  title  }}{% endif %}
           </div>
         {% endblock %}
       </nav>
@@ -103,18 +103,18 @@
         {% block messages %}
           {% if messages %}
             <ul class="messagelist">{% for message in messages %}
-              <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|capfirst }}</li>
+              <li{% if message.tags %} class="{{  message.tags  }}"{% endif %}>{{  message|capfirst  }}</li>
             {% endfor %}</ul>
           {% endif %}
         {% endblock messages %}
         <!-- Content -->
         <div id="content" class="{% block coltype %}colM{% endblock %}">
           {% block pretitle %}{% endblock %}
-          {% block content_title %}{% if title %}<h4>{{ title }}</h4>{% endif %}{% endblock %}
-          {% block content_subtitle %}{% if subtitle %}<h5>{{ subtitle }}</h5>{% endif %}{% endblock %}
+          {% block content_title %}{% if title %}<h4>{{  title  }}</h4>{% endif %}{% endblock %}
+          {% block content_subtitle %}{% if subtitle %}<h5>{{  subtitle  }}</h5>{% endif %}{% endblock %}
           {% block content %}
             {% block object-tools %}{% endblock %}
-            {{ content }}
+            {{  content  }}
           {% endblock %}
           {% block sidebar %}{% endblock %}
           <br class="clear">

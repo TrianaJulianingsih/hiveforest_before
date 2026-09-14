@@ -16,14 +16,14 @@
         <div class="image">
           <a href="{% url 'profile' %}">
             {% if user.userprofile.profile_picture %}
-              <img src="{{ user.userprofile.profile_picture.url }}" class="img-circle elevation-2" alt="User Image" />
+              <img src="{{  user.userprofile.profile_picture.url  }}" class="img-circle elevation-2" alt="User Image" />
             {% else %}
               <img src="media/profile_pictures/default-user.png" alt="Default Profile Picture" class="img-thumbnail" />
             {% endif %}
           </a>
         </div>
         <div class="info">
-          <a href="{% url 'profile' %}" class="d-block">{{ user.get_full_name }}</a>
+          <a href="{% url 'profile' %}" class="d-block">{{  user.get_full_name  }}</a>
         </div>
       </div>
 
@@ -358,6 +358,20 @@
                 </ul>
               </li>
             </ul>
+            <ul class="nav nav-treeview">
+              <li class="nav-item {% menu_open_admin 'base/warehousepalette' %}">
+                <a href="#" class="nav-link {% active_admin 'base/warehousepalette' %}">
+                  <i class="fas fa-language nav-icon"></i><p>
+                    Sites<i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url 'admin:base_sites_changelist' %}" class="nav-link {% active_admin 'base/sites' %}"><i class="nav-icon fas fa-warehouse"></i><p>Sites</p></a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
           </li>
 
           <li class="nav-item {% menu_open_admin 'sales' %}">
@@ -472,8 +486,8 @@
                   </li>
                 </ul>
               </li>
-              <li class="nav-item {% menu_open_admin 'sales/salesterritory' 'sales/salesarea' 'sales/arearegency' 'sales/salesteam' 'sales/salesregion' 'sales/regionprovince' 'sales/kamarea' %}">
-                <a href="#" class="nav-link {% active_admin 'sales/salesterritory' %}">
+              <li class="nav-item {% menu_open_admin 'sales/salesterritory' 'sales/salesarea' 'sales/arearegency' 'sales/salesteam' 'sales/salesregion' 'sales/regionprovince' 'sales/kamarea' 'sales/territoryassignment' 'sales/territoryassignmenthistory' 'sales/regionprovincehistory' 'sales/arearegencyhistory' %}">
+                <a href="#" class="nav-link {% active_admin 'sales/salesterritory' 'sales/territoryassignment' 'sales/territoryassignmenthistory' 'sales/regionprovincehistory' 'sales/arearegencyhistory' %}">
                   <i class="fas fa-address-card nav-icon"></i><p>
                     Territories<i class="right fas fa-angle-left"></i>
                   </p>
@@ -503,6 +517,12 @@
                   {% comment %} <li class="nav-item">
                     <a href="{% url 'admin:sales_postcover_changelist' %}" class="nav-link {% active_admin 'sales/postcover' %}"><i class="nav-icon fas fa-caret-right"></i><p>Position Coverage</p></a>
                   </li> {% endcomment %}
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_territoryassignmenthistory_changelist' %}" class="nav-link {% active_admin 'sales/territoryassignmenthistory' %}"><i class="nav-icon fas fa-caret-right"></i><p>Territory Assignment History</p></a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'admin:sales_territoryassignment_changelist' %}" class="nav-link {% active_admin 'sales/territoryassignment' %}"><i class="nav-icon fas fa-caret-right"></i><p>Territory Assignment</p></a>
+                  </li>
                 </ul>
               </li>
             </ul>

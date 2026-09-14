@@ -5,10 +5,14 @@ from django.urls import path, reverse
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, JsonResponse
 from django.template.response import TemplateResponse
+import pandas as pd
+import dbfread
+from dbfread import DBF
 import csv
 import io
 import os
 import tempfile
+import chardet
 from django.forms import Textarea, TextInput
 
 
@@ -89,12 +93,27 @@ class BaseModelAdmin(admin.ModelAdmin):
             )
         return form
 
+    def changelist_view(self, request, extra_context=None):
+        try:
+            from apps.base.services.system_log_service import SystemLogService
+            from apps.base.models.system_log import LogAction
+            
+            SystemLogService.log(
+                request=request,
+                action=LogAction.READ,
+                module=self.model._meta.app_label.title(),
+                feature=self.model._meta.verbose_name_plural.title(),
+                description=f"Accessed {self.model._meta.verbose_name_plural.title()} admin list view.",
+                status="SUCCESS",
+                log_type="SYSTEM"
+            )
+        except Exception:
+            pass
+        return super().changelist_view(request, extra_context=extra_context)
+
 
 class PandasImportMixin:
     def _read_csv_file(self, uploaded_file, dtype_mapping):
-        import chardet
-        import pandas as pd
-
         raw_bytes = uploaded_file.read()
         uploaded_file.seek(0)
 
@@ -165,10 +184,6 @@ class PandasImportMixin:
         raise ValueError("Unable to parse CSV file. " + " | ".join(errors[:3]))
 
     def pandas_import(self, request):
-        import chardet
-        import dbfread
-        import pandas as pd
-
         if request.method == "POST":
             uploaded_file = request.FILES.get("file")
             if not uploaded_file:
@@ -279,8 +294,41 @@ class PandasImportMixin:
 
                 # Process and validate data
                 try:
-                    response = self.process_pandas_data(request, data) or {}
+                    import inspect
+                    sig = inspect.signature(self.process_pandas_data)
+                    if len(sig.parameters) == 1:
+                        response = self.process_pandas_data(data) or {}
+                    else:
+                        response = self.process_pandas_data(request, data) or {}
+
+                    # Log the successful import
+                    try:
+                        from apps.base.services.system_log_service import SystemLogService
+                        from apps.base.models.system_log import LogAction
+                        SystemLogService.log_bulk(
+                            action=LogAction.BULK_CREATE,
+                            model=self.model,
+                            affected_count=len(data),
+                            request=request,
+                            module=self.model._meta.app_label.title(),
+                            feature=f"{self.model._meta.verbose_name} Import",
+                            description=f"Successfully imported {len(data)} records via file upload ({uploaded_file.name})."
+                        )
+                    except Exception:
+                        pass
                 except Exception as e:
+                    # Log the failed import
+                    try:
+                        from apps.base.services.system_log_service import SystemLogService
+                        SystemLogService.error(
+                            request=request,
+                            module=self.model._meta.app_label.title(),
+                            feature=f"{self.model._meta.verbose_name} Import",
+                            error=e,
+                            description=f"Failed to import records via file upload ({uploaded_file.name}): {str(e)}"
+                        )
+                    except Exception:
+                        pass
                     self.message_user(
                         request, f"Error processing data: {e}", level="error"
                     )

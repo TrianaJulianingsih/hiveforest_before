@@ -5,27 +5,27 @@
   <table class="w-full text-left border-collapse table-fixed">
     <thead>
       <tr class="bg-[#F2F2FD] border-b border-[#dcdcfa]">
-        <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-4 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal shadow-[0_1px_0_0_#dcdcfa] rounded-tl-lg w-[6%]">{{ t.col_no|default:'NO' }}</th>
-        <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-4 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal shadow-[0_1px_0_0_#dcdcfa] w-[30%]">{{ t.col_name|default:'NAME' }}</th>
-        <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-4 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal shadow-[0_1px_0_0_#dcdcfa] w-[16%]">{{ t.col_type|default:'TYPE' }}</th>
-        <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-4 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal shadow-[0_1px_0_0_#dcdcfa] w-[16%]">{{ t.col_class|default:'CLASS' }}</th>
-        <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-4 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal shadow-[0_1px_0_0_#dcdcfa] w-[16%]">{{ t.col_province|default:'PROVINCE' }}</th>
-        <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-4 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal shadow-[0_1px_0_0_#dcdcfa] rounded-tr-lg w-[16%]">{{ t.col_regency|default:'REGENCY' }}</th>
+        <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-4 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal shadow-[0_1px_0_0_#dcdcfa] rounded-tl-lg w-[6%]">{{  t.col_no|default:'NO'  }}</th>
+        <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-4 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal shadow-[0_1px_0_0_#dcdcfa] w-[30%]">{{  t.col_name|default:'NAME'  }}</th>
+        <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-4 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal shadow-[0_1px_0_0_#dcdcfa] w-[16%]">{{  t.col_type|default:'TYPE'  }}</th>
+        <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-4 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal shadow-[0_1px_0_0_#dcdcfa] w-[16%]">{{  t.col_class|default:'CLASS'  }}</th>
+        <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-4 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal shadow-[0_1px_0_0_#dcdcfa] w-[16%]">{{  t.col_province|default:'PROVINCE'  }}</th>
+        <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-4 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal shadow-[0_1px_0_0_#dcdcfa] rounded-tr-lg w-[16%]">{{  t.col_regency|default:'REGENCY'  }}</th>
       </tr>
     </thead>
     <tbody class="divide-y divide-[#eceef1]">
       {% for hospital in hospitals %}
       <tr class="table-row-hover {% cycle '' 'bg-[#FAFBFD]' %}">
-        <td class="py-3.5 px-4 text-sm text-[#6F7787] text-center whitespace-normal break-words">{{ forloop.counter0|add:page_obj.start_index }}</td>
-        <td class="py-3.5 px-4 text-sm font-medium text-[#171a1f] whitespace-normal break-words"><a href="{% url 'crm:hospital_profile' hospital.pk %}?next={{ request.get_full_path|urlencode }}" class="hover:text-[#636AE8] hover:underline">{{ hospital.display_name }}</a></td>
-        <td class="py-3.5 px-4 text-sm text-[#3F4451] text-center whitespace-normal break-words">{{ hospital.hospitaltype.name|default:"-" }}</td>
-        <td class="py-3.5 px-4 text-sm text-[#3F4451] text-center whitespace-normal break-words">{{ hospital.hospitalclass.name|default:"-" }}</td>
-        <td class="py-3.5 px-4 text-sm text-[#3F4451] whitespace-normal break-words">{{ hospital.province.name|default:hospital.raw_province|default:"-" }}</td>
-        <td class="py-3.5 px-4 text-sm text-[#3F4451] whitespace-normal break-words">{{ hospital.regency.name|default:hospital.raw_city|default:"-" }}</td>
+        <td class="py-3.5 px-4 text-sm text-[#6F7787] text-center whitespace-normal break-words">{{  forloop.counter0|add:page_obj.start_index  }}</td>
+        <td class="py-3.5 px-4 text-sm font-medium text-[#171a1f] whitespace-normal break-words"><a href="{% url 'crm:hospital_profile' hospital.pk %}?next={{  request.get_full_path|urlencode  }}" class="hover:text-[#636AE8] hover:underline">{{  hospital.display_name  }}</a></td>
+        <td class="py-3.5 px-4 text-sm text-[#3F4451] text-center whitespace-normal break-words">{{  hospital.hospitaltype.name|default:"-"  }}</td>
+        <td class="py-3.5 px-4 text-sm text-[#3F4451] text-center whitespace-normal break-words">{{  hospital.hospitalclass.name|default:"-"  }}</td>
+        <td class="py-3.5 px-4 text-sm text-[#3F4451] whitespace-normal break-words">{{  hospital.province.name|default:hospital.raw_province|default:"-"  }}</td>
+        <td class="py-3.5 px-4 text-sm text-[#3F4451] whitespace-normal break-words">{{  hospital.regency.name|default:hospital.raw_city|default:"-"  }}</td>
       </tr>
       {% empty %}
       <tr>
-        <td class="p-4 text-sm text-center" colspan="6">{{ t.empty_state|default:'No hospitals found.' }}</td>
+        <td class="p-4 text-sm text-center" colspan="6">{{  t.empty_state|default:'No hospitals found.'  }}</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -35,7 +35,7 @@
 <!-- Pagination -->
 <div data-pagination class="mt-6 flex flex-col md:flex-row items-center justify-between gap-4">
   <div class="text-sm text-[#9095a1]">
-    {{ t.label_show|default:'Show' }} <span class="text-[#323743]">{{ page_obj.start_index|dotformat }}</span> {{ t.label_to|default:'to' }} <span class="text-[#323743]">{{ page_obj.end_index|dotformat }}</span> {{ t.label_of|default:'of' }} <span class="text-[#171A1F]">{{ paginator.count|dotformat }}</span> {{ t.label_results|default:'results' }}
+    {{  t.label_show|default:'Show'  }} <span class="text-[#323743]">{{  page_obj.start_index|dotformat  }}</span> {{  t.label_to|default:'to'  }} <span class="text-[#323743]">{{  page_obj.end_index|dotformat  }}</span> {{  t.label_of|default:'of'  }} <span class="text-[#171A1F]">{{  paginator.count|dotformat  }}</span> {{  t.label_results|default:'results'  }}
   </div>
 
   <div class="flex items-center gap-1">
@@ -49,9 +49,9 @@
       {% if num == paginator.ELLIPSIS %}
       <span class="w-9 h-9 flex items-center justify-center text-[#9095a1]">&hellip;</span>
       {% elif num == page_obj.number %}
-      <span class="w-9 h-9 flex items-center justify-center rounded-full pagination-active">{{ num|dotformat }}</span>
+      <span class="w-9 h-9 flex items-center justify-center rounded-full pagination-active">{{  num|dotformat  }}</span>
       {% else %}
-      <a href="{% querystring page=num %}" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 text-[#424856]">{{ num|dotformat }}</a>
+      <a href="{% querystring page=num %}" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 text-[#424856]">{{  num|dotformat  }}</a>
       {% endif %}
     {% endfor %}
 

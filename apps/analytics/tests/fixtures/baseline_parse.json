@@ -1,0 +1,387 @@
+{
+  "pack_atc4code.csv|pack": {
+    "error": null,
+    "rows_read": 86583,
+    "rows_clean": 40040,
+    "rows_noise": 43292,
+    "rows_duplicate": 3251,
+    "part": "pack_atc4",
+    "code_source": "name",
+    "sample": [
+      {
+        "code": "",
+        "name": "A.D.PLEX DRP 15ML",
+        "match": "A.D.PLEX DRP 15ML",
+        "slug": "a-d-plex-drp-15ml",
+        "parents": {
+          "product": "",
+          "packform": "",
+          "regstat": "",
+          "ethgrp": "",
+          "ethstat": "",
+          "branddet": "",
+          "atc4": "A11B2",
+          "otc4": "",
+          "nfc3": ""
+        }
+      },
+      {
+        "code": "",
+        "name": "ABBOBRON GRAN 200MG 60ML",
+        "match": "ABBOBRON GRAN 200MG 60ML",
+        "slug": "abbobron-gran-200mg-60ml",
+        "parents": {
+          "product": "",
+          "packform": "",
+          "regstat": "",
+          "ethgrp": "",
+          "ethstat": "",
+          "branddet": "",
+          "atc4": "J01F0",
+          "otc4": "",
+          "nfc3": ""
+        }
+      },
+      {
+        "code": "",
+        "name": "ABBOBRON TAB SC 500MG 100 BTL",
+        "match": "ABBOBRON TAB SC 500MG 100 BTL",
+        "slug": "abbobron-tab-sc-500mg-100-btl",
+        "parents": {
+          "product": "",
+          "packform": "",
+          "regstat": "",
+          "ethgrp": "",
+          "ethstat": "",
+          "branddet": "",
+          "atc4": "J01F0",
+          "otc4": "",
+          "nfc3": ""
+        }
+      },
+      {
+        "code": "",
+        "name": "ABBUTOL TAB 500MG 100 BOX",
+        "match": "ABBUTOL TAB 500MG 100 BOX",
+        "slug": "abbutol-tab-500mg-100-box",
+        "parents": {
+          "product": "",
+          "packform": "",
+          "regstat": "",
+          "ethgrp": "",
+          "ethstat": "",
+          "branddet": "",
+          "atc4": "J04A1",
+          "otc4": "",
+          "nfc3": ""
+        }
+      },
+      {
+        "code": "",
+        "name": "ABBUTOL TAB 250MG 100 BOX",
+        "match": "ABBUTOL TAB 250MG 100 BOX",
+        "slug": "abbutol-tab-250mg-100-box",
+        "parents": {
+          "product": "",
+          "packform": "",
+          "regstat": "",
+          "ethgrp": "",
+          "ethstat": "",
+          "branddet": "",
+          "atc4": "J04A1",
+          "otc4": "",
+          "nfc3": ""
+        }
+      }
+    ],
+    "last": [
+      "OSSOVIT CAPLET 6 STRP",
+      "CURVIT CAPLET 10 STRP",
+      "PROVITAL PLUS CAP 5 STRP"
+    ]
+  },
+  "ATC2.xlsx|atc2": {
+    "error": null,
+    "rows_read": 300,
+    "rows_clean": 100,
+    "rows_noise": 200,
+    "rows_duplicate": 0,
+    "part": null,
+    "code_source": "column",
+    "sample": [
+      {
+        "code": "A01",
+        "name": "STOMATOLOGICALS",
+        "match": "A01",
+        "slug": "stomatologicals",
+        "parents": {
+          "atc1": "A"
+        }
+      },
+      {
+        "code": "A02",
+        "name": "A-ACID A-FLAT A-ULCERANTS",
+        "match": "A02",
+        "slug": "a-acid-a-flat-a-ulcerants",
+        "parents": {
+          "atc1": "A"
+        }
+      },
+      {
+        "code": "A03",
+        "name": "FUNCTL.GI DISORDER DRUG",
+        "match": "A03",
+        "slug": "functl-gi-disorder-drug",
+        "parents": {
+          "atc1": "A"
+        }
+      },
+      {
+        "code": "A04",
+        "name": "ANTIEMETICS-ANTINAUSEANTS",
+        "match": "A04",
+        "slug": "antiemetics-antinauseants",
+        "parents": {
+          "atc1": "A"
+        }
+      },
+      {
+        "code": "A05",
+        "name": "BILIARY TR&LIVER DIS PRD",
+        "match": "A05",
+        "slug": "biliary-tr-liver-dis-prd",
+        "parents": {
+          "atc1": "A"
+        }
+      }
+    ],
+    "last": [
+      "GENERAL NUTRIENTS",
+      "OTHER-NON-THERAPEUTIC",
+      "PROMOTIONAL STUDY"
+    ]
+  },
+  "OTC4.xlsx|otc4": {
+    "error": null,
+    "rows_read": 1148,
+    "rows_clean": 494,
+    "rows_noise": 654,
+    "rows_duplicate": 0,
+    "part": null,
+    "code_source": "name",
+    "sample": [
+      {
+        "code": "01A3C",
+        "name": "DRY COUGH PRODUCTS-CAP/TB",
+        "match": "01A3C",
+        "slug": "dry-cough-products-cap-tb",
+        "parents": {
+          "otc3": "01A3"
+        }
+      },
+      {
+        "code": "01A3M",
+        "name": "DRY COUGH PRODUCTS-MIX(O)",
+        "match": "01A3M",
+        "slug": "dry-cough-products-mix-o",
+        "parents": {
+          "otc3": "01A3"
+        }
+      },
+      {
+        "code": "01A3Z",
+        "name": "DRY COUGH PRODUCTS-O FORM",
+        "match": "01A3Z",
+        "slug": "dry-cough-products-o-form",
+        "parents": {
+          "otc3": "01A3"
+        }
+      },
+      {
+        "code": "01A4C",
+        "name": "CHESTY COUGH PROD-CAP/TAB",
+        "match": "01A4C",
+        "slug": "chesty-cough-prod-cap-tab",
+        "parents": {
+          "otc3": "01A4"
+        }
+      },
+      {
+        "code": "01A4M",
+        "name": "CHESTY COUGH PROD-MIX(OR)",
+        "match": "01A4M",
+        "slug": "chesty-cough-prod-mix-or",
+        "parents": {
+          "otc3": "01A4"
+        }
+      }
+    ],
+    "last": [
+      "AL.OT.MISCE.PR-MX(OR)",
+      "AL.OT.MISCE.PR.OTHER FORM",
+      "NOT APPL.NON-ETHIC.REPORT"
+    ]
+  },
+  "ITMA_transaction.csv|itmatrans": {
+    "error": null,
+    "rows_read": 54290,
+    "rows_clean": 46843,
+    "rows_noise": 0,
+    "rows_duplicate": 7447,
+    "part": null,
+    "code_source": "name",
+    "sample": [
+      {
+        "code": "",
+        "name": "ALDACTONE TAB 100MG 30 BOX",
+        "match": "ALDACTONE TAB 100MG 30 BOX_QTR 4/2023",
+        "slug": "aldactone-tab-100mg-30-box",
+        "parents": {
+          "pack": "ALDACTONE TAB 100MG 30 BOX"
+        }
+      },
+      {
+        "code": "",
+        "name": "ALDACTONE TAB 100MG 30 BOX",
+        "match": "ALDACTONE TAB 100MG 30 BOX_ALDACTONE - SHO",
+        "slug": "aldactone-tab-100mg-30-box",
+        "parents": {
+          "pack": "ALDACTONE TAB 100MG 30 BOX"
+        }
+      },
+      {
+        "code": "",
+        "name": "ALDACTONE TAB 100MG 30 BOX",
+        "match": "ALDACTONE TAB 100MG 30 BOX_ALDACTONE TAB 100MG 30 BOX",
+        "slug": "aldactone-tab-100mg-30-box",
+        "parents": {
+          "pack": "ALDACTONE TAB 100MG 30 BOX"
+        }
+      },
+      {
+        "code": "",
+        "name": "ALDACTONE TAB 25MG 100 BOX",
+        "match": "ALDACTONE TAB 25MG 100 BOX_QTR 3/2021",
+        "slug": "aldactone-tab-25mg-100-box",
+        "parents": {
+          "pack": "ALDACTONE TAB 25MG 100 BOX"
+        }
+      },
+      {
+        "code": "",
+        "name": "ALDACTONE TAB 25MG 100 BOX",
+        "match": "ALDACTONE TAB 25MG 100 BOX_QTR 4/2021",
+        "slug": "aldactone-tab-25mg-100-box",
+        "parents": {
+          "pack": "ALDACTONE TAB 25MG 100 BOX"
+        }
+      }
+    ],
+    "last": [
+      "RIVAROXABAN TAB FLM CTD 10MG 30 STRP",
+      "RIVAROXABAN TAB FLM CTD 10MG 30 STRP",
+      "RIVAROXABAN TAB FLM CTD 10MG 30 STRP"
+    ]
+  },
+  "pack_product.csv|pack": {
+    "error": null,
+    "rows_read": 86583,
+    "rows_clean": 43263,
+    "rows_noise": 43292,
+    "rows_duplicate": 28,
+    "part": "pack_product",
+    "code_source": "name",
+    "sample": [
+      {
+        "code": "",
+        "name": "A.D.PLEX DRP 15ML",
+        "match": "A.D.PLEX DRP 15ML||A.D.PLEX - KLB",
+        "slug": "a-d-plex-drp-15ml",
+        "parents": {
+          "product": "A.D.PLEX - KLB",
+          "packform": "",
+          "regstat": "",
+          "ethgrp": "",
+          "ethstat": "",
+          "branddet": "",
+          "atc4": "",
+          "otc4": "",
+          "nfc3": ""
+        }
+      },
+      {
+        "code": "",
+        "name": "ABBOBRON GRAN 200MG 60ML",
+        "match": "ABBOBRON GRAN 200MG 60ML||ABBOBRON - ABT",
+        "slug": "abbobron-gran-200mg-60ml",
+        "parents": {
+          "product": "ABBOBRON - ABT",
+          "packform": "",
+          "regstat": "",
+          "ethgrp": "",
+          "ethstat": "",
+          "branddet": "",
+          "atc4": "",
+          "otc4": "",
+          "nfc3": ""
+        }
+      },
+      {
+        "code": "",
+        "name": "ABBOBRON TAB SC 500MG 100 BTL",
+        "match": "ABBOBRON TAB SC 500MG 100 BTL||ABBOBRON - ABT",
+        "slug": "abbobron-tab-sc-500mg-100-btl",
+        "parents": {
+          "product": "ABBOBRON - ABT",
+          "packform": "",
+          "regstat": "",
+          "ethgrp": "",
+          "ethstat": "",
+          "branddet": "",
+          "atc4": "",
+          "otc4": "",
+          "nfc3": ""
+        }
+      },
+      {
+        "code": "",
+        "name": "ABBUTOL TAB 500MG 100 BOX",
+        "match": "ABBUTOL TAB 500MG 100 BOX||ABBUTOL - ABT",
+        "slug": "abbutol-tab-500mg-100-box",
+        "parents": {
+          "product": "ABBUTOL - ABT",
+          "packform": "",
+          "regstat": "",
+          "ethgrp": "",
+          "ethstat": "",
+          "branddet": "",
+          "atc4": "",
+          "otc4": "",
+          "nfc3": ""
+        }
+      },
+      {
+        "code": "",
+        "name": "ABBUTOL TAB 250MG 100 BOX",
+        "match": "ABBUTOL TAB 250MG 100 BOX||ABBUTOL - ABT",
+        "slug": "abbutol-tab-250mg-100-box",
+        "parents": {
+          "product": "ABBUTOL - ABT",
+          "packform": "",
+          "regstat": "",
+          "ethgrp": "",
+          "ethstat": "",
+          "branddet": "",
+          "atc4": "",
+          "otc4": "",
+          "nfc3": ""
+        }
+      }
+    ],
+    "last": [
+      "OSSOVIT CAPLET 6 STRP",
+      "CURVIT CAPLET 10 STRP",
+      "PROVITAL PLUS CAP 5 STRP"
+    ]
+  }
+}

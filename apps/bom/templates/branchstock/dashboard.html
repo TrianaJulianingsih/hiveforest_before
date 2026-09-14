@@ -1,0 +1,833 @@
+{% extends "main.html" %}
+{% load i18n static translation_tags %}
+
+{% block datatable_css %}
+{{ block.super }}
+
+{% get_translations 'branch_stock_summary' as t %}
+
+<style>
+  /* ========================================
+     DASHBOARD STYLES & LAYOUT SYSTEM
+     ======================================== */
+  :root {
+    --hf-card-border: #e2e8f0;
+    --hf-card-radius: 10px;
+    --hf-card-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+    --hf-card-shadow-hover: 0 6px 18px rgba(15, 23, 42, 0.08);
+  }
+
+  .hf-svg-icon {
+    width: 1.1em;
+    height: 1.1em;
+    vertical-align: -0.15em;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    display: inline-block;
+  }
+
+  /* Header Card */
+  .hf-dash-header {
+    background: #ffffff;
+    border-radius: var(--hf-card-radius);
+    padding: 1.1rem 1.35rem;
+    box-shadow: var(--hf-card-shadow);
+    border: 1px solid var(--hf-card-border);
+    border-left: 4px solid #0d6efd;
+    width: 100%;
+  }
+
+  .hf-header-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(13, 110, 253, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* Filter Panel Form & Controls */
+  .hf-filter-card {
+    background: #ffffff;
+    border-radius: var(--hf-card-radius);
+    border: 1px solid var(--hf-card-border);
+    box-shadow: var(--hf-card-shadow);
+    padding: 1.15rem 1.25rem;
+    width: 100%;
+  }
+
+  .hf-filter-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #475569;
+    margin-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .hf-input-control {
+    height: 38px !important;
+    border-radius: 8px !important;
+    border: 1px solid #cbd5e1 !important;
+    font-size: 0.875rem !important;
+    color: #1e293b !important;
+    background-color: #ffffff !important;
+    padding: 0.375rem 0.75rem !important;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .hf-input-control:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+    outline: none !important;
+  }
+
+  .hf-btn-filter {
+    height: 38px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1.1rem;
+    box-shadow: 0 1px 2px rgba(13, 110, 253, 0.2);
+    transition: all 0.15s ease;
+    width: 100%;
+  }
+
+  /* KPI Card Containers */
+  .hf-kpi-card {
+    background: #ffffff;
+    border-radius: var(--hf-card-radius);
+    padding: 1.15rem 1.25rem;
+    box-shadow: var(--hf-card-shadow);
+    border: 1px solid var(--hf-card-border);
+    height: 100%;
+    min-height: 145px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .hf-kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--hf-card-shadow-hover);
+  }
+
+  .hf-kpi-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748b;
+    margin-bottom: 0.3rem;
+  }
+
+  .hf-kpi-value {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.1;
+  }
+
+  .hf-kpi-sub {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-top: auto;
+  }
+
+  .hf-kpi-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  /* Widget Cards & Chart Containers */
+  .hf-card-widget {
+    background: #ffffff;
+    border-radius: var(--hf-card-radius);
+    border: 1px solid var(--hf-card-border);
+    box-shadow: var(--hf-card-shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+    transition: box-shadow 0.15s ease;
+  }
+
+  .hf-card-widget:hover {
+    box-shadow: var(--hf-card-shadow-hover);
+  }
+
+  .hf-card-widget .card-header {
+    background: #f8fafc;
+    border-bottom: 1px solid var(--hf-card-border);
+    padding: 0.85rem 1.15rem;
+    font-weight: 700;
+    font-size: 0.925rem;
+    color: #0f172a;
+  }
+
+  .hf-card-icon-wrap {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .hf-card-widget .card-body {
+    padding: 1.15rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .chart-container {
+    position: relative;
+    width: 100%;
+  }
+
+  .hf-progress-bar-wrap {
+    height: 8px;
+    border-radius: 999px;
+    background: #e2e8f0;
+    overflow: hidden;
+  }
+
+  .badge-status-pill {
+    font-size: 0.725rem;
+    font-weight: 600;
+    padding: 0.3em 0.6em;
+    border-radius: 50rem;
+  }
+
+  .badge-critical {
+    background-color: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+  }
+
+  .badge-warning-custom {
+    background-color: #fef3c7;
+    color: #d97706;
+    border: 1px solid #fcd34d;
+  }
+
+  .badge-optimal {
+    background-color: #dcfce7;
+    color: #16a34a;
+    border: 1px solid #86efac;
+  }
+
+  .badge-low {
+    background-color: #e0f2fe;
+    color: #0284c7;
+    border: 1px solid #7dd3fc;
+  }
+
+  .badge-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .hf-badge-light-primary {
+    background-color: rgba(13, 110, 253, 0.12) !important;
+    color: #0d6efd !important;
+    font-weight: 600;
+    padding: 0.3em 0.6em;
+    border-radius: 6px;
+  }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item"><a href="/bom">Home</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
+  </ol>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'adminlte/plugins/chart.js/Chart.min.js' %}"></script>
+<script>
+  $(document).ready(function () {
+    // 1. Trend Line Chart
+    const trendLabels = {{ dash.trend_labels_json|safe }};
+    const trendStock = {{ dash.trend_stock_json|safe }};
+    const trendCapacity = {{ dash.trend_capacity_json|safe }};
+
+    const trendCanvas = document.getElementById("trendChart");
+    if (trendCanvas && trendLabels && trendLabels.length > 0) {
+      new Chart(trendCanvas.getContext("2d"), {
+        type: "line",
+        data: {
+          labels: trendLabels,
+          datasets: [
+            {
+              label: "Total Pallet Stock",
+              data: trendStock,
+              borderColor: "#0d6efd",
+              backgroundColor: "rgba(13, 110, 253, 0.12)",
+              fill: true,
+              borderWidth: 2.5,
+              tension: 0.3,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              pointBackgroundColor: "#0d6efd",
+              pointBorderColor: "#ffffff"
+            },
+            {
+              label: "Total Capacity",
+              data: trendCapacity,
+              borderColor: "#dc3545",
+              backgroundColor: "transparent",
+              borderDash: [5, 5],
+              borderWidth: 2,
+              pointRadius: 0,
+              fill: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: "index",
+            intersect: false
+          },
+          scales: {
+            yAxes: [{
+              ticks: {
+                beginAtZero: true,
+                callback: function (value) {
+                  return Number(value).toLocaleString();
+                }
+              },
+              gridLines: {
+                color: "#f1f5f9"
+              }
+            }],
+            xAxes: [{
+              gridLines: {
+                display: false
+              }
+            }]
+          },
+          tooltips: {
+            backgroundColor: "rgba(15, 23, 42, 0.9)",
+            titleFontColor: "#ffffff",
+            bodyFontColor: "#ffffff",
+            callbacks: {
+              label: function (tooltipItem, data) {
+                const datasetLabel = data.datasets[tooltipItem.datasetIndex].label || "";
+                return datasetLabel + ": " + Number(tooltipItem.yLabel).toLocaleString() + " Pallets";
+              }
+            }
+          },
+          legend: {
+            position: "top",
+            labels: {
+              boxWidth: 14,
+              fontColor: "#475569"
+            }
+          }
+        }
+      });
+    }
+
+    // 2. Status Doughnut Chart
+    const statusLabels = {{ dash.status_chart_labels_json|safe }};
+    const statusData = {{ dash.status_chart_data_json|safe }};
+    const statusColors = {{ dash.status_chart_colors_json|safe }};
+
+    const statusCanvas = document.getElementById("statusChart");
+    if (statusCanvas && statusData) {
+      new Chart(statusCanvas.getContext("2d"), {
+        type: "doughnut",
+        data: {
+          labels: statusLabels,
+          datasets: [{
+            data: statusData,
+            backgroundColor: statusColors,
+            borderWidth: 2,
+            borderColor: "#ffffff"
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutoutPercentage: 68,
+          legend: {
+            display: false
+          },
+          tooltips: {
+            callbacks: {
+              label: function (tooltipItem, data) {
+                const label = data.labels[tooltipItem.index] || "";
+                const count = data.datasets[0].data[tooltipItem.index] || 0;
+                const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                const pct = total > 0 ? ((count / total) * 100).toFixed(1) : 0;
+                return label + ": " + count + " (" + pct + "%)";
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // 3. Top Stock Volume Horizontal Bar Chart
+    const topStockLabels = {{ dash.top_stock_labels_json|safe }};
+    const topStockValues = {{ dash.top_stock_values_json|safe }};
+    const topStockCaps = {{ dash.top_stock_capacities_json|safe }};
+
+    const topStockCanvas = document.getElementById("topStockChart");
+    if (topStockCanvas && topStockLabels && topStockLabels.length > 0) {
+      new Chart(topStockCanvas.getContext("2d"), {
+        type: "horizontalBar",
+        data: {
+          labels: topStockLabels,
+          datasets: [
+            {
+              label: "Pallet Stock",
+              data: topStockValues,
+              backgroundColor: "#0d6efd",
+              borderColor: "#0b5ed7",
+              borderWidth: 1
+            },
+            {
+              label: "Capacity",
+              data: topStockCaps,
+              backgroundColor: "#cbd5e1",
+              borderColor: "#94a3b8",
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            xAxes: [{
+              ticks: {
+                beginAtZero: true,
+                callback: function (value) {
+                  return Number(value).toLocaleString();
+                }
+              },
+              gridLines: {
+                color: "#f1f5f9"
+              }
+            }],
+            yAxes: [{
+              gridLines: {
+                display: false
+              }
+            }]
+          },
+          legend: {
+            position: "top",
+            labels: {
+              boxWidth: 12
+            }
+          }
+        }
+      });
+    }
+
+    // 4. Top Utilization % Bar Chart
+    const topUtilLabels = {{ dash.top_util_labels_json|safe }};
+    const topUtilValues = {{ dash.top_util_values_json|safe }};
+    const topUtilColors = {{ dash.top_util_colors_json|safe }};
+
+    const topUtilCanvas = document.getElementById("topUtilChart");
+    if (topUtilCanvas && topUtilLabels && topUtilLabels.length > 0) {
+      new Chart(topUtilCanvas.getContext("2d"), {
+        type: "bar",
+        data: {
+          labels: topUtilLabels,
+          datasets: [{
+            label: "Utilization %",
+            data: topUtilValues,
+            backgroundColor: topUtilColors,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            yAxes: [{
+              ticks: {
+                beginAtZero: true,
+                callback: function (value) {
+                  return value + "%";
+                }
+              },
+              gridLines: {
+                color: "#f1f5f9"
+              }
+            }],
+            xAxes: [{
+              ticks: {
+                autoSkip: false,
+                maxRotation: 45,
+                minRotation: 20
+              },
+              gridLines: {
+                display: false
+              }
+            }]
+          },
+          legend: {
+            display: false
+          },
+          tooltips: {
+            callbacks: {
+              label: function (tooltipItem) {
+                return "Utilization: " + tooltipItem.yLabel + "%";
+              }
+            }
+          }
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+  <!-- Header Container -->
+  <div class="row g-3 mb-3">
+    <div class="col-12">
+      <div class="hf-dash-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+          <h4 class="mb-1 fw-bold text-dark d-flex align-items-center gap-2">
+            <div class="hf-header-icon">
+              <svg class="hf-svg-icon text-primary" viewBox="0 0 24 24">
+                <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
+                <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
+              </svg>
+            </div>
+            <span>{{ t.dashboard_title|default:"Branch Stock Summary Dashboard" }}</span>
+          </h4>
+          <p class="mb-0 text-muted small d-flex align-items-center gap-2 flex-wrap">
+            <span>Monitoring realtime warehouse pallet capacity and branch stock volume</span>
+            <span class="text-secondary">&bull;</span>
+            <span class="badge hf-badge-light-primary">
+              Data as of: {{ dash.latest_date_str }}
+            </span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Panel Container -->
+  <div class="row g-3 mb-3" id="filterPanel">
+    <div class="col-12">
+      <div class="hf-filter-card">
+        <form method="get" id="dashFilterForm" class="row g-3 align-items-end">
+          <div class="col-12 col-md-5 col-lg-5">
+            <label for="start_date" class="hf-filter-label mb-1">
+              <svg class="hf-svg-icon text-secondary me-1" viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              Start Date
+            </label>
+            <input id="start_date" name="start_date" type="date" class="form-control hf-input-control"
+              value="{{ start_date|date:'Y-m-d' }}">
+          </div>
+
+          <div class="col-12 col-md-5 col-lg-5">
+            <label for="end_date" class="hf-filter-label mb-1">
+              <svg class="hf-svg-icon text-secondary me-1" viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              End Date
+            </label>
+            <input id="end_date" name="end_date" type="date" class="form-control hf-input-control"
+              value="{{ end_date|date:'Y-m-d' }}">
+          </div>
+
+          <div class="col-12 col-md-2 col-lg-2">
+            <button type="submit" class="btn btn-primary hf-btn-filter">
+              <svg class="hf-svg-icon me-1" viewBox="0 0 24 24">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+              </svg>
+              Apply
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI Summary Metrics (4 Cards) -->
+  <div class="row g-3 mb-4 align-items-stretch">
+    <!-- KPI 1: Total Pallets Stock -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="hf-kpi-card">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <div class="hf-kpi-title">Total Stock</div>
+            <div class="hf-kpi-value text-primary">{{ dash.latest_total_stock|floatformat:"0" }} <span
+                class="fs-6 text-muted fw-normal">Pallets</span></div>
+          </div>
+          <div class="hf-kpi-icon bg-primary bg-opacity-10 text-primary">
+            <svg class="hf-svg-icon" viewBox="0 0 24 24">
+              <path
+                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+              </path>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+              <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+          </div>
+        </div>
+        <div
+          class="hf-kpi-sub pt-2 border-top border-light d-flex align-items-center justify-content-between text-muted">
+          <span><svg class="hf-svg-icon text-secondary me-1" viewBox="0 0 24 24">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>On {{ dash.latest_date_str }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI 2: Total Warehouse Capacity -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="hf-kpi-card">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <div class="hf-kpi-title">Warehouse Capacity</div>
+            <div class="hf-kpi-value text-dark">{{ dash.total_capacity|floatformat:"0" }} <span
+                class="fs-6 text-muted fw-normal">Pallets</span></div>
+          </div>
+          <div class="hf-kpi-icon bg-info bg-opacity-10 text-info">
+            <svg class="hf-svg-icon" viewBox="0 0 24 24">
+              <path d="M22 8.35l-10-5-10 5V20a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V8.35z"></path>
+              <path d="M6 18h12v-7H6v7z"></path>
+            </svg>
+          </div>
+        </div>
+        <div
+          class="hf-kpi-sub pt-2 border-top border-light d-flex align-items-center justify-content-between text-muted">
+          <span><svg class="hf-svg-icon text-secondary me-1" viewBox="0 0 24 24">
+              <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+              <path d="M9 22v-4h6v4"></path>
+            </svg>Across {{ dash.total_branches }} Branches</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI 3: Overall Utilization % -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="hf-kpi-card">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div class="w-100 me-2">
+            <div class="hf-kpi-title">Capacity Utilization</div>
+            <div
+              class="hf-kpi-value {% if dash.overall_utilization_pct >= 100 %}text-danger{% elif dash.overall_utilization_pct >= 70 %}text-warning{% else %}text-success{% endif %}">
+              {{ dash.overall_utilization_pct }}%
+            </div>
+          </div>
+          <div
+            class="hf-kpi-icon {% if dash.overall_utilization_pct >= 100 %}bg-danger bg-opacity-10 text-danger{% elif dash.overall_utilization_pct >= 70 %}bg-warning bg-opacity-10 text-warning{% else %}bg-success bg-opacity-10 text-success{% endif %}">
+            <svg class="hf-svg-icon" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="9"></circle>
+              <path d="M12 12l3-3"></path>
+            </svg>
+          </div>
+        </div>
+        <div class="hf-kpi-sub pt-2 border-top border-light">
+          <div class="d-flex justify-content-between align-items-center small text-muted mb-1">
+            <span>Overall Load</span>
+            <span class="fw-bold text-dark">{{ dash.overall_utilization_pct }}%</span>
+          </div>
+          <div class="hf-progress-bar-wrap">
+            <div
+              class="progress-bar {% if dash.overall_utilization_pct >= 100 %}bg-danger{% elif dash.overall_utilization_pct >= 70 %}bg-warning{% else %}bg-success{% endif %}"
+              role="progressbar"
+              style="width: {% if dash.overall_utilization_pct > 100 %}100{% else %}{{ dash.overall_utilization_pct }}{% endif %}%; height: 100%;">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI 4: Branch Status Breakdown -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="hf-kpi-card">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div class="w-100 me-2">
+            <div class="hf-kpi-title">Branch Status</div>
+            <div class="d-flex align-items-center gap-1 flex-wrap mt-1">
+              <span class="badge badge-critical" title="Over Capacity (≥100%)">
+                {{ dash.critical_count }} Over
+              </span>
+              <span class="badge badge-warning-custom" title="High Load (70-99%)">
+                {{ dash.warning_count }} High
+              </span>
+              <span class="badge badge-optimal" title="Optimal (30-69%)">
+                {{ dash.optimal_count }} Opt
+              </span>
+            </div>
+          </div>
+          <div class="hf-kpi-icon bg-secondary bg-opacity-10 text-secondary flex-shrink-0">
+            <svg class="hf-svg-icon" viewBox="0 0 24 24">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+        </div>
+        <div
+          class="hf-kpi-sub pt-2 border-top border-light d-flex align-items-center justify-content-between text-muted">
+          <span><svg class="hf-svg-icon text-info me-1" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>{{ dash.low_count }} Low Stock (&lt;30%)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row 1: Stock Trend & Status Distribution -->
+  <div class="row g-3 mb-4 align-items-stretch">
+    <!-- Trend Line Chart -->
+    <div class="col-12 col-lg-8">
+      <div class="hf-card-widget">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-2">
+            <div class="hf-card-icon-wrap text-primary bg-primary bg-opacity-10">
+              <svg class="hf-svg-icon" viewBox="0 0 24 24">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+              </svg>
+            </div>
+            <span class="fw-bold">Daily Pallet Stock vs Capacity Trend</span>
+          </div>
+          <span class="badge bg-light text-secondary border px-2 py-1 fw-semibold">{{ date_columns|length }} Days</span>
+        </div>
+        <div class="card-body d-flex flex-column justify-content-center">
+          <div class="chart-container" style="height: 310px;">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Doughnut Status Chart -->
+    <div class="col-12 col-lg-4">
+      <div class="hf-card-widget">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-2">
+            <div class="hf-card-icon-wrap text-info bg-info bg-opacity-10">
+              <svg class="hf-svg-icon" viewBox="0 0 24 24">
+                <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
+                <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
+              </svg>
+            </div>
+            <span class="fw-bold">Capacity Status Breakdown</span>
+          </div>
+        </div>
+        <div class="card-body d-flex flex-column justify-content-between">
+          <div class="chart-container my-auto" style="height: 230px;">
+            <canvas id="statusChart"></canvas>
+          </div>
+          <div class="d-flex justify-content-center flex-wrap gap-2 pt-3 border-top small text-muted">
+            <span class="d-inline-flex align-items-center gap-1"><span class="badge-dot bg-danger"></span>
+              &ge;100%</span>
+            <span class="d-inline-flex align-items-center gap-1"><span class="badge-dot bg-warning"></span>
+              70-99%</span>
+            <span class="d-inline-flex align-items-center gap-1"><span class="badge-dot bg-success"></span>
+              30-69%</span>
+            <span class="d-inline-flex align-items-center gap-1"><span class="badge-dot bg-info"></span> &lt;30%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row 2: Top Stock Volume & Utilization by Branch -->
+  <div class="row g-3 mb-4 align-items-stretch">
+    <!-- Top Branches by Stock Volume -->
+    <div class="col-12 col-lg-6">
+      <div class="hf-card-widget">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-2">
+            <div class="hf-card-icon-wrap text-primary bg-primary bg-opacity-10">
+              <svg class="hf-svg-icon" viewBox="0 0 24 24">
+                <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                <polyline points="2 17 12 22 22 17"></polyline>
+                <polyline points="2 12 17 22 12"></polyline>
+              </svg>
+            </div>
+            <span class="fw-bold">Top Branches by Pallet Stock Volume</span>
+          </div>
+          <span class="badge bg-light text-muted border px-2 py-1">Top 10</span>
+        </div>
+        <div class="card-body d-flex flex-column justify-content-center">
+          <div class="chart-container" style="height: 310px;">
+            <canvas id="topStockChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Branches by Utilization % -->
+    <div class="col-12 col-lg-6">
+      <div class="hf-card-widget">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-2">
+            <div class="hf-card-icon-wrap text-warning bg-warning bg-opacity-10">
+              <svg class="hf-svg-icon" viewBox="0 0 24 24">
+                <line x1="19" y1="5" x2="5" y2="19"></line>
+                <circle cx="6.5" cy="6.5" r="2.5"></circle>
+                <circle cx="17.5" cy="17.5" r="2.5"></circle>
+              </svg>
+            </div>
+            <span class="fw-bold">Highest Capacity Utilization (%)</span>
+          </div>
+          <span class="badge bg-light text-muted border px-2 py-1">Top 10</span>
+        </div>
+        <div class="card-body d-flex flex-column justify-content-center">
+          <div class="chart-container" style="height: 310px;">
+            <canvas id="topUtilChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,22 +1,22 @@
 {% load static custom_filters %}
 <div class="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
   <div class="flex items-center gap-1 text-sm">
-    <span class="font-bold text-[#171a1f]">{{ paginator.count|dotformat }}</span>
-    <span class="text-[#6F7787]">{{ t.label_in_total|default:'in total' }}</span>
+    <span class="font-bold text-[#171a1f]">{{  paginator.count|dotformat  }}</span>
+    <span class="text-[#6F7787]">{{  t.label_in_total|default:'in total'  }}</span>
   </div>
   <div class="flex items-center gap-2 text-sm text-[#6F7787]">
-    <span>{{ t.label_show|default:'Show' }}</span>
+    <span>{{  t.label_show|default:'Show'  }}</span>
     <div class="relative">
       <select data-page-size-select class="h-8 pl-2.5 pr-7 rounded-md border border-[#dee1e6] text-sm text-[#323743] bg-white focus:outline-none focus:ring-2 focus:ring-[#636AE8]/20 appearance-none">
         {% for size in page_size_options %}
-        <option value="{{ size }}" {% if size == page_size %}selected{% endif %}>{{ size }}</option>
+        <option value="{{  size  }}" {% if size == page_size %}selected{% endif %}>{{  size  }}</option>
         {% endfor %}
       </select>
       <svg class="w-3.5 h-3.5 text-[#9095a1] absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </div>
-    <span>{{ t.label_entries|default:'entries' }}</span>
+    <span>{{  t.label_entries|default:'entries'  }}</span>
   </div>
 </div>
 
@@ -24,41 +24,41 @@
   <table class="w-full border-collapse table-fixed">
       <thead>
         <tr class="bg-[#F2F2FD] border-b border-[#dcdcfa]">
-          <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-2 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal w-[4%] shadow-[0_1px_0_0_#dcdcfa] rounded-tl-lg">{{ t.col_no|default:'NO' }}</th>
-          <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-2 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal w-[16%] shadow-[0_1px_0_0_#dcdcfa]">{{ t.col_name|default:'NAME' }}</th>
-          <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-2 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal w-[8%] shadow-[0_1px_0_0_#dcdcfa]">{{ t.col_status|default:'STATUS' }}</th>
-          <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-2 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal w-[12%] shadow-[0_1px_0_0_#dcdcfa]">{{ t.col_license|default:'LICENSE' }}</th>
-          <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-2 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal w-[9%] shadow-[0_1px_0_0_#dcdcfa]">{{ t.col_start_date|default:'START DATE' }}</th>
-          <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-2 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal w-[9%] shadow-[0_1px_0_0_#dcdcfa]">{{ t.col_province|default:'PROVINCE' }}</th>
-          <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-2 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal w-[14%] shadow-[0_1px_0_0_#dcdcfa]">{{ t.col_specialities|default:'SPECIALITIES' }}</th>
-          <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-2 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal w-[14%] shadow-[0_1px_0_0_#dcdcfa]">{{ t.col_education|default:'EDUCATION' }}</th>
-          <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-2 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal w-[14%] shadow-[0_1px_0_0_#dcdcfa] rounded-tr-lg">{{ t.col_place_of_practice|default:'PLACE OF PRACTICE' }}</th>
+          <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-2 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal w-[4%] shadow-[0_1px_0_0_#dcdcfa] rounded-tl-lg">{{  t.col_no|default:'NO'  }}</th>
+          <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-2 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal w-[16%] shadow-[0_1px_0_0_#dcdcfa]">{{  t.col_name|default:'NAME'  }}</th>
+          <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-2 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal w-[8%] shadow-[0_1px_0_0_#dcdcfa]">{{  t.col_status|default:'STATUS'  }}</th>
+          <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-2 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal w-[12%] shadow-[0_1px_0_0_#dcdcfa]">{{  t.col_license|default:'LICENSE'  }}</th>
+          <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-2 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal w-[9%] shadow-[0_1px_0_0_#dcdcfa]">{{  t.col_start_date|default:'START DATE'  }}</th>
+          <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-2 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal w-[9%] shadow-[0_1px_0_0_#dcdcfa]">{{  t.col_province|default:'PROVINCE'  }}</th>
+          <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-2 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal w-[14%] shadow-[0_1px_0_0_#dcdcfa]">{{  t.col_specialities|default:'SPECIALITIES'  }}</th>
+          <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-2 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal w-[14%] shadow-[0_1px_0_0_#dcdcfa]">{{  t.col_education|default:'EDUCATION'  }}</th>
+          <th class="sticky top-0 z-10 bg-[#F2F2FD] py-3.5 px-2 text-xs font-semibold text-[#4B51D6] uppercase tracking-wider text-center whitespace-normal w-[14%] shadow-[0_1px_0_0_#dcdcfa] rounded-tr-lg">{{  t.col_place_of_practice|default:'PLACE OF PRACTICE'  }}</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-[#eceef1]">
         {% for doctor in doctors %}
         {% with education=doctor.doctoreducation_set.all|first place=doctor.doctorplace_set.all|first %}
         <tr class="table-row-hover {% cycle '' 'bg-[#FAFBFD]' %}">
-          <td class="py-3.5 px-2 text-sm text-[#6F7787] text-center whitespace-normal break-words">{{ forloop.counter0|add:page_obj.start_index }}</td>
-          <td class="py-3.5 px-2 text-sm font-medium text-[#171a1f] whitespace-normal break-words"><a href="{% url 'crm:hcp_profile' doctor.pk %}" class="hover:text-[#636AE8] hover:underline">{{ doctor.name }}</a></td>
+          <td class="py-3.5 px-2 text-sm text-[#6F7787] text-center whitespace-normal break-words">{{  forloop.counter0|add:page_obj.start_index  }}</td>
+          <td class="py-3.5 px-2 text-sm font-medium text-[#171a1f] whitespace-normal break-words"><a href="{% url 'crm:hcp_profile' doctor.pk %}" class="hover:text-[#636AE8] hover:underline">{{  doctor.name  }}</a></td>
           <td class="py-3.5 px-2 text-center">
             {% if doctor.status == 1 %}
-            <span class="badge-active inline-flex items-center justify-center px-3 py-1.5 rounded-full text-xs font-medium">{{ t.status_active|default:'Active' }}</span>
+            <span class="badge-active inline-flex items-center justify-center px-3 py-1.5 rounded-full text-xs font-medium">{{  t.status_active|default:'Active'  }}</span>
             {% else %}
-            <span class="badge-inactive inline-flex items-center justify-center px-3 py-1.5 rounded-full text-xs font-medium">{{ t.status_inactive|default:'Inactive' }}</span>
+            <span class="badge-inactive inline-flex items-center justify-center px-3 py-1.5 rounded-full text-xs font-medium">{{  t.status_inactive|default:'Inactive'  }}</span>
             {% endif %}
           </td>
-          <td class="py-3.5 px-2 text-sm text-[#3F4451] text-center whitespace-normal break-words">{{ doctor.license|default:"-" }}</td>
-          <td class="py-3.5 px-2 text-sm text-[#3F4451] text-center whitespace-normal break-words">{{ doctor.start_period }}</td>
-          <td class="py-3.5 px-2 text-sm text-[#3F4451] text-center whitespace-normal break-words">{{ place.province_desc|default:"-" }}</td>
-          <td class="py-3.5 px-2 text-sm text-[#3F4451] text-center whitespace-normal break-words">{{ doctor.specialities_display }}</td>
-          <td class="py-3.5 px-2 text-sm text-[#3F4451] text-center whitespace-normal break-words">{{ education.institution|default:"-" }}</td>
-          <td class="py-3.5 px-2 text-sm text-[#3F4451] text-center whitespace-normal break-words">{{ place.place_desc|default:"-" }}</td>
+          <td class="py-3.5 px-2 text-sm text-[#3F4451] text-center whitespace-normal break-words">{{  doctor.license|default:"-"  }}</td>
+          <td class="py-3.5 px-2 text-sm text-[#3F4451] text-center whitespace-normal break-words">{{  doctor.start_period  }}</td>
+          <td class="py-3.5 px-2 text-sm text-[#3F4451] text-center whitespace-normal break-words">{{  place.province_desc|default:"-"  }}</td>
+          <td class="py-3.5 px-2 text-sm text-[#3F4451] text-center whitespace-normal break-words">{{  doctor.specialities_display  }}</td>
+          <td class="py-3.5 px-2 text-sm text-[#3F4451] text-center whitespace-normal break-words">{{  education.institution|default:"-"  }}</td>
+          <td class="py-3.5 px-2 text-sm text-[#3F4451] text-center whitespace-normal break-words">{{  place.place_desc|default:"-"  }}</td>
         </tr>
         {% endwith %}
         {% empty %}
         <tr>
-          <td class="p-4 text-sm text-center" colspan="9">{{ t.empty_state|default:'No healthcare professionals found.' }}</td>
+          <td class="p-4 text-sm text-center" colspan="9">{{  t.empty_state|default:'No healthcare professionals found.'  }}</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -68,7 +68,7 @@
 <!-- Pagination -->
 <div data-pagination class="flex flex-col md:flex-row items-center justify-between gap-4 pt-2">
   <div class="text-sm text-[#9095a1]">
-    {{ t.label_show|default:'Show' }} <span class="text-[#323743]">{{ page_obj.start_index|dotformat }}</span> {{ t.label_to|default:'to' }} <span class="text-[#323743]">{{ page_obj.end_index|dotformat }}</span> {{ t.label_of|default:'of' }} <span class="text-[#171A1F]">{{ paginator.count|dotformat }}</span> {{ t.label_results|default:'results' }}
+    {{  t.label_show|default:'Show'  }} <span class="text-[#323743]">{{  page_obj.start_index|dotformat  }}</span> {{  t.label_to|default:'to'  }} <span class="text-[#323743]">{{  page_obj.end_index|dotformat  }}</span> {{  t.label_of|default:'of'  }} <span class="text-[#171A1F]">{{  paginator.count|dotformat  }}</span> {{  t.label_results|default:'results'  }}
   </div>
   <div class="flex items-center gap-1">
     {% if page_obj.has_previous %}
@@ -81,9 +81,9 @@
       {% if num == paginator.ELLIPSIS %}
       <span class="w-9 h-9 flex items-center justify-center text-[#9095a1]">&hellip;</span>
       {% elif num == page_obj.number %}
-      <span class="w-9 h-9 flex items-center justify-center rounded-full bg-[#f2f2fd] text-[#636AE8] font-medium">{{ num|dotformat }}</span>
+      <span class="w-9 h-9 flex items-center justify-center rounded-full bg-[#f2f2fd] text-[#636AE8] font-medium">{{  num|dotformat  }}</span>
       {% else %}
-      <a href="{% querystring page=num %}" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 text-[#424856]">{{ num|dotformat }}</a>
+      <a href="{% querystring page=num %}" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 text-[#424856]">{{  num|dotformat  }}</a>
       {% endif %}
     {% endfor %}
 

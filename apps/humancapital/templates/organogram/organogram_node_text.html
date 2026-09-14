@@ -1,0 +1,94 @@
+{# Text-only organogram row; mirrors humancapital/organogram_node.html data. #}
+{% load i18n %}
+<li
+    class="og-text-item{% if node.incumbent_count > 1 %} og-text-item--multi{% endif %}{% if node.children %} og-text-item--parent{% endif %}">
+    <div class="og-text-line">
+        {% if node.children %}
+        <button type="button" class="og-text-toggle" aria-expanded="true"
+            data-label-expanded="{% trans 'Hide children' %}" data-label-collapsed="{% trans 'Show children' %}"
+            aria-label="{% trans 'Hide children' %}" title="{% trans 'Hide children' %}">-</button>
+        {% endif %}
+
+        {% if node.depth == 1 %}
+        <span class="og-text-role"
+            title="{% if node.incumbent_count > 1 %}{{  node.name  }}{% else %}{% firstof node.assignment_title node.name %}{% endif %}">
+            {% if node.incumbent_count > 1 %}
+            {{  node.name  }}
+            {% else %}
+            {% firstof node.assignment_title node.name %}
+            {% endif %}
+        </span>
+        {% else %}
+        <span class="og-text-role" title="{{  node.name  }}">{{  node.name  }}</span>
+        {% endif %}
+
+        {% if node.incumbent_count > 1 %}
+        <span class="og-text-sep" aria-hidden="true">|</span>
+        <span class="og-text-multi-caption">{% blocktrans with n=node.incumbent_count %}{{  n  }} people{% endblocktrans %}</span>
+        {% elif node.incumbent_count == 1 %}
+        <span class="og-text-sep" aria-hidden="true">|</span>
+        {% if node.employee_name %}
+        <span class="og-text-person" title="{{  node.employee_display|default:node.employee_name  }}">{{  node.employee_display|default:node.employee_name  }}</span>
+        {% else %}
+        <span class="og-text-muted" title="{% trans 'Vacant' %}">{% trans "Vacant" %}</span>
+        {% endif %}
+        {% if node.assignment_title and node.depth != 1 and node.assignment_title != node.name %}
+        <span class="og-text-sep" aria-hidden="true">|</span>
+        <span class="og-text-assign" title="{{  node.assignment_title  }}">{{  node.assignment_title  }}</span>
+        {% endif %}
+        {% elif node.assignment_id %}
+        <span class="og-text-sep" aria-hidden="true">|</span>
+        <span class="og-text-muted" title="{% trans 'Vacant' %}">{% trans "Vacant" %}</span>
+        {% else %}
+        <span class="og-text-sep" aria-hidden="true">|</span>
+        <span class="og-text-muted" title="{% trans 'Vacant' %}">{% trans "Vacant" %}</span>
+        {% endif %}
+
+        {% if node.area_team %}
+        <span class="og-text-sep" aria-hidden="true">|</span>
+        <span class="og-text-area" title="{{  node.area_team  }}">{{  node.area_team  }}</span>
+        {% endif %}
+
+        {% if node.depth == 0 %}
+        {% if node.footer_type or node.footer_org or node.footer_size %}
+        <span class="og-text-sep" aria-hidden="true">|</span>
+        <span class="og-text-foot">
+            {% if node.footer_type %}{{  node.footer_type  }}{% else %}—{% endif %}
+            /
+            {% if node.footer_org %}{{  node.footer_org  }}{% else %}—{% endif %}
+            /
+            {% if node.footer_size %}{{  node.footer_size  }}{% else %}—{% endif %}
+        </span>
+        {% endif %}
+        {% endif %}
+    </div>
+
+    {% if node.incumbent_count > 1 %}
+    <ul class="og-text-multi-list list-unstyled">
+        {% for row in node.incumbents %}
+        <li class="og-text-multi-row">
+            <span class="og-text-multi-ix">{{  forloop.counter  }}</span>
+            <span class="og-text-multi-body">
+                {% if row.name %}
+                <span class="og-text-person" title="{{  row.display_name|default:row.name  }}">{{  row.display_name|default:row.name  }}</span>
+                {% else %}
+                <span class="og-text-muted" title="{% trans 'Vacant' %}">{% trans "Vacant" %}</span>
+                {% endif %}
+                {% if row.title %}
+                <span class="og-text-sep" aria-hidden="true">|</span>
+                <span class="og-text-assign" title="{{  row.title  }}">{{  row.title  }}</span>
+                {% endif %}
+            </span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if node.children %}
+    <ul class="og-text-nested list-unstyled" data-parent-depth="{{  node.depth  }}">
+        {% for child in node.children %}
+        {% include 'organogram/organogram_node_text.html' with node=child %}
+        {% endfor %}
+    </ul>
+    {% endif %}
+</li>

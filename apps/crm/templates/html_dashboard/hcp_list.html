@@ -2,7 +2,7 @@
 {% load i18n static translation_tags %}
 
 {% block extra_head %}
-{{ block.super }}
+{{  block.super  }}
 <!-- Tailwind CSS v4. AdminLTE/Bootstrap's plain (unlayered) CSS otherwise beats Tailwind's
      own utilities on shared tags like <a> regardless of specificity, since Tailwind wraps
      its utilities in a CSS cascade layer and unlayered rules always win over layered ones. -->
@@ -217,21 +217,21 @@
 {% endblock %}
 
 {% block content %}
-{{ block.super }}
+{{  block.super  }}
 {% get_translations 'hcp_list' as t %}
 
 <div class="hcp-list-page pt-6 pb-6">
 
   <div class="bg-white rounded-xl border border-[#eceef1] shadow-sm p-6">
 
-  <h1 class="text-2xl font-bold text-[#171a1f] mb-4">{{ t.page_title|default:title }}</h1>
+  <h1 class="text-2xl font-bold text-[#171a1f] mb-4">{{  t.page_title|default:title  }}</h1>
 
   <form method="get" class="flex flex-col md:flex-row gap-4 mb-6">
     <div class="flex-1 relative">
       <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
         <img src="{% static 'custom/crm/hcp_list/assets/IMG_4.svg' %}" alt="search" class="w-4 h-4 opacity-40">
       </div>
-      <input type="text" id="search-input" name="q" value="{{ query }}" placeholder="{{ t.search_placeholder|default:'Search' }}" autocomplete="off" class="w-full h-11 pl-10 pr-4 bg-white border border-[#dee1e6] rounded-md text-sm focus:ring-2 focus:ring-[#636AE8]/20">
+      <input type="text" id="search-input" name="q" value="{{  query  }}" placeholder="{{  t.search_placeholder|default:'Search'  }}" autocomplete="off" class="w-full h-11 pl-10 pr-4 bg-white border border-[#dee1e6] rounded-md text-sm focus:ring-2 focus:ring-[#636AE8]/20">
       {% include "html_dashboard/search_suggestions.html" with suggest_url_name="crm:hcp_suggest" recents_key="hcp_recent_searches" %}
     </div>
 
@@ -239,8 +239,8 @@
       <div class="relative" id="filter-root">
         <button type="button" id="filter-toggle-btn" class="h-11 px-4 bg-white border border-[#dee1e6] rounded-md flex items-center gap-2 text-sm text-[#323743] hover:bg-gray-50">
           <img src="{% static 'custom/crm/hcp_list/assets/IMG_5.svg' %}" alt="filter" class="w-4 h-4">
-          <span>{{ t.btn_filter|default:'Filter' }}</span>
-          {% if selected_filter_count %}<span class="ml-1 inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#636AE8] text-white text-xs">{{ selected_filter_count }}</span>{% endif %}
+          <span>{{  t.btn_filter|default:'Filter'  }}</span>
+          {% if selected_filter_count %}<span class="ml-1 inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#636AE8] text-white text-xs">{{  selected_filter_count  }}</span>{% endif %}
         </button>
         {% include "html_dashboard/hcp_filter_panel.html" %}
       </div>
@@ -248,29 +248,29 @@
       <div class="relative" id="export-root">
         <button type="button" id="export-toggle-btn" class="h-11 px-4 bg-[#DDE1FC] hover:bg-[#C9CFFA] rounded-md flex items-center gap-2 text-sm font-medium text-[#4B51D6]">
           <img src="{% static 'custom/crm/hcp_list/assets/IMG_6.svg' %}" alt="export" class="w-4 h-4">
-          <span>{{ t.btn_export|default:'Export' }}</span>
+          <span>{{  t.btn_export|default:'Export'  }}</span>
         </button>
         {% include "html_dashboard/export_menu.html" with csv_url_name="crm:export_csv" excel_url_name="crm:export_excel" %}
       </div>
 
-      <a href="{% url 'crm:analytics_dashboard' %}?{{ request.GET.urlencode }}" class="h-11 px-4 bg-[#636AE8] rounded-md flex items-center gap-2 text-sm text-white hover:bg-[#5259d6]">
+      <a href="{% url 'crm:analytics_dashboard' %}?{{  request.GET.urlencode  }}" class="h-11 px-4 bg-[#636AE8] rounded-md flex items-center gap-2 text-sm text-white hover:bg-[#5259d6]">
         <img src="{% static 'custom/crm/hcp_list/assets/IMG_7.svg' %}" alt="dashboard" class="w-6 h-6">
-        <span>{{ t.btn_dashboard|default:'Dashboard' }}</span>
+        <span>{{  t.btn_dashboard|default:'Dashboard'  }}</span>
       </a>
 
       <div class="flex items-center gap-2 text-sm text-[#6F7787]">
-        <span>{{ t.label_show|default:'Show' }}</span>
+        <span>{{  t.label_show|default:'Show'  }}</span>
         <div class="relative">
           <select data-page-size-select class="h-8 pl-2.5 pr-7 rounded-md border border-[#dee1e6] text-sm text-[#323743] bg-white focus:outline-none focus:ring-2 focus:ring-[#636AE8]/20 appearance-none">
             {% for size in page_size_options %}
-            <option value="{{ size }}" {% if size == page_size %}selected{% endif %}>{{ size }}</option>
+            <option value="{{  size  }}" {% if size == page_size %}selected{% endif %}>{{  size  }}</option>
             {% endfor %}
           </select>
           <svg class="w-3.5 h-3.5 text-[#9095a1] absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <span>{{ t.label_entries|default:'entries' }}</span>
+        <span>{{  t.label_entries|default:'entries'  }}</span>
       </div>
     </div>
   </form>

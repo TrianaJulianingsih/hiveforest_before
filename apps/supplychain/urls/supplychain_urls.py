@@ -1,5 +1,5 @@
 from django.urls import path
-from apps.supplychain.views.orderviews import (
+from apps.supplychain.views.order_views import (
     order_list,
     order_add,
     order_edit,
@@ -7,14 +7,14 @@ from apps.supplychain.views.orderviews import (
     order_details,
 )
 from apps.supplychain.views.scm_views import get_branches, get_ordertypes
-from apps.supplychain.views.dash_distviews import (
+from apps.supplychain.views.dash_dist_views import (
     dash_mupstock,
     dash_facdo,
     dash_distpo,
     dash_facstock,
 )
-from apps.supplychain.views.matching_orders import matching_orders
-from apps.supplychain.views.sync import sync_stocks, import_stftp
+from apps.supplychain.views.matching_orders_views import matching_orders
+from apps.supplychain.views.sync_views import sync_stocks, import_stftp
 from apps.supplychain.views.branch_views import (
     BranchCreateView,
     BranchDeleteView,
@@ -39,7 +39,7 @@ urlpatterns = [
     path("bi/dashboard/facdo/", dash_facdo, name="dash_facdo"),
     path("bi/dashboard/facstock/", dash_facstock, name="dash_facstock"),
     path("bi/dashboard/distpo/", dash_distpo, name="dash_distpo"),
-    # <!-- FaisalS | Branch Module URLs -->
+    # Branch Module URLs
     path("distribution/branches/", BranchListView.as_view(), name="branch_list"),
     path("distribution/branches/add/", BranchCreateView.as_view(), name="branch_add"),
     path(
@@ -52,5 +52,4 @@ urlpatterns = [
         BranchDeleteView.as_view(),
         name="branch_delete",
     ),
-    # <!-- // FaisalS | Branch Module URLs -->
 ]

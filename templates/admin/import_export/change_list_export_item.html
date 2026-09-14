@@ -3,8 +3,8 @@
 
 {% if has_export_permission %}
 <li>
-    <a href="{% url opts|admin_urlname:'export' %}{{cl.get_query_string}}" class="export_link">
-        <i class="fas fa-download btn btn-sm btn-primary hiveforest" style="margin-right: 5px;" title="{% blocktranslate with cl.opts.verbose_name as name %} Export {{ name }}{% endblocktranslate %}"></i>
+    <a href="{% url opts|admin_urlname:'export' %}{{  cl.get_query_string  }}" class="export_link">
+        <i class="fas fa-download btn btn-sm btn-primary hiveforest" style="margin-right: 5px;" title="{% blocktranslate with cl.opts.verbose_name as name %} Export {{  name  }}{% endblocktranslate %}"></i>
         {% translate "Export" %}
     </a>
 </li>

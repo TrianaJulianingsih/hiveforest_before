@@ -1,0 +1,550 @@
+{% extends "main.html" %}
+{% load i18n static translation_tags %}
+
+{% block datatable_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">
+<style>
+  /* ========================================
+     PRECISE ALIGNED DASHBOARD STYLES
+     ======================================== */
+  .subdist-header-card {
+    border-top: 3px solid #007bff;
+    background: #ffffff;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    border-top: 3px solid #007bff;
+  }
+
+  .subdist-header-card .card-body {
+    padding: 1rem 1.25rem;
+  }
+
+  .subdist-header-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+  }
+
+  .subdist-header-sub {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-top: 2px;
+    margin-bottom: 0;
+  }
+
+  /* Metric KPI Cards */
+  .kpi-metric-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    padding: 1.15rem 1.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease-in-out;
+    height: 100%;
+    min-height: 125px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .kpi-metric-card.interactive {
+    cursor: pointer;
+  }
+
+  .kpi-metric-card.interactive:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    border-color: #cbd5e1;
+  }
+
+  .kpi-metric-card.active-filter {
+    border: 2px solid #007bff !important;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15) !important;
+    background: #f8faff;
+  }
+
+  .kpi-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748b;
+  }
+
+  .kpi-value {
+    font-size: 1.95rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-top: 0.35rem;
+    margin-bottom: 0.25rem;
+    color: #0f172a;
+  }
+
+  .kpi-subtext {
+    font-size: 0.8rem;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    min-height: 20px;
+  }
+
+  .kpi-icon-circle {
+    width: 46px;
+    height: 46px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+
+  .icon-blue {
+    background: #e0f2fe;
+    color: #0284c7;
+  }
+
+  .icon-green {
+    background: #dcfce7;
+    color: #16a34a;
+  }
+
+  .icon-gray {
+    background: #f1f5f9;
+    color: #64748b;
+  }
+
+  .icon-purple {
+    background: #f3e8ff;
+    color: #9333ea;
+  }
+
+  .kpi-progress-bar {
+    height: 5px;
+    border-radius: 4px;
+    background-color: #f1f5f9;
+    margin-top: 0.85rem;
+    overflow: hidden;
+  }
+
+  /* Panels */
+  .dashboard-card-panel {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    margin-bottom: 0;
+    overflow: hidden;
+  }
+
+  .dashboard-card-panel .panel-header {
+    padding: 0.85rem 1.25rem;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 52px;
+  }
+
+  .dashboard-card-panel .panel-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dashboard-card-panel .panel-body {
+    padding: 1.25rem;
+  }
+
+  /* Map Container */
+  #subdist-map {
+    width: 100%;
+    height: 380px;
+    border-radius: 0.375rem;
+    border: 1px solid #e2e8f0;
+    z-index: 1;
+  }
+
+  .map-legend {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    font-size: 0.8125rem;
+    color: #475569;
+    margin-top: 0.75rem;
+  }
+
+  .legend-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 4px;
+  }
+
+  .legend-dot.active {
+    background-color: #16a34a;
+  }
+
+  .legend-dot.inactive {
+    background-color: #94a3b8;
+  }
+
+  .border-bottom-light {
+    border-bottom: 1px dashed #e2e8f0;
+  }
+
+  .border-bottom-light:last-child {
+    border-bottom: none;
+  }
+
+  .font-weight-500 {
+    font-weight: 500;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+{{ block.super }}
+{% get_translations 'sub_distributor' as t %}
+
+<!-- Row 0: Dashboard Top Header Card (Aligned Grid) -->
+<div class="row mb-3">
+  <div class="col-12">
+    <div class="card card-primary card-outline hiveforest subdist-header-card mb-0">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between flex-wrap">
+          <div>
+            <h1 class="subdist-header-title">
+              <i class="fas fa-chart-pie text-primary mr-2"></i>{{ t.dashboard_title|default:"Sub-Distributor Dashboard" }}
+            </h1>
+            <p class="subdist-header-sub">
+              {{ t.dashboard_subtitle|default:"Interactive overview, regional distributions, and operational maintenance for Sub-Distributors." }}
+            </p>
+          </div>
+          <div class="mt-2 mt-sm-0">
+            <a href="{% url 'bom:sub_distributor_list' %}" class="btn btn-sm btn-outline-primary mr-2"
+              style="background:#ffffff; color:#007bff; border-color:#007bff; font-weight:600;">
+              <i class="fas fa-list mr-1"></i> {{ t.btn_list|default:"Sub-Distributor List" }}
+            </a>
+            <a href="{% url 'bom:sub_distributor_add' %}" class="btn btn-sm btn-success font-weight-bold">
+              <i class="fas fa-plus mr-1"></i> {{ t.btn_add|default:"Add Sub-Distributor" }}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Row 1: KPI Metric Cards (Aligned Grid) -->
+<div class="row mb-3">
+  <!-- Total Sub-Distributors -->
+  <div class="col-xl-3 col-md-6 mb-3 mb-xl-0">
+    <div class="kpi-metric-card interactive" id="kpi-total" title="Click to view all">
+      <div class="d-flex align-items-start justify-content-between">
+        <div>
+          <span class="kpi-label">{{ t.kpi_total|default:"Total Sub-Distributor" }}</span>
+          <div class="kpi-value text-dark">{{ metrics.total }}</div>
+          <div class="kpi-subtext mt-1">
+            <i class="fas fa-building text-primary mr-1"></i> {{ metrics.stations }} {{ t.kpi_stations|default:"Stations" }} &bull; {{ metrics.provinces }} {{ t.kpi_provinces|default:"Provinces" }}
+          </div>
+        </div>
+        <div class="kpi-icon-circle icon-blue">
+          <i class="fas fa-warehouse"></i>
+        </div>
+      </div>
+      <div class="kpi-progress-bar">
+        <div class="progress-bar bg-primary" style="width: 100%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Sub-Distributors -->
+  <div class="col-xl-3 col-md-6 mb-3 mb-xl-0">
+    <div class="kpi-metric-card interactive" id="kpi-active" title="Click to filter Active">
+      <div class="d-flex align-items-start justify-content-between">
+        <div>
+          <span class="kpi-label">{{ t.kpi_active|default:"Active Operations" }}</span>
+          <div class="kpi-value text-success">{{ metrics.active }}</div>
+          <div class="kpi-subtext text-success font-weight-bold mt-1">
+            <i class="fas fa-check-circle mr-1"></i> {{ metrics.active_percentage }}% {{ t.kpi_of_total|default:"of total" }}
+          </div>
+        </div>
+        <div class="kpi-icon-circle icon-green">
+          <i class="fas fa-toggle-on"></i>
+        </div>
+      </div>
+      <div class="kpi-progress-bar">
+        <div class="progress-bar bg-success" style="width: {{ metrics.active_percentage }}%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Inactive Sub-Distributors -->
+  <div class="col-xl-3 col-md-6 mb-3 mb-xl-0">
+    <div class="kpi-metric-card interactive" id="kpi-inactive" title="Click to filter Inactive">
+      <div class="d-flex align-items-start justify-content-between">
+        <div>
+          <span class="kpi-label">{{ t.kpi_inactive|default:"Inactive / Pending" }}</span>
+          <div class="kpi-value text-secondary">{{ metrics.inactive }}</div>
+          <div class="kpi-subtext mt-1">
+            <i class="fas fa-ban text-secondary mr-1"></i> {{ metrics.inactive_percentage }}% {{ t.kpi_of_total|default:"of total" }}
+          </div>
+        </div>
+        <div class="kpi-icon-circle icon-gray">
+          <i class="fas fa-toggle-off"></i>
+        </div>
+      </div>
+      <div class="kpi-progress-bar">
+        <div class="progress-bar bg-secondary" style="width: {{ metrics.inactive_percentage }}%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Geospatial Mapped Coverage -->
+  <div class="col-xl-3 col-md-6 mb-3 mb-xl-0">
+    <div class="kpi-metric-card" id="kpi-mapped">
+      <div class="d-flex align-items-start justify-content-between">
+        <div>
+          <span class="kpi-label">{{ t.kpi_geotagged|default:"Geotagged Locations" }}</span>
+          <div class="kpi-value" style="color: #7c3aed;">{{ metrics.mapped_count }}</div>
+          <div class="kpi-subtext mt-1">
+            <i class="fas fa-map-marker-alt text-danger mr-1"></i> {{ metrics.unmapped_count }} {{ t.kpi_unmapped|default:"without coordinates" }}
+          </div>
+        </div>
+        <div class="kpi-icon-circle icon-purple">
+          <i class="fas fa-map-marked-alt"></i>
+        </div>
+      </div>
+      <div class="kpi-progress-bar">
+        <div class="progress-bar"
+          style="width: {% widthratio metrics.mapped_count metrics.total 100 %}%; background-color: #7c3aed;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Row 2: Interactive Leaflet Map & Status Doughnut Chart (Aligned Grid) -->
+<div class="row">
+  <!-- Interactive Map Panel -->
+  <div class="col-lg-8 mb-3">
+    <div class="dashboard-card-panel h-100">
+      <div class="panel-header">
+        <h3 class="panel-title">
+          <i class="fas fa-globe-asia text-primary"></i> {{ t.map_title|default:"Geographical Distribution Map" }}
+        </h3>
+        <button id="btn-reset-map" type="button" class="btn btn-sm btn-primary shadow-sm" style="font-size: 0.8125rem; font-weight: 600; padding: 4px 14px; border-radius: 6px; background-color: #007bff !important; border-color: #007bff !important; color: #ffffff !important;" title="Reset Map View">
+          <i class="fas fa-undo mr-1"></i> Reset Map
+        </button>
+      </div>
+      <div class="panel-body">
+        <div id="subdist-map"></div>
+        <div class="map-legend">
+          <span><span class="legend-dot active"></span> Active Sub-Distributor</span>
+          <span><span class="legend-dot inactive"></span> Inactive Sub-Distributor</span>
+          <span class="ml-auto text-muted"><i class="fas fa-info-circle mr-1"></i> Click markers for details</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Operational Status Doughnut & Top Provinces -->
+  <div class="col-lg-4 mb-3">
+    <div class="dashboard-card-panel h-100">
+      <div class="panel-header">
+        <h3 class="panel-title">
+          <i class="fas fa-chart-pie text-success"></i> {{ t.status_chart_title|default:"Operational Ratio" }}
+        </h3>
+      </div>
+      <div class="panel-body d-flex flex-column justify-content-between">
+        <div style="height: 220px; position: relative;">
+          <canvas id="statusDoughnutChart"></canvas>
+        </div>
+        <div class="mt-3 pt-3 border-top">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <span class="kpi-label mb-0">TOP PROVINCES COVERAGE</span>
+            <span class="badge badge-light border text-muted">{{ province_stats|length }}</span>
+          </div>
+          <div class="province-list">
+            {% for p in province_stats|slice:":5" %}
+            <div class="d-flex align-items-center justify-content-between py-1 border-bottom-light">
+              <div class="d-flex align-items-center text-truncate mr-2">
+                <i class="fas fa-map-marker-alt text-primary mr-2" style="font-size: 0.8rem; width: 14px; text-align: center;"></i>
+                <span class="text-truncate font-weight-500" style="font-size: 0.825rem; color: #334155;">{{ p.province_name|default:"Unassigned" }}</span>
+              </div>
+              <span class="badge badge-primary badge-pill font-weight-bold" style="font-size: 0.75rem; padding: 3px 8px;">{{ p.total }}</span>
+            </div>
+            {% empty %}
+            <div class="text-center text-muted py-2 small">
+              <i class="fas fa-info-circle mr-1"></i> No province data available
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block datatable_js %}
+{{ block.super }}
+<script src="{% static 'adminlte/plugins/chart.js/Chart.min.js' %}"></script>
+<script src="{% static 'vendor/leaflet/leaflet.js' %}"></script>
+
+<script>
+$(document).ready(function() {
+  // 1. Leaflet Interactive Map
+  const mapPoints = {{ map_points_json|safe }};
+  let map = L.map('subdist-map').setView([-0.7893, 113.9213], 5); // Center on Indonesia
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  let markerGroup = L.featureGroup().addTo(map);
+
+  const activeIcon = L.divIcon({
+    className: 'custom-map-icon',
+    html: '<div style="background-color:#16a34a; width:14px; height:14px; border-radius:50%; border:2px solid #ffffff; box-shadow:0 0 4px rgba(0,0,0,0.4);"></div>',
+    iconSize: [14, 14],
+    iconAnchor: [7, 7]
+  });
+
+  const inactiveIcon = L.divIcon({
+    className: 'custom-map-icon',
+    html: '<div style="background-color:#94a3b8; width:14px; height:14px; border-radius:50%; border:2px solid #ffffff; box-shadow:0 0 4px rgba(0,0,0,0.4);"></div>',
+    iconSize: [14, 14],
+    iconAnchor: [7, 7]
+  });
+
+  function renderMapMarkers(filterStatus) {
+    markerGroup.clearLayers();
+    if (!mapPoints || mapPoints.length === 0) return;
+
+    mapPoints.forEach(function(p) {
+      if (filterStatus && p.status !== filterStatus) return;
+
+      const marker = L.marker([p.lat, p.lng], {
+        icon: p.status_code === 1 ? activeIcon : inactiveIcon
+      });
+
+      const popupContent = `
+        <div style="font-family: inherit; font-size: 13px; line-height: 1.4;">
+          <strong style="font-size: 14px; color: #1e293b;">${p.name}</strong><br>
+          <span style="color:#64748b;">Code: <code>${p.code}</code></span><br>
+          <div style="margin-top: 6px; font-size: 12px; border-top: 1px solid #e2e8f0; padding-top: 4px;">
+            <div><strong>Station:</strong> ${p.station}</div>
+            <div><strong>Region:</strong> ${p.regency}, ${p.province}</div>
+            <div style="margin-top: 3px;"><strong>Status:</strong> <span class="badge badge-${p.status_code === 1 ? 'success' : 'secondary'}">${p.status}</span></div>
+          </div>
+        </div>
+      `;
+      marker.bindPopup(popupContent);
+      markerGroup.addLayer(marker);
+    });
+
+    try {
+      if (markerGroup.getLayers().length > 0) {
+        map.fitBounds(markerGroup.getBounds().pad(0.1));
+      }
+    } catch(e) {}
+  }
+
+  function resetMapView() {
+    $('.kpi-metric-card').removeClass('active-filter');
+    renderMapMarkers();
+    if (markerGroup.getLayers().length > 0) {
+      map.fitBounds(markerGroup.getBounds().pad(0.1));
+    } else {
+      map.setView([-0.7893, 113.9213], 5);
+    }
+  }
+
+  // Add in-map reset control icon below zoom buttons
+  const resetControl = L.Control.extend({
+    options: { position: 'topleft' },
+    onAdd: function() {
+      const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+      const btn = L.DomUtil.create('a', '', container);
+      btn.innerHTML = '<i class="fas fa-undo" style="font-size: 11px; line-height: 30px; color: #334155;"></i>';
+      btn.href = '#';
+      btn.title = 'Reset Map View';
+      btn.style.width = '30px';
+      btn.style.height = '30px';
+      btn.style.lineHeight = '30px';
+      btn.style.textAlign = 'center';
+      btn.style.display = 'block';
+      btn.style.backgroundColor = '#ffffff';
+      btn.style.cursor = 'pointer';
+
+      L.DomEvent.on(btn, 'click', function(e) {
+        L.DomEvent.stop(e);
+        resetMapView();
+      });
+      return container;
+    }
+  });
+  map.addControl(new resetControl());
+
+  $('#btn-reset-map').on('click', function(e) {
+    e.preventDefault();
+    resetMapView();
+  });
+
+  // KPI Card Quick Filters for Map
+  $('#kpi-total').on('click', function() {
+    $('.kpi-metric-card').removeClass('active-filter');
+    $(this).addClass('active-filter');
+    renderMapMarkers();
+  });
+
+  $('#kpi-active').on('click', function() {
+    $('.kpi-metric-card').removeClass('active-filter');
+    $(this).addClass('active-filter');
+    renderMapMarkers('Active');
+  });
+
+  $('#kpi-inactive').on('click', function() {
+    $('.kpi-metric-card').removeClass('active-filter');
+    $(this).addClass('active-filter');
+    renderMapMarkers('Inactive');
+  });
+
+  // 2. Operational Doughnut Chart
+  const doughnutCtx = document.getElementById('statusDoughnutChart').getContext('2d');
+  new Chart(doughnutCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Active', 'Inactive'],
+      datasets: [{
+        data: [{{ metrics.active|default:0 }}, {{ metrics.inactive|default:0 }}],
+        backgroundColor: ['#16a34a', '#94a3b8'],
+        borderWidth: 2,
+        borderColor: '#ffffff'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      legend: {
+        position: 'bottom',
+        labels: { boxWidth: 12, fontSize: 12, padding: 16 }
+      },
+      cutoutPercentage: 70
+    }
+  });
+});
+</script>
+{% endblock %}

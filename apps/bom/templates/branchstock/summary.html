@@ -2,7 +2,7 @@
 {% load i18n static translation_tags %}
 
 {% block datatable_css %}
-  {{ block.super }}
+{{ block.super }}
 
 {% get_translations 'branch_stock_summary' as t %}
 
@@ -31,8 +31,8 @@
     border: 1px solid #adb5bd !important;
   }
 
-  .multiselect-container.dropdown-menu > li > a,
-  .multiselect-container.dropdown-menu > li > a > label {
+  .multiselect-container.dropdown-menu>li>a,
+  .multiselect-container.dropdown-menu>li>a>label {
     background-color: #fff !important;
     color: #212529 !important;
     opacity: 1 !important;
@@ -147,15 +147,9 @@
 
   .hf-freeze-col-1-2 {
     left: 0;
-    min-width: calc(
-      var(--hf-freeze-col-1-width, 0px) + var(--hf-freeze-col-2-width, 0px)
-    );
-    width: calc(
-      var(--hf-freeze-col-1-width, 0px) + var(--hf-freeze-col-2-width, 0px)
-    );
-    max-width: calc(
-      var(--hf-freeze-col-1-width, 0px) + var(--hf-freeze-col-2-width, 0px)
-    );
+    min-width: calc(var(--hf-freeze-col-1-width, 0px) + var(--hf-freeze-col-2-width, 0px));
+    width: calc(var(--hf-freeze-col-1-width, 0px) + var(--hf-freeze-col-2-width, 0px));
+    max-width: calc(var(--hf-freeze-col-1-width, 0px) + var(--hf-freeze-col-2-width, 0px));
   }
 
   .hf-freeze-col-1 {
@@ -167,9 +161,7 @@
   }
 
   .hf-freeze-col-3 {
-    left: calc(
-      var(--hf-freeze-col-1-width, 0px) + var(--hf-freeze-col-2-width, 0px)
-    );
+    left: calc(var(--hf-freeze-col-1-width, 0px) + var(--hf-freeze-col-2-width, 0px));
   }
 
   /* ========================================
@@ -345,9 +337,9 @@
   <a href="{% url 'admin:index' %}">Home</a>
   <span style="color:#fff">&gt;</span>
   {% if breadcrumbs_url %}
-    <a href="{{ breadcrumbs_url }}">{{ breadcrumbs }}</a>
+  <a href="{{  breadcrumbs_url  }}">{{ breadcrumbs }}</a>
   {% else %}
-    <span>{{ breadcrumbs }}</span>
+  <span>{{ breadcrumbs }}</span>
   {% endif %}
   <span style="color:#fff">&gt; {{ title }}</span>
 </div>
@@ -358,65 +350,43 @@
   <div class="card-header d-flex flex-column flex-md-row align-items-md-center justify-content-md-between gap-3">
     <form method="post" class="row g-2 align-items-end">
       {% csrf_token %}
-      
+
       <div class="col-auto">
         <label for="branch_id" class="form-label mb-1">
           {{ t.branch_select|default:'Branch' }}
         </label>
         <select id="branch_id" name="branch_id[]" multiple>
           {% for option in branch_options %}
-            <option 
-              value="{{ option.value }}" 
-              data-branch-ids="{{ option.ids|join:',' }}"
-              {% if option.selected %}selected{% endif %}
-            >
-              {{ option.label }}
-            </option>
+          <option value="{{ option.value }}" data-branch-ids="{{ option.ids|join:',' }}" {% if option.selected %}selected{% endif %}>
+            {{ option.label }}
+          </option>
           {% endfor %}
         </select>
       </div>
-      
+
       <div class="col-auto">
         <label for="start_date" class="form-label mb-1">
           {{ t.start_date|default:"Start" }}
         </label>
-        <input 
-          id="start_date" 
-          name="start_date" 
-          type="date" 
-          class="form-control form-control-sm"
-          value="{{ start_date|date:'Y-m-d' }}"
-        >
+        <input id="start_date" name="start_date" type="date" class="form-control form-control-sm"
+          value="{{ start_date|date:'Y-m-d' }}">
       </div>
-      
+
       <div class="col-auto">
         <label for="end_date" class="form-label mb-1">
           {{ t.end_date|default:"End" }}
         </label>
-        <input 
-          id="end_date" 
-          name="end_date" 
-          type="date" 
-          class="form-control form-control-sm"
-          value="{{ end_date|date:'Y-m-d' }}"
-        >
+        <input id="end_date" name="end_date" type="date" class="form-control form-control-sm"
+          value="{{ end_date|date:'Y-m-d' }}">
       </div>
-      
+
       <div class="col-auto mt-1 mt-md-0 d-flex align-items-center gap-2">
-        <button 
-          type="submit" 
-          class="btn btn-primary btn-sm btn-branch-action"
-        >
+        <button type="submit" class="btn btn-primary btn-sm btn-branch-action">
           {{ t.apply|default:"Apply" }}
         </button>
         &nbsp;
-        <button 
-          type="submit" 
-          class="btn btn-success btn-sm buttons-csv buttons-html5 btn-branch-action ms-2" 
-          id="btn-export"
-          name="export" 
-          value="excel"
-        >
+        <button type="submit" class="btn btn-success btn-sm buttons-csv buttons-html5 btn-branch-action ms-2"
+          id="btn-export" name="export" value="excel">
           {{ t.export_excel|default:"Export Excel" }}
         </button>
       </div>
@@ -425,156 +395,131 @@
 
   <div class="card-body">
     {% if filters_applied and summary_rows %}
-      {% if percentage_rows %}
-        <div>
-          <div class="hf-table-wrap">
-            <div class="hf-scrollbar-top">
-              <div class="hf-scrollbar-inner"></div>
-            </div>
-            <div class="table-responsive hf-scrollbar-body">
-              <table class="table table-bordered table-striped table-sm align-middle">
-                <thead class="hf-table-head">
-                  {% if date_groups %}
-                    <tr class="hf-header-row-1">
-                      <th 
-                        scope="col" 
-                        class="hf-freeze hf-freeze-col-1-2 hf-freeze-header text-center" 
-                        colspan="2"
-                      >
-                        {{ t.branch_select|default:'Branch' }}
-                      </th>
-                      <th 
-                        scope="col" 
-                        class="hf-freeze hf-freeze-col-3 hf-freeze-header text-center"
-                      >
-                        {{ t.warehouse_capacity|default:'Warehouse Capacity' }}
-                      </th>
-                      {% for group in date_groups %}
-                        <th 
-                          scope="col" 
-                          class="hf-freeze-header text-center"
-                          colspan="{{ group.dates|length }}"
-                        >
-                          {{ group.label }}
-                        </th>
-                      {% endfor %}
-                    </tr>
-                    <tr class="hf-header-row-2">
-                      <th scope="col" class="hf-freeze hf-freeze-col-1 hf-freeze-header text-center">
-                        {{ t.col_code|default:"Code" }}
-                      </th>
-                      <th scope="col" class="hf-freeze hf-freeze-col-2 hf-freeze-header text-center">
-                        {{ t.col_description|default:"Description" }}
-                      </th>
-                      <th scope="col" class="hf-freeze hf-freeze-col-3 hf-freeze-header text-center">
-                        {{ t.col_pallet|default:"Pallet" }}
-                      </th>
-                      {% for group in date_groups %}
-                        {% for day in group.dates %}
-                          <th scope="col" class="hf-freeze-header text-center">{{ day|date:"j" }}</th>
-                        {% endfor %}
-                      {% endfor %}
-                    </tr>
-                  {% else %}
-                    <tr class="hf-header-row-1">
-                      <th 
-                        scope="col" 
-                        class="hf-freeze hf-freeze-col-1 hf-freeze-header text-center" 
-                        rowspan="1"
-                      >
-                        {{ t.col_code|default:"Code" }}
-                      </th>
-                      <th 
-                        scope="col" 
-                        class="hf-freeze hf-freeze-col-2 hf-freeze-header text-center" 
-                        rowspan="1"
-                      >
-                        {{ t.col_description|default:"Description" }}
-                      </th>
-                      <th 
-                        scope="col" 
-                        class="hf-freeze hf-freeze-col-3 hf-freeze-header text-center" 
-                        rowspan="1"
-                      >
-                        {{ t.col_pallet|default:"Pallet" }}
-                      </th>
-                      {% for day in date_columns %}
-                        <th scope="col" class="hf-freeze-header text-center">{{ day|date:"d M Y" }}</th>
-                      {% endfor %}
-                    </tr>
-                  {% endif %}
-                </thead>
-
-                <tbody>
-                  {% for row in percentage_rows %}
-                    <tr>
-                      <td class="hf-freeze hf-freeze-col-1">
-                        {{ row.branch_code }}
-                      </td>
-                      <td class="hf-freeze hf-freeze-col-2">
-                        {{ row.branch_description }}
-                      </td>
-                      <td class="hf-freeze hf-freeze-col-3 text-end">
-                        {{ row.warehouse_capacity|default:0 }}
-                      </td>
-                      
-                      {% for item in row.values %}
-                        {% with percent=item.percent value=item.value %}
-                          {% if percent < 30 %}
-                            <td class="hf-capacity-low" align="right">
-                              <div class="hf-cell-content">
-                                <span class="hf-box-value hf-capacity-low">{{ value }}</span>
-                                <span class="hf-box-percent hf-capacity-low"><b>{{ percent|floatformat:1 }}%</b></span>
-                              </div>
-                            </td>
-                          {% elif percent >= 70 and percent < 100 %}
-                            <td class="hf-capacity-medium" align="right">
-                              <div class="hf-cell-content">
-                                <span class="hf-box-value hf-capacity-medium">{{ value }}</span>
-                                <span class="hf-box-percent hf-capacity-medium"><b>{{ percent|floatformat:1 }}%</b></span>
-                              </div>
-                            </td>
-                          {% elif percent >= 100 %}
-                            <td class="hf-capacity-high" align="right">
-                              <div class="hf-cell-content">
-                                <span class="hf-box-value hf-capacity-high">{{ value }}</span>
-                                <span class="hf-box-percent hf-capacity-high"><b>{{ percent|floatformat:1 }}%</b></span>
-                              </div>
-                            </td>
-                          {% else %}
-                            <td class="hf-capacity-standard" align="right">
-                              <div class="hf-cell-content">
-                                <span class="hf-box-value hf-capacity-standard">{{ value }}</span>
-                                <span class="hf-box-percent hf-capacity-standard"><b>{{ percent|floatformat:1 }}%</b></span>
-                              </div>
-                            </td>
-                          {% endif %}
-                        {% endwith %}
-                      {% endfor %}
-                    </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
-          </div>
-          {% if omitted_zero_dates %}
-            <div class="alert alert-warning mt-3 mb-0">
-              {{ t.no_transaction_dates|default:"Tanggal berikut tidak ditampilkan karena semua branch bernilai 0 / 0%:" }}
-              {% for day in omitted_zero_dates %}
-                {% if not forloop.first %}, {% endif %}{{ day|date:"d M Y" }}
-              {% endfor %}
-            </div>
-          {% endif %}
+    {% if percentage_rows %}
+    <div>
+      <div class="hf-table-wrap">
+        <div class="hf-scrollbar-top">
+          <div class="hf-scrollbar-inner"></div>
         </div>
+        <div class="table-responsive hf-scrollbar-body">
+          <table class="table table-bordered table-striped table-sm align-middle">
+            <thead class="hf-table-head">
+              {% if date_groups %}
+              <tr class="hf-header-row-1">
+                <th scope="col" class="hf-freeze hf-freeze-col-1-2 hf-freeze-header text-center" colspan="2">
+                  {{ t.branch_select|default:'Branch' }}
+                </th>
+                <th scope="col" class="hf-freeze hf-freeze-col-3 hf-freeze-header text-center">
+                  {{ t.warehouse_capacity|default:'Warehouse Capacity' }}
+                </th>
+                {% for group in date_groups %}
+                <th scope="col" class="hf-freeze-header text-center" colspan="{{  group.dates|length  }}">
+                  {{ group.label }}
+                </th>
+                {% endfor %}
+              </tr>
+              <tr class="hf-header-row-2">
+                <th scope="col" class="hf-freeze hf-freeze-col-1 hf-freeze-header text-center">
+                  {{ t.col_code|default:"Code" }}
+                </th>
+                <th scope="col" class="hf-freeze hf-freeze-col-2 hf-freeze-header text-center">
+                  {{ t.col_description|default:"Description" }}
+                </th>
+                <th scope="col" class="hf-freeze hf-freeze-col-3 hf-freeze-header text-center">
+                  {{ t.col_pallet|default:"Pallet" }}
+                </th>
+                {% for group in date_groups %}
+                {% for day in group.dates %}
+                <th scope="col" class="hf-freeze-header text-center">{{ day|date:"j" }}</th>
+                {% endfor %}
+                {% endfor %}
+              </tr>
+              {% else %}
+              <tr class="hf-header-row-1">
+                <th scope="col" class="hf-freeze hf-freeze-col-1 hf-freeze-header text-center" rowspan="1">
+                  {{ t.col_code|default:"Code" }}
+                </th>
+                <th scope="col" class="hf-freeze hf-freeze-col-2 hf-freeze-header text-center" rowspan="1">
+                  {{ t.col_description|default:"Description" }}
+                </th>
+                <th scope="col" class="hf-freeze hf-freeze-col-3 hf-freeze-header text-center" rowspan="1">
+                  {{ t.col_pallet|default:"Pallet" }}
+                </th>
+                {% for day in date_columns %}
+                <th scope="col" class="hf-freeze-header text-center">{{ day|date:"d M Y" }}</th>
+                {% endfor %}
+              </tr>
+              {% endif %}
+            </thead>
+
+            <tbody>
+              {% for row in percentage_rows %}
+              <tr>
+                <td class="hf-freeze hf-freeze-col-1">
+                  {{ row.branch_code }}
+                </td>
+                <td class="hf-freeze hf-freeze-col-2">
+                  {{ row.branch_description }}
+                </td>
+                <td class="hf-freeze hf-freeze-col-3 text-end">
+                  {{ row.warehouse_capacity|default:0 }}
+                </td>
+
+                {% for item in row.values %}
+                {% with percent=item.percent value=item.value %}
+                {% if percent < 30 %} <td class="hf-capacity-low" align="right">
+                  <div class="hf-cell-content">
+                    <span class="hf-box-value hf-capacity-low">{{ value }}</span>
+                    <span class="hf-box-percent hf-capacity-low"><b>{{ percent|floatformat:1 }}%</b></span>
+                  </div>
+                  </td>
+                  {% elif percent >= 70 and percent < 100 %} <td class="hf-capacity-medium" align="right">
+                    <div class="hf-cell-content">
+                      <span class="hf-box-value hf-capacity-medium">{{ value }}</span>
+                      <span class="hf-box-percent hf-capacity-medium"><b>{{ percent|floatformat:1 }}%</b></span>
+                    </div>
+                    </td>
+                    {% elif percent >= 100 %}
+                    <td class="hf-capacity-high" align="right">
+                      <div class="hf-cell-content">
+                        <span class="hf-box-value hf-capacity-high">{{ value }}</span>
+                        <span class="hf-box-percent hf-capacity-high"><b>{{ percent|floatformat:1 }}%</b></span>
+                      </div>
+                    </td>
+                    {% else %}
+                    <td class="hf-capacity-standard" align="right">
+                      <div class="hf-cell-content">
+                        <span class="hf-box-value hf-capacity-standard">{{ value }}</span>
+                        <span class="hf-box-percent hf-capacity-standard"><b>{{ percent|floatformat:1 }}%</b></span>
+                      </div>
+                    </td>
+                    {% endif %}
+                    {% endwith %}
+                    {% endfor %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% if omitted_zero_dates %}
+      <div class="alert alert-warning mt-3 mb-0">
+        {{ t.no_transaction_dates|default:"Tanggal berikut tidak ditampilkan karena semua branch bernilai 0 / 0%:" }}
+        {% for day in omitted_zero_dates %}
+        {% if not forloop.first %}, {% endif %}{{ day|date:"d M Y" }}
+        {% endfor %}
+      </div>
       {% endif %}
+    </div>
+    {% endif %}
     {% elif filters_applied %}
-      <div class="alert alert-info mb-0">
-        {{ t.no_data|default:"No Branch Stock summary is available for the selected range and filters." }}
-      </div>
+    <div class="alert alert-info mb-0">
+      {{ t.no_data|default:"No Branch Stock summary is available for the selected range and filters." }}
+    </div>
     {% else %}
-      <div class="alert alert-secondary mb-0">
-        {{ t.select_branch_and_date|default:"Please select Branch and date range then press Apply to view the summary." }}
-      </div>
+    <div class="alert alert-secondary mb-0">
+      {{ t.select_branch_and_date|default:"Please select Branch and date range then press Apply to view the summary." }}
+    </div>
     {% endif %}
   </div>
 </div>
@@ -773,7 +718,7 @@
 
     initHorizontalScrollSync();
   })();
-  
+
   (function () {
     const btn = document.getElementById('btn-export');
     const form = document.querySelector('form');
@@ -788,22 +733,22 @@
       const selectedBranches = $('#branch_id').val();
 
       if (!selectedBranches || selectedBranches.length === 0) {
-        errors.push("{{ t.branch_select_alert|default:'Branch Required' }}");
+        errors.push("{{  t.branch_select_alert|default:'Branch Required'  }}");
       }
 
       if (!startDate.value) {
-        errors.push("{{ t.start_date_alert|default:'Start Date Required' }}");
+        errors.push("{{  t.start_date_alert|default:'Start Date Required'  }}");
       }
 
       if (!endDate.value) {
-        errors.push("{{ t.end_date_alert|default:'End Date Required' }}");
+        errors.push("{{  t.end_date_alert|default:'End Date Required'  }}");
       }
 
       if (errors.length > 0) {
         event.preventDefault();
         Swal.fire({
           icon: 'warning',
-          title: "{{ t.export_excel_alert|default:'Warning' }}",
+          title: "{{  t.export_excel_alert|default:'Warning'  }}",
           html: errors.map(err => `• ${err}`).join('<br>'),
           confirmButtonText: 'OK',
           confirmButtonColor: '#3085d6'

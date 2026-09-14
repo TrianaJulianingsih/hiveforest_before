@@ -26,7 +26,7 @@
 
           {% if authenticator_qr_base64 %}
             <div class="text-center mb-3">
-              <img src="data:image/png;base64,{{ authenticator_qr_base64 }}" alt="Authenticator QR" style="max-width:220px; width:100%;" />
+              <img src="data:image/png;base64,{{  authenticator_qr_base64  }}" alt="Authenticator QR" style="max-width:220px; width:100%;" />
             </div>
           {% else %}
             <div class="alert alert-info">
@@ -36,22 +36,22 @@
 
           <!--  <div class="alert alert-secondary">
             <strong>Setup Key:</strong><br />
-            <code style="word-break: break-all;">{{ authenticator_secret }}</code>
+            <code style="word-break: break-all;">{{  authenticator_secret  }}</code>
           </div>
 
           <div class="alert alert-light">
             <strong>Setup URI:</strong><br />
-            <code style="word-break: break-all;">{{ authenticator_uri }}</code>
+            <code style="word-break: break-all;">{{  authenticator_uri  }}</code>
           </div>  -->
 
           {% if form.non_field_errors %}
-            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            <div class="alert alert-danger">{{  form.non_field_errors  }}</div>
           {% endif %}
 
           <form method="post">
             {% csrf_token %}
             <div class="input-group mb-3">
-              {{ form.otp_code }}
+              {{  form.otp_code  }}
               <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-shield-alt"></span>
@@ -60,7 +60,7 @@
             </div>
             {% if form.otp_code.errors %}
               <div class="alert alert-danger py-2">
-                {{ form.otp_code.errors|striptags }}
+                {{  form.otp_code.errors|striptags  }}
               </div>
             {% endif %}
             <button type="submit" class="btn btn-primary btn-block">

@@ -10,7 +10,6 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('analytics', '0000_create_schema'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 

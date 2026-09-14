@@ -21,6 +21,12 @@ def get_filtered_model(user, model, permission_model, *args, **kwargs):
     Returns:
         QuerySet: A filtered QuerySet for the given model.
     """
+    if user is None or not hasattr(user, 'is_authenticated') or not user.is_authenticated:
+        return model.objects.none()
+
+    if getattr(user, 'is_superuser', False):
+        return model.objects.all()
+
     # Fetch roles for the user
     groups = Group.objects.filter(user=user)
     roles = Role.objects.filter(user=user) | Role.objects.filter(group__in=groups)
@@ -51,38 +57,40 @@ def get_filtered_model(user, model, permission_model, *args, **kwargs):
     return model.objects.filter(**filters)
 
 def get_permitted_distributors(user):
-    if user is None or not hasattr(user, 'is_authenticated'):
+    if user is None or not hasattr(user, 'is_authenticated') or not user.is_authenticated:
         return Distributor.objects.none()
     
-    if user.is_authenticated:
-        groups = Group.objects.filter(user=user)
-        roles = Role.objects.filter(user=user) | Role.objects.filter(group__in=groups)
+    if getattr(user, 'is_superuser', False):
+        return Distributor.objects.all()
 
-        # Check if the user has a role that allows access to all distributors
-        if SCMPermission.objects.filter(role__in=roles, distributor_state='allow_all').exists():
-            return Distributor.objects.all()
+    groups = Group.objects.filter(user=user)
+    roles = Role.objects.filter(user=user) | Role.objects.filter(group__in=groups)
 
-        # Otherwise, filter by specific permissions
-        permitted_ids = SCMPermission.objects.filter(role__in=roles).values_list('distributor', flat=True)
-        return Distributor.objects.filter(id__in=permitted_ids)
-    return Distributor.objects.none()
+    # Check if the user has a role that allows access to all distributors
+    if SCMPermission.objects.filter(role__in=roles, distributor_state='allow_all').exists():
+        return Distributor.objects.all()
+
+    # Otherwise, filter by specific permissions
+    permitted_ids = SCMPermission.objects.filter(role__in=roles).values_list('distributor', flat=True)
+    return Distributor.objects.filter(id__in=permitted_ids)
 
 def get_permitted_branches(user):
-    if user is None or not hasattr(user, 'is_authenticated'):
+    if user is None or not hasattr(user, 'is_authenticated') or not user.is_authenticated:
         return Branch.objects.none()
     
-    if user.is_authenticated:
-        groups = Group.objects.filter(user=user)
-        roles = Role.objects.filter(user=user) | Role.objects.filter(group__in=groups)
+    if getattr(user, 'is_superuser', False):
+        return Branch.objects.all()
 
-        # Check if the user has a role that allows access to all branches
-        if SCMPermission.objects.filter(role__in=roles, branch_state='allow_all').exists():
-            return Branch.objects.all()
+    groups = Group.objects.filter(user=user)
+    roles = Role.objects.filter(user=user) | Role.objects.filter(group__in=groups)
 
-        # Otherwise, filter by specific permissions
-        permitted_ids = SCMPermission.objects.filter(role__in=roles).values_list('branch', flat=True)
-        return Branch.objects.filter(id__in=permitted_ids)
-    return Branch.objects.none()
+    # Check if the user has a role that allows access to all branches
+    if SCMPermission.objects.filter(role__in=roles, branch_state='allow_all').exists():
+        return Branch.objects.all()
+
+    # Otherwise, filter by specific permissions
+    permitted_ids = SCMPermission.objects.filter(role__in=roles).values_list('branch', flat=True)
+    return Branch.objects.filter(id__in=permitted_ids)
 
 def prepare_import(row, model):
     if not model.objects.filter(code=row['code']).exists():

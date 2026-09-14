@@ -1,4 +1,4 @@
-from apps.analytics.models.iqvia import (
+from apps.analytics.models.iqvia_models import (
     IQV_ATC1,
     IQV_ATC2,
     IQV_ATC3,

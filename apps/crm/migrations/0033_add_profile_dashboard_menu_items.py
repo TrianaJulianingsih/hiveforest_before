@@ -36,14 +36,10 @@ NEW_MENU_ITEMS = [
 
 def add_menu_items(apps, schema_editor):
     MenuItem = apps.get_model("cms", "MenuItem")
-    # CR100/CR200 are seeded outside of migrations (e.g. via a one-time
-    # production data setup). On a database that never had that seed step
-    # (such as a fresh local install), there's nothing to attach these
-    # dashboard entries to, so skip instead of failing.
-    existing = {mi.code: mi for mi in MenuItem.objects.filter(code__in=["CR100", "CR200"])}
-    if "CR100" not in existing or "CR200" not in existing:
-        return
-    reference = existing
+    reference = {
+        "CR100": MenuItem.objects.get(code="CR100"),
+        "CR200": MenuItem.objects.get(code="CR200"),
+    }
 
     for item in NEW_MENU_ITEMS:
         ref = reference[item["application_code"]]

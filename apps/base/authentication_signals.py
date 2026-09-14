@@ -12,8 +12,7 @@ User = get_user_model()
 
 @receiver(post_save, sender=User)
 def create_user_authentication_profile(sender, instance, created, **kwargs):
-    if created:
-        get_or_create_user_authentication(instance)
+    get_or_create_user_authentication(instance)
 
 
 @receiver(user_logged_out)

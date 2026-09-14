@@ -8,4 +8,4 @@ class CmsConfig(AppConfig):
 
     def ready(self):
         import apps.cms.translation  # Register modeltranslation        
-        import apps.cms.signals.structures  # Import the signals module
+        import apps.cms.signals.structures_signals  # Import the signals module

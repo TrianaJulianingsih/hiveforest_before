@@ -4,14 +4,14 @@
 {% load import_export_tags %}
 {% load static %}
 
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static 'import_export/import.css' %}" />{% endblock %}
+{% block extrastyle %}{{  block.super  }}<link rel="stylesheet" type="text/css" href="{% static 'import_export/import.css' %}" />{% endblock %}
 
-{% block extrahead %}{{ block.super }}
+{% block extrahead %}{{  block.super  }}
   <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
   {% if confirm_form %}
-    {{ confirm_form.media }}
+    {{  confirm_form.media  }}
   {% else %}
-    {{ form.media }}
+    {{  form.media  }}
   {% endif %}
 {% endblock %}
 
@@ -25,7 +25,7 @@
     {% block confirm_import_form %}
     <form action="{% url opts|admin_urlname:"process_import" %}" method="POST">
       {% csrf_token %}
-      {{ confirm_form.as_p }}
+      {{  confirm_form.as_p  }}
       <p>
         {% translate "Below is a preview of data to be imported. If you are satisfied with the results, click 'Confirm import'" %}
       </p>
@@ -46,24 +46,24 @@
           <fieldset class="module aligned">
           {% for field in form.visible_fields %}
             <div class="form-row">
-              {{ field.errors }}
+              {{  field.errors  }}
 
-              {{ field.label_tag }}
+              {{  field.label_tag  }}
 
               {% if field.field.widget.attrs.readonly %}
-                {{ field.field.value }}
-                {{ field.as_hidden }}
+                {{  field.field.value  }}
+                {{  field.as_hidden  }}
               {% else %}
-                {{ field }}
+                {{  field  }}
               {% endif %}
 
               {% if field.field.help_text %}
-              <p class="help">{{ field.field.help_text|safe }}</p>
+              <p class="help">{{  field.field.help_text|safe  }}</p>
               {% endif %}
             </div>
           {% endfor %}
           {% for field in form.hidden_fields %}
-              {{ field }}
+              {{  field  }}
           {% endfor %}
         </fieldset>
       {% endblock %}
@@ -85,8 +85,8 @@
       <ul>
         {% for error in result.base_errors  %}
         <li>
-          {{ error.error }}
-          <div class="traceback">{{ error.traceback|linebreaks }}</div>
+          {{  error.error  }}
+          <div class="traceback">{{  error.traceback|linebreaks  }}</div>
         </li>
         {% endfor %}
         {% block import_error_list %}
@@ -95,13 +95,13 @@
             {% block import_error_list_item %}
             <li class="import-error-li">
               {% if "message" in import_error_display %}
-                <div class="import-error-display-message">{% translate "Line number" %}: {{ line }} - {{ error.error }}</div>
+                <div class="import-error-display-message">{% translate "Line number" %}: {{  line  }} - {{  error.error  }}</div>
               {% endif %}
               {% if "row" in import_error_display %}
-                <div class="import-error-display-row">{{ error.row.values|join:", " }}</div>
+                <div class="import-error-display-row">{{  error.row.values|join:", "  }}</div>
               {% endif %}
               {% if "traceback" in import_error_display %}
-              <div class="import-error-display-traceback">{{ error.traceback|linebreaks }}</div>
+              <div class="import-error-display-traceback">{{  error.traceback|linebreaks  }}</div>
               {% endif %}
             </li>
             {% endblock %}
@@ -124,24 +124,24 @@
             <th>{% translate "Row" %}</th>
             <th>{% translate "Errors" %}</th>
             {% for field in result.diff_headers %}
-              <th>{{ field }}</th>
+              <th>{{  field  }}</th>
             {% endfor %}
           </tr>
         </thead>
         <tbody>
         {% for row in result.invalid_rows %}
           <tr>
-            <td>{{ row.number }} </td>
+            <td>{{  row.number  }} </td>
             <td class="errors">
-              <span class="validation-error-count">{{ row.error_count }}</span>
+              <span class="validation-error-count">{{  row.error_count  }}</span>
               <div class="validation-error-container">
                 <ul class="validation-error-list">
                   {% for field_name, error_list in row.field_specific_errors.items %}
                     <li>
-                        <span class="validation-error-field-label">{{ field_name }}</span>
+                        <span class="validation-error-field-label">{{  field_name  }}</span>
                         <ul>
                           {% for error in error_list %}
-                            <li>{{ error }}</li>
+                            <li>{{  error  }}</li>
                           {% endfor %}
                         </ul>
                     </li>
@@ -151,7 +151,7 @@
                       <span class="validation-error-field-label">{% translate "Non field specific" %}</span>
                       <ul>
                         {% for error in row.non_field_specific_errors %}
-                          <li>{{ error }}</li>
+                          <li>{{  error  }}</li>
                         {% endfor %}
                       </ul>
                     </li>
@@ -160,7 +160,7 @@
               </div>
             </td>
             {% for field in row.values %}
-              <td>{{ field }}</td>
+              <td>{{  field  }}</td>
             {% endfor %}
           </tr>
         {% endfor %}
@@ -178,12 +178,12 @@
           <tr>
             <th></th>
             {% for field in result.diff_headers %}
-              <th>{{ field }}</th>
+              <th>{{  field  }}</th>
             {% endfor %}
           </tr>
         </thead>
         {% for row in result.valid_rows %}
-          <tr class="{{ row.import_type }}">
+          <tr class="{{  row.import_type  }}">
             <td class="import-type">
               {% if row.import_type == 'new' %}
                 {% translate "New" %}
@@ -196,7 +196,7 @@
               {% endif %}
             </td>
             {% for field in row.diff %}
-              <td>{{ field }}</td>
+              <td>{{  field  }}</td>
             {% endfor %}
           </tr>
         {% endfor %}

@@ -1,7 +1,9 @@
 {% extends "main.html" %}
+{% load static %}
 
 {% block datatable_css %}
-  {{ block.super }}
+  {{  block.super  }}
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap-multiselect/bootstrap-multiselect.css' %}">
   <style>
     .tmbg-report-wrapper {
       max-height: 74vh;
@@ -211,6 +213,13 @@
       font-size: 0.85rem;
     }
 
+    /* Result sits above the filters; the divider only shows once it has content. */
+    #report-result-content:not(:empty) {
+      border-bottom: 2px solid #dee2e6;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+    }
+
     .report-column-filters {
       border-top: 1px solid #dee2e6;
       padding-top: .75rem;
@@ -250,16 +259,34 @@
       margin-left: .35rem;
     }
 
-    .report-column-filters .select2-container {
+    .report-column-filters .btn-group,
+    .report-column-filters .multiselect {
       width: 100% !important;
     }
 
-    /* Let multi-select chips wrap so the box grows when many are picked.
-       The Select2 base sets white-space:nowrap here (chips forced to one line,
-       box stays static); overflow:hidden is kept because it makes the box
-       contain the floated chips as they wrap. */
-    .report-column-filters .select2-container--bootstrap4 .select2-selection--multiple .select2-selection__rendered {
-      white-space: normal;
+    .report-column-filters .multiselect {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 38px;
+      overflow: hidden;
+      text-align: left;
+    }
+
+    .report-column-filters .multiselect-selected-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .report-column-filters .multiselect-container {
+      min-width: 100%;
+    }
+
+    /* custom.css forces dropdown items to display:flex !important. Honor the
+       plugin's search state so nonmatching options actually disappear. */
+    .report-column-filters .multiselect-container.dropdown-menu .multiselect-filter-hidden {
+      display: none !important;
     }
 
     .model-filter-shell {
@@ -272,16 +299,6 @@
       font-weight: 600;
     }
 
-    #model-selection-panel .cibg-product-filter {
-      background: #f8f9fa;
-      border: 1px solid #dee2e6;
-      border-radius: .25rem;
-      padding: .75rem;
-    }
-
-    #model-selection-panel .cibg-product-filter .select2-container {
-      width: 100% !important;
-    }
   </style>
   <style>
     /* ── Region View: wrapper is the single scroll container ── */
@@ -577,17 +594,6 @@
      *  UI CONTROLS (filters, tabs, etc.)
      * ═══════════════════════════════════════════ */
 
-    .cibg-product-filter {
-      background: #f8f9fa;
-      border: 1px solid #dee2e6;
-      border-radius: .25rem;
-      padding: .75rem;
-    }
-
-    .cibg-product-filter .select2-container {
-      width: 100% !important;
-    }
-
     .cibg-sheet-tabs {
       border-bottom: 2px solid #6c757d;
       flex-wrap: nowrap;
@@ -631,7 +637,7 @@
       <h1 class="card-title">
         <b id="report-title">
           {% if report_ready %}
-            {% if selected_model == "cibg" %}Region View{% else %}Period View{% endif %} - {{ selected_year }}
+            {% if selected_model == "cibg" %}Region View{% else %}Period View{% endif %} - {{  selected_year  }}
           {% else %}
             Sellingout Reports
           {% endif %}
@@ -640,6 +646,12 @@
     </div>
 
     <div class="card-body">
+      {% if report_ready %}
+        {% include "sales/reports/_sellingout_result.html" %}
+      {% else %}
+        <div id="report-result-content"></div>
+      {% endif %}
+
       <div id="model-selection-wrapper" class="model-filter-shell"{% if selected_model %} style="display: none;"{% endif %}>
         <form method="get" id="model-selection-form" class="form-row align-items-end mb-3">
           <div class="form-group col-md-5 mb-0">
@@ -647,7 +659,7 @@
             <select id="report-model" name="model" class="form-control" required>
               <option value="">Select display model</option>
               {% for model in model_choices %}
-                <option value="{{ model.value }}">{{ model.label }}</option>
+                <option value="{{  model.value  }}">{{  model.label  }}</option>
               {% endfor %}
             </select>
             <small class="form-text text-muted">
@@ -660,23 +672,21 @@
 
       {% if selected_model == "cibg" or selected_model == "tmbg" %}
         {% include "sales/reports/_sellingout_filters.html" %}
-        {% if report_ready %}
-          {% include "sales/reports/_sellingout_result.html" %}
-        {% endif %}
       {% endif %}
     </div>
   </div>
 {% endblock %}
 
 {% block extra_js %}
-  {{ block.super }}
+  {{  block.super  }}
+  <script src="{% static 'vendor/bootstrap-multiselect/bootstrap-multiselect.min.js' %}"></script>
   <script>
     // Sellingout reports shared behavior.
     (function ($) {
       const reportUrl = "{% url 'sales:sellingout_reports' %}";
       const filterOptionsUrl = "{% url 'sales:sellingout_filter_options' %}";
       const yearOptionsUrl = "{% url 'sales:sellingout_year_options' %}";
-      const pageReportReady = "{{ report_ready|yesno:'true,false' }}" === 'true';
+      const pageReportReady = "{{  report_ready|yesno:'true,false'  }}" === 'true';
 
       function elementsWithin(root, selector) {
         const $root = $(root);
@@ -685,6 +695,40 @@
 
       function selectedValues($select) {
         return ($select.val() || []).map(String);
+      }
+
+      // Same plugin and options as Area Matrix / Territory Assignment.
+      function initFilterMultiselect($select) {
+        const label = $select.data('placeholder') || 'Select';
+        $select.multiselect({
+          includeSelectAllOption: true,
+          enableFiltering: true,
+          enableCaseInsensitiveFiltering: true,
+          buttonWidth: '100%',
+          maxHeight: 300,
+          nonSelectedText: label,
+          allSelectedText: label,
+          numberDisplayed: 1,
+        });
+        $select.data('hjp-multiselect', true);
+      }
+
+      // buildFilter() only attaches the search box when the select already has
+      // options, so the first init must wait until they arrive.
+      function syncFilterMultiselect($select) {
+        if ($select.data('hjp-multiselect')) {
+          $select.multiselect('rebuild');
+        } else if ($select.find('option').length) {
+          initFilterMultiselect($select);
+        }
+      }
+
+      function setMultiselectEnabled($select, isEnabled) {
+        if ($select.data('hjp-multiselect')) {
+          $select.multiselect(isEnabled ? 'enable' : 'disable');
+          return;
+        }
+        $select.prop('disabled', !isEnabled);
       }
 
       function buildReportUrl($form) {
@@ -751,6 +795,9 @@
         }
 
         currentResult.replaceWith(incomingResult);
+
+        // The result renders above the submit button, so it lands off-screen.
+        incomingResult.scrollIntoView({behavior: 'smooth', block: 'start'});
 
         const reportTitle = incomingResult.getAttribute('data-report-title');
         if (reportTitle) {
@@ -863,13 +910,7 @@
           || pageReportReady;
 
         $form.find('.report-filter-select').each(function () {
-          $(this).select2({
-            theme: 'bootstrap4',
-            width: '100%',
-            placeholder: $(this).data('placeholder'),
-            allowClear: true,
-            closeOnSelect: false,
-          });
+          syncFilterMultiselect($(this));
         });
 
         function updateFilterCount() {
@@ -886,7 +927,7 @@
           options.forEach(function (option) {
             $select.append(new Option(option.label, option.id, false, false));
           });
-          $select.val(null).trigger('change.select2');
+          syncFilterMultiselect($select);
           updateFilterCount();
         }
 
@@ -896,7 +937,7 @@
               // Keep the select the user is actively picking in open/enabled.
               return;
             }
-            $(this).prop('disabled', isLoading);
+            setMultiselectEnabled($(this), !isLoading);
           });
           if (isLoading) {
             $feedback.text('Updating filters...');
@@ -995,20 +1036,14 @@
         const reportReady = String($form.data('report-ready')) === 'true'
           || pageReportReady;
 
-        $product.select2({
-          theme: 'bootstrap4',
-          width: '100%',
-          placeholder: $product.data('placeholder'),
-          allowClear: true,
-          closeOnSelect: false,
-        });
+        syncFilterMultiselect($product);
 
         function replaceProductOptions(options) {
           $product.empty();
           options.forEach(function (option) {
             $product.append(new Option(option.label, option.id, false, false));
           });
-          $product.val(null).trigger('change.select2');
+          syncFilterMultiselect($product);
         }
 
         function loadProductOptions() {
@@ -1018,7 +1053,7 @@
             params.append('business_id', $business.val());
           }
 
-          $product.prop('disabled', true);
+          setMultiselectEnabled($product, false);
           $feedback.text('Updating product options...');
           fetch(filterOptionsUrl + '?' + params.toString(), {
             method: 'GET',
@@ -1038,7 +1073,7 @@
               $feedback.text(error.message);
             })
             .finally(function () {
-              $product.prop('disabled', false);
+              setMultiselectEnabled($product, true);
             });
         }
 

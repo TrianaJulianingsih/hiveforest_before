@@ -111,11 +111,11 @@
 
 {% block content %}
 {% get_translations 'analytics_trendline' as t %}
-{{ dimension_groups|json_script:"hf-dimension-data" }}
+{{  dimension_groups|json_script:"hf-dimension-data"  }}
 
 <div class="card card-primary card-outline hiveforest">
   <div class="card-header">
-    <h3 class="card-title"><i class="fas fa-chart-area mr-2"></i>{{ t.page_title }}</h3>
+    <h3 class="card-title"><i class="fas fa-chart-area mr-2"></i>{{  t.page_title  }}</h3>
   </div>
   <div class="card-body hiveforest">
     <div class="hf-wrap">
@@ -124,12 +124,12 @@
 
         <div class="hf-panel">
           <div class="hf-section hf-collapse-head" data-target="#hf-yaxis-body">
-            <span>{{ t.y_axis }}</span><i class="fas fa-chevron-down"></i>
+            <span>{{  t.y_axis  }}</span><i class="fas fa-chevron-down"></i>
           </div>
           <div id="hf-yaxis-body">
             <div class="row">
               <div class="col-md-3 mb-2">
-                <label class="hf-label">{{ t.dimension }}</label>
+                <label class="hf-label">{{  t.dimension  }}</label>
                 <div class="hf-cascade" id="hf-dim-cascade">
                   <button type="button" class="form-control form-control-sm hf-cascade-toggle"
                           id="hf-dim-toggle">
@@ -144,26 +144,26 @@
                 <input type="hidden" id="hf-dimension" value="">
               </div>
               <div class="col-md-3 mb-2">
-                <label class="hf-label">{{ t.measure }}</label>
+                <label class="hf-label">{{  t.measure  }}</label>
                 <select id="hf-measure" class="form-control form-control-sm">
-                  {% for m in measures %}<option value="{{ m.key }}">{{ m.label }}</option>{% endfor %}
+                  {% for m in measures %}<option value="{{  m.key  }}">{{  m.label  }}</option>{% endfor %}
                 </select>
               </div>
               <div class="col-md-3 mb-2">
-                <label class="hf-label">{{ t.max_lines }}</label>
+                <label class="hf-label">{{  t.max_lines  }}</label>
                 <select id="hf-limit" class="form-control form-control-sm">
-                  <option value="all">{{ t.opt_all }}</option>
+                  <option value="all">{{  t.opt_all  }}</option>
                   {% for n in top_limits %}
-                    <option value="{{ n }}" {% if n == 10 %}selected{% endif %}>{{ t.opt_top }} {{ n }}</option>
+                    <option value="{{  n  }}" {% if n == 10 %}selected{% endif %}>{{  t.opt_top  }} {{  n  }}</option>
                   {% endfor %}
-                  <option value="0">{{ t.opt_combined_total }}</option>
-                  <option value="pick">{{ t.opt_selected_items }}</option>
+                  <option value="0">{{  t.opt_combined_total  }}</option>
+                  <option value="pick">{{  t.opt_selected_items  }}</option>
                 </select>
               </div>
               <div class="col-md-3 mb-2">
                 <label class="hf-label invisible">&nbsp;</label>
                 <button type="button" id="hf-pick-btn" class="btn btn-sm btn-primary btn-block invisible">
-                  <i class="fas fa-list-ul mr-1"></i><span id="hf-pick-text">{{ t.btn_choose }}</span>
+                  <i class="fas fa-list-ul mr-1"></i><span id="hf-pick-text">{{  t.btn_choose  }}</span>
                   <span id="hf-pick-count" class="badge badge-light ml-1">0</span>
                 </button>
               </div>
@@ -175,45 +175,45 @@
 
         <div class="hf-panel">
           <div class="hf-section hf-collapse-head" data-target="#hf-xaxis-body">
-            <span>{{ t.x_axis }}</span><i class="fas fa-chevron-down"></i>
+            <span>{{  t.x_axis  }}</span><i class="fas fa-chevron-down"></i>
           </div>
           <div id="hf-xaxis-body">
             <div class="row">
               <div class="col-md-5">
-                <label class="hf-label">{{ t.year }}</label>
+                <label class="hf-label">{{  t.year  }}</label>
                 <div class="form-inline">
-                  <span class="small text-muted mr-2">{{ t.lbl_from }}</span>
+                  <span class="small text-muted mr-2">{{  t.lbl_from  }}</span>
                   <select id="hf-year-from" class="form-control form-control-sm mr-3"
                           style="width:100px;">
-                    {% for y in years %}<option value="{{ y }}">{{ y }}</option>{% endfor %}
+                    {% for y in years %}<option value="{{  y  }}">{{  y  }}</option>{% endfor %}
                   </select>
-                  <span class="small text-muted mr-2">{{ t.lbl_to }}</span>
+                  <span class="small text-muted mr-2">{{  t.lbl_to  }}</span>
                   <select id="hf-year-to" class="form-control form-control-sm" style="width:100px;">
                     {% for y in years %}
-                      <option value="{{ y }}" {% if forloop.last %}selected{% endif %}>{{ y }}</option>
+                      <option value="{{  y  }}" {% if forloop.last %}selected{% endif %}>{{  y  }}</option>
                     {% endfor %}
                   </select>
                 </div>
               </div>
               <div class="col-md-7 hf-option-side">
-                <label class="hf-label">{{ t.option }}</label>
+                <label class="hf-label">{{  t.option  }}</label>
                 <div class="custom-control custom-radio mb-1">
                   <input type="radio" id="hf-base-year" name="hf-base" value="year"
                          class="custom-control-input" checked>
-                  <label class="custom-control-label" for="hf-base-year">{{ t.opt_yearly }}</label>
+                  <label class="custom-control-label" for="hf-base-year">{{  t.opt_yearly  }}</label>
                 </div>
                 <div class="custom-control custom-radio mb-1">
                   <input type="radio" id="hf-base-quarter" name="hf-base" value="quarter"
                          class="custom-control-input">
-                  <label class="custom-control-label" for="hf-base-quarter">{{ t.opt_quarterly }}</label>
+                  <label class="custom-control-label" for="hf-base-quarter">{{  t.opt_quarterly  }}</label>
                 </div>
                 <div class="custom-control custom-radio d-flex align-items-center flex-wrap">
                   <input type="radio" id="hf-base-mat" name="hf-base" value="mat"
                          class="custom-control-input">
-                  <label class="custom-control-label mr-2" for="hf-base-mat">{{ t.opt_mat }}</label>
+                  <label class="custom-control-label mr-2" for="hf-base-mat">{{  t.opt_mat  }}</label>
                   <select id="hf-mat-anchor" class="form-control form-control-sm invisible"
                           style="width:90px;">
-                    <option value="">{{ t.opt_all }}</option>
+                    <option value="">{{  t.opt_all  }}</option>
                     <option value="1">Q1</option>
                     <option value="2">Q2</option>
                     <option value="3">Q3</option>
@@ -228,19 +228,19 @@
         <div id="hf-filter-panel" class="hf-panel">
           <button type="button" class="btn btn-sm btn-primary"
                   data-toggle="modal" data-target="#hf-filter-modal">
-            <i class="fas fa-filter mr-1"></i> {{ t.btn_open_filter }}
+            <i class="fas fa-filter mr-1"></i> {{  t.btn_open_filter  }}
             <span id="hf-filter-count" class="badge badge-light ml-1">0</span>
           </button>
-          <p class="hf-hint">{{ t.hint_filter }}</p>
+          <p class="hf-hint">{{  t.hint_filter  }}</p>
           <div id="hf-chip-area"></div>
         </div>
 
         <div class="text-right">
           <button type="button" id="hf-reset" class="btn btn-sm btn-secondary">
-            <i class="fas fa-sync-alt mr-1"></i> {{ t.btn_reset }}
+            <i class="fas fa-sync-alt mr-1"></i> {{  t.btn_reset  }}
           </button>
           <button type="button" id="hf-apply" class="btn btn-sm btn-primary">
-            <i class="fas fa-table mr-1"></i> {{ t.btn_display_report }}
+            <i class="fas fa-table mr-1"></i> {{  t.btn_display_report  }}
           </button>
         </div>
 
@@ -253,25 +253,25 @@
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header bg-primary">
-        <h5 class="modal-title text-white"><i class="fas fa-filter mr-2"></i>{{ t.modal_filter_title }}</h5>
+        <h5 class="modal-title text-white"><i class="fas fa-filter mr-2"></i>{{  t.modal_filter_title  }}</h5>
         <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
       </div>
       <div class="modal-body">
         <div class="row">
           <div class="col-md-5 border-right hf-dim-side">
-            <label class="hf-label">{{ t.dimension }}</label>
+            <label class="hf-label">{{  t.dimension  }}</label>
             <div id="hf-dim-list" class="hf-dim-list"></div>
           </div>
           <div class="col-md-7 hf-opt-side">
-            <label class="hf-label" id="hf-panel-title">{{ t.lbl_select_dimension }}</label>
+            <label class="hf-label" id="hf-panel-title">{{  t.lbl_select_dimension  }}</label>
             <div id="hf-panel">
-              <p class="text-muted small">{{ t.msg_pick_dimension }}</p>
+              <p class="text-muted small">{{  t.msg_pick_dimension  }}</p>
             </div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-sm btn-primary" data-dismiss="modal">{{ t.btn_done }}</button>
+        <button type="button" class="btn btn-sm btn-primary" data-dismiss="modal">{{  t.btn_done  }}</button>
       </div>
     </div>
   </div>
@@ -283,30 +283,30 @@
 $(function () {
   {% get_translations 'analytics_trendline' as t %}
   var T = {
-    notRelated: "{{ t.js_not_related|escapejs }}",
-    notRelatedTo: "{{ t.js_not_related_to|escapejs }}",
-    loading: "{{ t.js_loading|escapejs }}",
-    searchPlaceholder: "{{ t.js_search_placeholder|escapejs }}",
-    items: "{{ t.js_items|escapejs }}",
-    typeAtLeast: "{{ t.js_type_at_least|escapejs }}",
-    charsToList: "{{ t.js_chars_to_list|escapejs }}",
-    showingFirst: "{{ t.js_showing_first|escapejs }}",
-    selectAll: "{{ t.js_select_all|escapejs }}",
-    none: "{{ t.js_none|escapejs }}",
-    noMatching: "{{ t.js_no_matching|escapejs }}",
-    errNoResp: "{{ t.js_err_no_resp|escapejs }}",
-    errServer: "{{ t.js_err_server|escapejs }}",
-    errDenied: "{{ t.js_err_denied|escapejs }}",
-    errNotFound: "{{ t.js_err_not_found|escapejs }}",
-    errSession: "{{ t.js_err_session|escapejs }}",
-    errPickOne: "{{ t.js_err_pick_one|escapejs }}",
-    errValidYear: "{{ t.js_err_valid_year|escapejs }}",
-    buildingChart: "{{ t.js_building_chart|escapejs }}",
-    seriesOver: "{{ t.js_series_over|escapejs }}",
-    periods: "{{ t.js_periods|escapejs }}",
-    fullscreen: "{{ t.js_fullscreen|escapejs }}",
-    export: "{{ t.js_export|escapejs }}",
-    btnChoose: "{{ t.btn_choose|escapejs }}"
+    notRelated: "{{  t.js_not_related|escapejs  }}",
+    notRelatedTo: "{{  t.js_not_related_to|escapejs  }}",
+    loading: "{{  t.js_loading|escapejs  }}",
+    searchPlaceholder: "{{  t.js_search_placeholder|escapejs  }}",
+    items: "{{  t.js_items|escapejs  }}",
+    typeAtLeast: "{{  t.js_type_at_least|escapejs  }}",
+    charsToList: "{{  t.js_chars_to_list|escapejs  }}",
+    showingFirst: "{{  t.js_showing_first|escapejs  }}",
+    selectAll: "{{  t.js_select_all|escapejs  }}",
+    none: "{{  t.js_none|escapejs  }}",
+    noMatching: "{{  t.js_no_matching|escapejs  }}",
+    errNoResp: "{{  t.js_err_no_resp|escapejs  }}",
+    errServer: "{{  t.js_err_server|escapejs  }}",
+    errDenied: "{{  t.js_err_denied|escapejs  }}",
+    errNotFound: "{{  t.js_err_not_found|escapejs  }}",
+    errSession: "{{  t.js_err_session|escapejs  }}",
+    errPickOne: "{{  t.js_err_pick_one|escapejs  }}",
+    errValidYear: "{{  t.js_err_valid_year|escapejs  }}",
+    buildingChart: "{{  t.js_building_chart|escapejs  }}",
+    seriesOver: "{{  t.js_series_over|escapejs  }}",
+    periods: "{{  t.js_periods|escapejs  }}",
+    fullscreen: "{{  t.js_fullscreen|escapejs  }}",
+    export: "{{  t.js_export|escapejs  }}",
+    btnChoose: "{{  t.btn_choose|escapejs  }}"
   };
 
   var OPTIONS_URL = "{% url 'analytics:iqvia_options' %}";
@@ -896,8 +896,8 @@ $(function () {
 // Standalone panel toolbar, independent from the main script above
 (function () {
   {% get_translations 'analytics_trendline' as t %}
-  var errDisplayFirst = "{{ t.js_err_display_first|escapejs }}";
-  var errNoFullscreen = "{{ t.js_err_no_fullscreen|escapejs }}";
+  var errDisplayFirst = "{{  t.js_err_display_first|escapejs  }}";
+  var errNoFullscreen = "{{  t.js_err_no_fullscreen|escapejs  }}";
 
   function ready(fn) {
     if (document.readyState !== 'loading') { fn(); }

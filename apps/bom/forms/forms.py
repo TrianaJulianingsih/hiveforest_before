@@ -1,0 +1,1 @@
+from .warehouse_palette_forms import WarehousePaletteForm

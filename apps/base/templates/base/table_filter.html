@@ -4,12 +4,12 @@
     <th>
         {% if col.type == 'text' %}
             <input type="text" class="form-control form-control-sm column-filter"
-                   data-column="{{ col.index }}" placeholder="{{ col.placeholder }}" />
+                   data-column="{{  col.index  }}" placeholder="{{  col.placeholder  }}" />
         {% elif col.type == 'dropdown' %}
             <select class="form-control form-control-sm column-filter"
-                    data-column="{{ col.index }}">
+                    data-column="{{  col.index  }}">
                 {% for option in col.options %}
-                    <option value="{{ option.value }}">{{ option.label }}</option>
+                    <option value="{{  option.value  }}">{{  option.label  }}</option>
                 {% endfor %}
             </select>
         {% endif %}

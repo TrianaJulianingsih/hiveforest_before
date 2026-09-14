@@ -11,27 +11,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Rename tabel lama ke tabel baru (no-op if the legacy 'users' app table
-        # never existed, e.g. on a fresh database - the next migration creates
-        # the table from scratch in that case).
+        # Rename tabel lama ke tabel baru
         migrations.RunSQL(
-            sql="""
-                DO $$
-                BEGIN
-                    IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'users_forcepasswordstatus')
-                       AND NOT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'base_forcepasswordstatus') THEN
-                        ALTER TABLE users_forcepasswordstatus RENAME TO base_forcepasswordstatus;
-                    END IF;
-                END $$;
-            """,
-            reverse_sql="""
-                DO $$
-                BEGIN
-                    IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'base_forcepasswordstatus')
-                       AND NOT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'users_forcepasswordstatus') THEN
-                        ALTER TABLE base_forcepasswordstatus RENAME TO users_forcepasswordstatus;
-                    END IF;
-                END $$;
-            """,
+            sql="ALTER TABLE users_forcepasswordstatus RENAME TO base_forcepasswordstatus;",
+            reverse_sql="ALTER TABLE base_forcepasswordstatus RENAME TO users_forcepasswordstatus;",
         ),
     ]
