@@ -169,3 +169,5 @@ cython_debug/
 # User-uploaded media - contain real user data, never commit
 /media/*
 !/media/.gitkeep
+
+.claude/*

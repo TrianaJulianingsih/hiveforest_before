@@ -31,10 +31,22 @@ def guard_production_commands(argv):
         )
 
 
+def apply_default_runserver_port(argv, default_port="8080"):
+    # This machine also runs a separate, unrelated HiveForest checkout on
+    # Django's default port 8000, so default `runserver` to 8080 here
+    # instead. Pass an explicit port/address (e.g. `runserver 8000`) to
+    # override.
+    if len(argv) >= 2 and argv[1] == "runserver":
+        has_addrport = any(not arg.startswith("-") for arg in argv[2:])
+        if not has_addrport:
+            argv.insert(2, default_port)
+
+
 def main():
     """Run administrative tasks."""
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cfg.settings")
     guard_production_commands(sys.argv)
+    apply_default_runserver_port(sys.argv)
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
