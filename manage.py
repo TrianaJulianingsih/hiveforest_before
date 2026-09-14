@@ -15,6 +15,17 @@ load_dotenv(BASE_DIR / ".env")
 PROTECTED_COMMANDS = {"migrate", "flush", "sqlflush", "loaddata"}
 
 
+def patch_runserver_default_port(argv):
+    """Default `runserver` to port 8080 instead of Django's usual 8000,
+    to avoid clashing with other local instances of this project."""
+    if len(argv) < 2 or argv[1] != "runserver":
+        return argv
+    has_addrport = any(not arg.startswith("-") for arg in argv[2:])
+    if has_addrport:
+        return argv
+    return argv[:2] + ["8080"] + argv[2:]
+
+
 def guard_production_commands(argv):
     if len(argv) < 2:
         return
@@ -34,6 +45,7 @@ def guard_production_commands(argv):
 def main():
     """Run administrative tasks."""
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cfg.settings")
+    sys.argv = patch_runserver_default_port(sys.argv)
     guard_production_commands(sys.argv)
     try:
         from django.core.management import execute_from_command_line

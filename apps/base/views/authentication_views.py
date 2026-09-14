@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.views.decorators.cache import never_cache
 
 from apps.base.models.authentication_models import AuthenticationMethod, AuthenticationResult
+from apps.base.models.password_policy import get_standard_passwords
 from apps.base.forms.authentication_forms import MFAVerificationForm
 from apps.base.services.audit_service import log_authentication_attempt
 from apps.base.services.authentication_service import get_login_context
@@ -56,6 +57,15 @@ class AuthenticationLoginView(LoginView):
                 failure_reason=str(exc),
             )
             return self.form_invalid(form)
+
+        # We have the raw password here (already verified correct by the form),
+        # so we can check it against the standard-passwords list with a cheap
+        # string comparison. Stashing the result now means ForcePasswordChangeMiddleware's
+        # fallback - re-verifying by calling check_password() once per candidate,
+        # each a slow deliberate hash - never has to run for local logins, which
+        # was adding several seconds to every first request after login.
+        raw_password = form.cleaned_data.get("password", "")
+        self.request.session["is_standard_password"] = raw_password.lower() in get_standard_passwords()
 
         if is_mfa_required(user):
             user_auth = get_or_create_user_authentication(user)

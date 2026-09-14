@@ -14,9 +14,9 @@ os.environ.setdefault("SSL_CERT_FILE", certifi.where())
 
 def env_bool(name: str, default: bool = False) -> bool:
     value = os.environ.get(name)
-    if value is None:
+    if value is None or value.strip() == "":
         return default
-    return str(value).strip().lower() in ("1", "true", "yes", "on")
+    return value.strip().lower() in ("1", "true", "yes", "on")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -125,11 +125,11 @@ DATABASES = {
         "PASSWORD": os.environ.get("DB_HIVEFOREST_PASSWORD"),
         "HOST": os.environ.get("DB_HIVEFOREST_HOST"),
         "PORT": os.environ.get("DB_HIVEFOREST_PORT"),
-        "OPTIONS": {
-            os.environ.get("DB_HIVEFOREST_OPTIONS"): os.environ.get(
-                "DB_HIVEFOREST_OPTIONS_VALUE"
-            )
-        },
+        "OPTIONS": (
+            {os.environ.get("DB_HIVEFOREST_OPTIONS"): os.environ.get("DB_HIVEFOREST_OPTIONS_VALUE")}
+            if os.environ.get("DB_HIVEFOREST_OPTIONS")
+            else {}
+        ),
     }
 }
 
@@ -171,6 +171,10 @@ STATIC_URL = "/static/"
 STATIC_ROOT = "/app/staticfiles"
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 WHITENOISE_USE_FINDERS = env_bool("WHITENOISE_USE_FINDERS", False)
+# Without this, WhiteNoise defaults WHITENOISE_AUTOREFRESH to DEBUG (True in
+# dev), which rescans the entire static/ tree (2000+ files) from scratch on
+# every single static request - the main cause of slow page loads locally.
+WHITENOISE_AUTOREFRESH = env_bool("WHITENOISE_AUTOREFRESH", False)
 # if DEBUG == False:
 #     STATIC_ROOT = os.path.join(BASE_DIR, "static")
 # else:
