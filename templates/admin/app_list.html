@@ -2,56 +2,52 @@
 
 {% if app_list %}
 <div class="container-fluid">
-  <div class="row" id="masonry-container">
+  <div class="row">
   {% for app in app_list %}
-    {% if app.name != "Django Summernote" %}
-      <div class="app-{{  app.app_label  }} module{% if app.app_url in request.path|urlencode %} current-app{% endif %}">
-        {% if app.models %}
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-3 masonry-item">
-          <div class="card card-primary card-outline">
-            <div class="card-header hiveforest">
-              <h5 class="card-title hiveforest">
-                <a href="{{  app.app_url  }}" class="section" title="{% blocktranslate with name=app.name %}Models in the {{  name  }} application{% endblocktranslate %}">{{  app.name  }}</a>
-              </h5>
-            </div>
-            <div class="card-body hiveforest">
-              {% if app.name == "Authentication and Authorization" %}
-                {% include "admin/app_list_auth.html" %}
-              {% endif %}
-              {% if app.name == "Content Types" %}
-                {% include "admin/app_list_contenttypes.html" %}
-              {% endif %}
-              {% if app.name == "Base Application" %}
-                {% include "admin/app_list_base.html" %}
-              {% endif %}
-              {% if app.name == "Sales Application" %}
-                {% include "admin/app_list_sales.html" %}
-              {% endif %}
-              {% if app.name == "CRM Application" %}
-                {% include "admin/app_list_crm.html" %}
-              {% endif %}
-              {% if app.name == "Supply Chain Application" %}
-                {% include "admin/app_list_supplychain.html" %}
-              {% endif %}
-              {% if app.name == "Finance Application" %}
-                {% include "admin/app_list_finance.html" %}
-              {% endif %}
-              {% if app.name == "Human Capital Application" %}
-                {% include "admin/app_list_humancapital.html" %}
-              {% endif %}
-              {% if app.name == "Analytics Application" %}
-                {% include "admin/app_list_analytics.html" %}
-              {% endif %}
-              {% if app.name == "Content Management System" %}
-                {% include "admin/app_list_cms.html" %}
-              {% endif %}
-              {% if app.name == "Business Operation Management" %}
-                {% include "admin/app_list_bom.html" %}
-              {% endif %}
-            </div>
+    {% if app.name != "Django Summernote" and app.models %}
+      <div class="app-{{  app.app_label  }} module col-lg-3 col-md-4 col-sm-6 mb-3{% if app.app_url in request.path|urlencode %} current-app{% endif %}">
+        <div class="card card-primary card-outline">
+          <div class="card-header hiveforest">
+            <h5 class="card-title hiveforest">
+              <a href="{{  app.app_url  }}" class="section" title="{% blocktranslate with name=app.name %}Models in the {{  name  }} application{% endblocktranslate %}">{{  app.name  }}</a>
+            </h5>
+          </div>
+          <div class="card-body hiveforest">
+            {% if app.name == "Authentication and Authorization" %}
+              {% include "admin/app_list_auth.html" %}
+            {% endif %}
+            {% if app.name == "Content Types" %}
+              {% include "admin/app_list_contenttypes.html" %}
+            {% endif %}
+            {% if app.name == "Base Application" %}
+              {% include "admin/app_list_base.html" %}
+            {% endif %}
+            {% if app.name == "Sales Application" %}
+              {% include "admin/app_list_sales.html" %}
+            {% endif %}
+            {% if app.name == "CRM Application" %}
+              {% include "admin/app_list_crm.html" %}
+            {% endif %}
+            {% if app.name == "Supply Chain Application" %}
+              {% include "admin/app_list_supplychain.html" %}
+            {% endif %}
+            {% if app.name == "Finance Application" %}
+              {% include "admin/app_list_finance.html" %}
+            {% endif %}
+            {% if app.name == "Human Capital Application" %}
+              {% include "admin/app_list_humancapital.html" %}
+            {% endif %}
+            {% if app.name == "Analytics Application" %}
+              {% include "admin/app_list_analytics.html" %}
+            {% endif %}
+            {% if app.name == "Content Management System" %}
+              {% include "admin/app_list_cms.html" %}
+            {% endif %}
+            {% if app.name == "Business Operation Management" %}
+              {% include "admin/app_list_bom.html" %}
+            {% endif %}
           </div>
         </div>
-        {% endif %}
       </div>
       {% endif %}
     {% endfor %}
@@ -60,17 +56,3 @@
 {% else %}
   <p>{% translate 'You don’t have permission to view or edit anything.' %}</p>
 {% endif %}
-
-<!-- Include Masonry JavaScript -->
-<script src="{% static 'custom/js/masonry.pkgd.min.js' %}"></script>
-<script>
-  // Initialize Masonry
-  document.addEventListener("DOMContentLoaded", function () {
-    var elem = document.querySelector('#masonry-container');
-    new Masonry(elem, {
-      itemSelector: '.masonry-item',
-      columnWidth: '.masonry-item',
-      percentPosition: true
-    });
-  });
-</script>
