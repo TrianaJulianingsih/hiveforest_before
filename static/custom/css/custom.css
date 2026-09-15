@@ -209,7 +209,7 @@ i.hiveforest {
 /* Admin Index Page */
 /* Override django-admin base.css */
 .dashboard #content {
-    width: 1200px;
+    max-width: 1600px;
 }
 div#content-main.row {
     display: flex;
