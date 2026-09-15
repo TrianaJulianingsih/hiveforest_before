@@ -31,7 +31,7 @@ class Command(BaseCommand):
         cby_id = kwargs["cby"]
         self.log(f"🟢 Sync Started for user {cby_id}")
         try:
-            call_command("load_stockdailymup", cby=cby_id)
+            call_command("load_stockdaily_mup", cby=cby_id)
             self.stdout.write(self.style.SUCCESS("Sync Daily Stock Complete"))
             self.log(f"Sync Daily Stock Complete")
         except Exception as e:
