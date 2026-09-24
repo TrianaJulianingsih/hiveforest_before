@@ -93,3 +93,78 @@ Then open **http://127.0.0.1:8080/** and log in with the account from step 6.
 - **Non-superuser accounts need an explicit Role grant** — regular (non-superuser) accounts see an empty sidebar until granted access via `seed_roles` or the admin UI at `/admin/base/role/`. Superusers are exempt from this (see step 6).
 - **CSRF errors on login/forms** — usually means `SESSION_COOKIE_SECURE`/`CSRF_COOKIE_SECURE` are `True` while running on plain `http://`. Set both to `False` for local dev (see step 2), and hard-refresh the page after any server restart.
 - Some historical migrations (`apps/{analytics,crm,finance,sales}/migrations/0002_initial.py`) are intentionally left as no-ops — they were accidentally regenerated duplicates of schema the real migration chain already creates, kept only so later merge migrations that depend on them stay valid. Don't repopulate their `operations` list.
+
+## Learning Tracker Development
+
+### Task: Create Learning Tracker Models
+
+Status: Completed
+
+### Description
+
+Implemented the database models for the Learning Tracker module in the Human Capital application based on the defined ERD.
+
+The models are located in:
+
+`apps/humancapital/models/learning_models.py`
+
+### Models Created
+
+The following models were implemented:
+
+- `HumancapitalLearningCategory`
+- `HumancapitalLearningProgram`
+- `HumancapitalLearningTopic`
+- `HumancapitalLearningSchedule`
+- `HumancapitalLearningEnrollment`
+- `HumancapitalLearningCompletion`
+- `HumancapitalLearningFile`
+
+### Implementation Details
+
+- Created an abstract `AuditModel` for common audit fields:
+  - `status`
+  - `deleted`
+  - `cat` (created at)
+  - `cby` (created by)
+  - `uat` (updated at)
+  - `uby` (updated by)
+  - `dat` (deleted at)
+  - `dby` (deleted by)
+
+- Added relationships between Learning Tracker models using Django `ForeignKey` and `OneToOneField`.
+
+- Integrated `HumancapitalLearningEnrollment` with the existing `Employee` model from:
+  `apps.humancapital.models.employee_models`.
+
+- Added support for internal and external training data in the enrollment model.
+
+- Added training invitation and approval information.
+
+- Added learning completion data including attendance, test scores, passing status, certificate information, and feedback.
+
+- Added file attachment information for external training.
+
+- Defined PostgreSQL table names using `Meta.db_table` according to the Learning Tracker database design.
+
+- Registered the Learning Tracker models through:
+  `apps/humancapital/models/__init__.py`
+
+### Database Tables
+
+The implementation defines the following database tables:
+
+- `humancapital_learning_category`
+- `humancapital_learning_program`
+- `humancapital_learning_topic`
+- `humancapital_learning_schedule`
+- `humancapital_learning_enrollment`
+- `humancapital_learning_completion`
+- `humancapital_learning_file`
+
+### Validation
+
+Django model configuration can be validated using:
+
+```bash
+python manage.py check
