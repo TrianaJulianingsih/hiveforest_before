@@ -1,4 +1,4 @@
 from apps.humancapital.models.business_models import Business
 from apps.humancapital.models.structure_models import Assignment, Position, Organization, OrganizationType
 from apps.humancapital.models.employee_models import Employee, EmployeeTitle
-from apps.humancapital.models.learning_models import LearningTopic, LearningProgram, LearningCategory, LearningCompletion, LearningEnrollment, LearningFile, LearningSchedule
+from apps.humancapital.models.learning_models import HumancapitalLearningCategory, HumancapitalLearningProgram, HumancapitalLearningTopic, HumancapitalLearningSchedule, HumancapitalLearningEnrollment, HumancapitalLearningCompletion, HumancapitalLearningFile
