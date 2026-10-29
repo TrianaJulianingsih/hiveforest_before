@@ -42,6 +42,7 @@ urlpatterns = [
     path("humancapital/organization/ajax/", OrganizationAjax.as_view(), name="organization-ajax-fallback"),
     path("humancapital/position/ajax/", PositionAjax.as_view(), name="position-ajax-fallback"),
     path("humancapital/organogram/", OrganogramView, name="organogram-fallback"),
+    # path("humancapital/learning/", include("apps.humancapital.urls.learning_urls")),
 ]
 urlpatterns += i18n_patterns(
     path("admin/login/", AuthenticationAdminLoginView.as_view(), name="admin_login"),
@@ -80,6 +81,7 @@ urlpatterns += i18n_patterns(
     path("crm/", include("apps.crm.urls.crm_urls")),
     path("sales/", include(("apps.sales.urls.sales_urls", "sales"), namespace="sales")),
     path("humancapital/", include("apps.humancapital.urls.humancapital_urls")),
+    path("humancapital/learning/", include("apps.humancapital.urls.learning_urls")),
     path("performance/", include("apps.performance.urls")),
     # <!-- Akram | IQVIA Report Module URLs -->
     path("analytics/", include("apps.analytics.urls.analytics_urls")),

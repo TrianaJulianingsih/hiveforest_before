@@ -1,0 +1,652 @@
+{% extends 'main.html' %}
+{% load static %}
+{% block title %}Learning Tracker Dashboard{% endblock %}
+{% block extra_head %}
+<style>
+    .lt-dashboard{
+        padding:22px 18px 45px;
+        color:#142536;
+        font-family:Arial,sans-serif
+    }
+    .lt-toolbar,.lt-heading,.lt-section-head{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:16px;
+        flex-wrap:wrap
+    }
+    .lt-search{
+        background:#e9edf1;
+        border:1px solid #dde4ea;
+        border-radius:11px;
+        padding:14px 18px;
+        min-width:min(100%,420px);
+        font-size:14px
+    }
+    .lt-eyebrow{
+        font-size:11px;
+        font-weight:800;
+        color:#0c506c;
+        letter-spacing:.03em
+    }
+    .lt-heading{
+        margin:18px 0 28px
+    }
+    .lt-heading h1{
+        font-size:27px;
+        font-weight:800;
+        color:#111;
+        margin:12px 0 3px
+    }
+    .lt-muted{
+        color:#8090a8;
+        font-size:12px
+    }
+    .lt-btn{
+        display:inline-block;
+        background:#0e4c65;
+        color:white;
+        border:0;
+        border-radius:8px;
+        padding:12px 20px;
+        font-weight:700;
+        text-decoration:none
+    }
+    .lt-btn:hover{
+        color:white;
+        background:#09384d
+    }
+    .lt-year{
+        padding:12px;
+        border:1px solid #e1e7ef;
+        border-radius:7px;
+        background:white
+    }
+    .lt-stats{
+        display:grid;
+        grid-template-columns:repeat(4,minmax(0,1fr));
+        gap:20px
+    }
+    .lt-stat,.lt-panel,.lt-action{
+        background:#fff;
+        border:1px solid #e4eaf0
+    }
+    .lt-stat{
+        padding:18px;
+        min-height:115px;
+        display:flex;
+        gap:14px
+    }
+    .lt-stat-icon{
+        width:48px;
+        height:48px;
+        flex-shrink:0;
+        display:grid;
+        place-items:center;
+        border-radius:14px;
+        font-size:23px
+    }
+    .lt-pink{
+        background:#ffedef;
+        color:#f34672
+    }
+    .lt-blue{
+        background:#eaf2ff;
+        color:#4486ff
+    }
+    .lt-yellow{
+        background:#fff5e3;
+        color:#eea51a
+    }
+    .lt-purple{
+        background:#f0edff;
+        color:#8068e9
+    }
+    .lt-stat-label{
+        font-size:12px;
+        color:#666
+    }
+    .lt-stat-value{
+        font-size:31px;
+        font-weight:800;
+        color:#111;
+        line-height:1.5
+    }
+    .lt-small{
+        font-size:11px;
+        color:#56802d
+    }
+    .lt-grid{
+        display:grid;
+        grid-template-columns:1.7fr 1fr;
+        gap:20px;
+        margin-top:24px
+    }
+    .lt-panel{
+        padding:30px 28px;
+        min-width:0
+    }
+    .lt-panel h2{
+        font-size:19px;
+        font-weight:500;
+        margin:0
+    }
+    .lt-chart{
+        height:245px;
+        position:relative;
+        margin-top:15px
+    }
+    .lt-donut-wrap{
+        display:flex;
+        align-items:center;
+        justify-content:space-around;
+        gap:14px;
+        margin-top:22px;
+        flex-wrap:wrap
+    }
+    .lt-donut{
+        width:180px;
+        height:180px;
+        position:relative
+    }
+    .lt-legend{
+        font-size:12px;
+        min-width:135px
+    }
+    .lt-legend div{
+        display:flex;
+        justify-content:space-between;
+        gap:15px;
+        margin:11px 0
+    }
+    .lt-legend b{
+        font-size:12px
+    }
+    .lt-list{
+        margin-top:20px
+    }
+    .lt-list-row{
+        display:flex;
+        align-items:center;
+        gap:12px;
+        padding:13px 0;
+        border-top:1px solid #e9edf2;
+        font-size:12px
+    }
+    .lt-avatar{
+        width:45px;
+        height:45px;
+        flex-shrink:0;
+        display:grid;
+        place-items:center;
+        border-radius:13px;
+        background:#eaf2ff;
+        color:#0b4b68;
+        font-weight:800
+    }
+    .lt-row-main{
+        flex:1;
+        min-width:0
+    }
+    .lt-row-main strong{
+        display:block;
+        color:#111
+    }
+    .lt-row-main small{
+        color:#8493ac
+    }
+    .lt-pill{
+        padding:7px 10px;
+        border-radius:30px;
+        background:#fff4e2;
+        color:#d48b00;
+        font-size:10px
+    }
+    .lt-status-approved{
+        background:#e6f7ef;
+        color:#16815d
+    }
+    .lt-status-rejected{
+        background:#ffebef;
+        color:#d9385a
+    }
+    .lt-actions{
+        display:grid;
+        grid-template-columns:repeat(4,minmax(0,1fr));
+        gap:16px;
+        margin-top:18px
+    }
+    .lt-action{
+        padding:18px;
+        min-height:94px;
+        display:flex;
+        align-items:center;
+        gap:12px;
+        color:#142536
+    }
+    .lt-action i{
+        color:#f34672;
+        font-size:21px
+    }
+    .lt-action strong{
+        font-size:12px
+    }
+    .lt-action small{
+        display:block;
+        color:#8797ac;
+        font-size:11px
+    }
+    .lt-empty{
+        color:#8797ac;
+        font-size:13px;
+        padding:25px 0
+    }
+    .lt-quick{
+        margin-top:32px
+    }
+    @media(max-width:1100px){
+        .lt-stats,.lt-actions{
+            grid-template-columns:repeat(2,minmax(0,1fr))
+        }
+    }
+    @media(max-width:760px){
+        .lt-grid,.lt-stats,.lt-actions{
+            grid-template-columns:1fr
+        }
+        .lt-panel{
+            padding:20px
+        }
+        .lt-heading h1{
+            font-size:22px
+        }
+        .lt-dashboard{
+            padding:15px
+        }
+    }
+    .lt-status-panel {
+        padding: 28px 24px;
+    }
+    .lt-status-content {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        margin-top: 28px;
+    }
+    .lt-status-chart {
+        width: 190px;
+        height: 190px;
+        flex-shrink: 0;
+        position: relative;
+    }
+    .lt-status-chart canvas {
+        width: 100% !important;
+        height: 100% !important;
+    }
+    .lt-status-center {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        pointer-events: none;
+    }
+    .lt-status-center strong {
+        font-size: 27px;
+        font-weight: 800;
+        color: #111;
+    }
+    .lt-status-legend {
+        flex: 1;
+        min-width: 0;
+    }
+    .lt-status-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    .lt-status-item:last-child {
+        border-bottom: none;
+    }
+    .lt-status-dot {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+    .approved-dot { background: #22a67a; }
+    .pending-dot { background: #ffc153; }
+    .rejected-dot { background: #eb3768; }
+    .lt-status-info {
+        flex: 1;
+        min-width: 0;
+    }
+    .lt-status-info strong {
+        display: block;
+        font-size: 12px;
+        color: #111;
+    }
+    .lt-status-info small {
+        display: block;
+        font-size: 10px;
+        color: #8493ac;
+    }
+    .lt-status-item > strong {
+        font-size: 13px;
+        color: #111;
+    }
+    @media (max-width: 1200px) {
+        .lt-status-content {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .lt-status-legend {
+            width: 100%;
+            flex-basis: 100%;
+        }
+    }
+    .lt-action-clickable {
+        width: 100%;
+        text-align: left;
+        font-family: inherit;
+        cursor: pointer;
+        border: 1px solid #e4eaf0;
+        border-radius: 10px;
+        background: #ffffff;
+        transition: all 0.25s ease;
+    }
+    .lt-action-clickable:hover {
+        border-color: #0e4c65;
+        background: #f0f8fc;
+        transform: translateY(-4px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    }
+    .lt-action-clickable:focus-visible {
+        outline: 2px solid #0e4c65;
+        outline-offset: 3px;
+    }
+    .lt-action-clickable:active {
+        transform: translateY(-1px);
+    }
+    .lt-action-clickable > div {
+        flex: 1;
+    }
+    .lt-action-clickable .lt-arrow {
+        font-size: 12px;
+        color: #9aa9b5;
+        transition: transform 0.2s ease;
+    }
+    .lt-action-clickable:hover .lt-arrow {
+        color: #0e4c65;
+        transform: translateX(4px);
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="lt-dashboard">
+    <div class="lt-toolbar">
+        <input class="lt-search" id="trainingSearch" type="search" placeholder="Search training, materials, or topics ..." aria-label="Search dashboard items"></div>
+    <div class="lt-heading">
+        <div>
+            <span class="lt-eyebrow">ADMIN CONTROL CENTER</span>
+            <h1>WELCOME, HCD ADMIN!</h1>
+        <div class="lt-muted">Here is an overview of learning activities across the organization.</div>
+    </div>
+    <div>
+        <form method="get" style="display:inline">
+            <select class="lt-year" name="year" aria-label="Select year" onchange="this.form.submit()">
+                {% for y in year_options %}
+                    <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>
+                        {{ y }}
+                    </option>
+                {% endfor %}
+            </select>
+        </form> 
+        <span class="lt-btn" title="Create training route has not been connected">+ Create Training</span>
+    </div>
+</div>
+    <div class="lt-stats">
+        <div class="lt-stat"><div class="lt-stat-icon lt-pink"><i
+                    class="fas fa-book"></i></div><div><div
+                    class="lt-stat-label">Total Training</div><div
+                    class="lt-stat-value">{{ total_training }}</div><div
+                    class="lt-small">Scheduled in {{ selected_year }}</div></div></div>
+        <div class="lt-stat"><div class="lt-stat-icon lt-blue"><i
+                    class="fas fa-users"></i></div><div><div
+                    class="lt-stat-label">Total Participants</div><div
+                    class="lt-stat-value">{{ total_participants }}</div><div
+                    class="lt-small">Unique enrolled employees</div></div></div>
+        <div class="lt-stat"><div class="lt-stat-icon lt-yellow"><i
+                    class="fas fa-clipboard-list"></i></div><div><div
+                    class="lt-stat-label">New Registrations</div><div
+                    class="lt-stat-value">{{ new_registrations }}</div><div
+                    class="lt-small">Current month</div></div></div>
+        <div class="lt-stat"><div class="lt-stat-icon lt-purple"><i
+                    class="far fa-calendar"></i></div><div><div
+                    class="lt-stat-label">Ongoing Training</div><div
+                    class="lt-stat-value">{{ ongoing_training }}</div><div
+                    class="lt-small">In progress now</div></div></div>
+    </div>
+    <div class="lt-grid">
+        <section class="lt-panel">
+            <h2>Registration Trend</h2>
+            <div class="lt-muted">Monthly training registrations in {{ selected_year }}</div>
+            <h2 style="margin-top:20px;font-weight:800">{{ total_registrations }} 
+                <span class="lt-muted">Total registrations</span>
+            </h2>
+            <div class="lt-chart">
+                <canvas id="registrationTrend" aria-label="Monthly registration trend"></canvas>
+            </div>
+        </section>
+        
+        <section class="lt-panel lt-status-panel">
+            <h2>Registration Status</h2>
+            <div class="lt-muted">Current status distribution</div>
+
+            <div class="lt-status-content">
+                <div class="lt-status-chart">
+                    <canvas id="registrationStatus"></canvas>
+                    <div class="lt-status-center">
+                        <strong id="approvalPercentage">0%</strong>
+                    </div>
+                </div>
+
+                <div class="lt-status-legend">
+                    <div class="lt-status-item">
+                        <span class="lt-status-dot approved-dot"></span>
+                        <div class="lt-status-info">
+                            <strong>Approved</strong>
+                        </div>
+                        <strong>{{ approved }}</strong>
+                    </div>
+
+                    <div class="lt-status-item">
+                        <span class="lt-status-dot pending-dot"></span>
+                        <div class="lt-status-info">
+                            <strong>Pending</strong>
+                        </div>
+                        <strong>{{ pending }}</strong>
+                    </div>
+
+                    <div class="lt-status-item">
+                        <span class="lt-status-dot rejected-dot"></span>
+                        <div class="lt-status-info">
+                            <strong>Rejected</strong>
+                        </div>
+                        <strong>{{ rejected }}</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="lt-panel">
+            <div class="lt-eyebrow">ACTION REQUIRED</div>
+            <div class="lt-section-head">
+                <h2>Recent Approvals</h2>
+            </div>
+            <div class="lt-list">{% for entry in recent_approvals %}
+                <div class="lt-list-row lt-searchable">
+                    <div class="lt-avatar">
+                        <i class="far fa-user"></i>
+                    </div>
+                    <div class="lt-row-main">
+                        <strong>{{ entry.employee}}</strong>
+                        <small>{{ entry.cat|date:'d M Y' }}</small>
+                    </div>
+                    <div class="lt-row-main">
+                        <strong>{% if entry.schedule %}{{ entry.schedule.topic.name }}{% else %}{{ entry.external_topic_title|default:'External training'}}{% endif %}</strong>
+                        <small>{{ entry.code}}</small>
+                    </div>
+                    <span class="lt-pill {% if entry.approval_status|lower == 'approved' %}lt-status-approved{% elif entry.approval_status|lower == 'rejected' %}lt-status-rejected{% endif %}">{{ entry.approval_status|title }}</span>
+                </div>
+                {% empty %}
+                <div class="lt-empty">No registrations found for this year.</div>
+                {% endfor %}
+            </div>
+        </section>
+        <section class="lt-panel">
+            <div class="lt-eyebrow">NEXT 7 DAYS</div>
+            <h2 style="margin-top:10px">Upcoming Schedules</h2>
+            <div class="lt-list">
+                {% for schedule in upcoming_schedules %}
+                <div class="lt-list-row lt-searchable">
+                    <div class="lt-avatar">
+                        {{ schedule.start_time|date:'d M' }}
+                    </div>
+                    <div class="lt-row-main">
+                        <strong>
+                            {{ schedule.topic.name }}
+                        </strong>
+                        <small>{{ schedule.start_time|date:'H:i' }} – {{ schedule.end_time|date:'H:i' }} · {{ schedule.location_or_link|default:'Location not specified' }}</small>
+                    </div>
+                    <span class="lt-pill">
+                        {{ schedule.training_type|title }}
+                    </span>
+                </div>
+                {% empty %}
+                <div class="lt-empty">
+                    No training scheduled for the next 7 days.
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+    
+    <div class="lt-quick">
+        <div class="lt-eyebrow">QUICK ACCESS</div>
+        <h2 style="font-size:19px; margin:10px 0">
+            Manage Learning Tracker
+        </h2>
+        <div class="lt-actions">
+            <button type="button" class="lt-action lt-action-clickable"
+                    onclick="showFeatureMessage('Assign Training')">
+                <i class="fas fa-clipboard-list"></i>
+                <div>
+                    <strong>Assign Training</strong>
+                    <small>Assign mandatory training</small>
+                </div>
+                <i class="fas fa-chevron-right lt-arrow"></i>
+            </button>
+
+            <button type="button" class="lt-action lt-action-clickable"
+                    onclick="showFeatureMessage('Quiz Management')">
+                <i class="fas fa-file-alt"></i>
+                <div>
+                    <strong>Quiz Management</strong>
+                    <small>Manage pre-tests and post-tests</small>
+                </div>
+                <i class="fas fa-chevron-right lt-arrow"></i>
+            </button>
+
+            <button type="button" class="lt-action lt-action-clickable"
+                    onclick="showFeatureMessage('Export Data')">
+                <i class="fas fa-download"></i>
+                <div>
+                    <strong>Export Data</strong>
+                    <small>Download learning reports</small>
+                </div>
+                <i class="fas fa-chevron-right lt-arrow"></i>
+            </button>
+
+            <button type="button" class="lt-action lt-action-clickable"
+                    onclick="showFeatureMessage('Public Training Poster')">
+                <i class="far fa-play-circle"></i>
+                <div>
+                    <strong>Public Training Poster</strong>
+                    <small>Manage training promotions</small>
+                </div>
+                <i class="fas fa-chevron-right lt-arrow"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<script
+    src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+{{ month_labels|json_script:'lt-month-labels' }}
+{{ month_values|json_script:'lt-month-values' }}
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  const search=document.getElementById('trainingSearch');
+  search.addEventListener('input',function(){const q=this.value.trim().toLowerCase();document.querySelectorAll('.lt-searchable').forEach(row=>{row.style.display=row.textContent.toLowerCase().includes(q)?'':'none'})});
+  if(typeof Chart==='undefined')return;
+  const labels=JSON.parse(document.getElementById('lt-month-labels').textContent);
+  const values=JSON.parse(document.getElementById('lt-month-values').textContent);
+  new Chart(document.getElementById('registrationTrend'),{type:'line',data:{labels,datasets:[{label:'Registrations',data:values,borderColor:'#387e9b',backgroundColor:'rgba(56,126,155,.08)',fill:true,tension:.25,pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
+  const statusValues = [
+    Number("{{ approved|default:0 }}"),
+    Number("{{ pending|default:0 }}"),
+    Number("{{ rejected|default:0 }}"),
+    Number("{{ other|default:0 }}")
+];
+
+const totalStatus = statusValues.reduce(
+    (sum, value) => sum + value, 0
+);
+
+const approvalPercentage = totalStatus > 0
+    ? ((statusValues[0] / totalStatus) * 100).toFixed(1)
+    : "0.0";
+
+document.getElementById("approvalPercentage").textContent = approvalPercentage + "%";
+
+new Chart(document.getElementById("registrationStatus"), {
+    type: "doughnut",
+    data: {
+        labels: ["Approved", "Pending", "Rejected", "Other"],
+        datasets: [{
+            data: statusValues,
+            backgroundColor: [
+                "#22a67a",
+                "#ffc153",
+                "#eb3768",
+                "#94a3b8"
+            ],
+            borderWidth: 0,
+            hoverOffset: 4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: "58%",
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                enabled: true
+            }
+        }
+    }
+});
+});
+</script>
+
+<script>
+function showFeatureMessage(featureName) {
+    alert(featureName + " is currently under development.");
+}
+</script>
+
+{% endblock %}

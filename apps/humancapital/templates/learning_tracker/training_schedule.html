@@ -1,0 +1,172 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+  .lts-page { --lts-navy:#0b4d65; --lts-muted:#7889a7; --lts-pink:#ff496f; background:#f4f7fa; min-height:calc(100vh - 100px); padding:30px 34px 65px; color:#101318; font-family:inherit; }
+  .lts-page *, .lts-page *::before, .lts-page *::after {box-sizing:border-box;}
+  .lts-top {display:flex;justify-content:space-between;align-items:flex-start;gap:24px;margin-bottom:38px;}
+  .lts-eyebrow {font-size:12px;font-weight:800;letter-spacing:.02em;color:var(--lts-navy);margin:0 0 18px;}
+  .lts-title {font-size:34px;line-height:1.15;font-weight:800;margin:0 0 5px;}
+  .lts-subtitle {font-size:13px;color:var(--lts-muted);margin:0;}
+  .lts-sync {display:inline-flex;align-items:center;gap:12px;border:0;border-radius:10px;padding:19px 25px;background:var(--lts-navy);color:#fff;font-size:17px;font-weight:700;box-shadow:0 3px 4px #0002;cursor:pointer;white-space:nowrap;}
+  .lts-sync:hover {background:#073d51;}
+  .lts-layout {display:grid;grid-template-columns:minmax(0,1.32fr) minmax(340px,.93fr);gap:52px;align-items:start;}
+  .lts-calendar {background:#fff;border-radius:28px;padding:37px 42px 38px;min-width:0;}
+  .lts-calendar-head {display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:26px;}
+  .lts-month {font-size:23px;font-weight:400;margin:0 0 7px;}
+  .lts-count {font-size:12px;color:var(--lts-muted);margin:0;}
+  .lts-month-actions {display:flex;gap:11px;}
+  .lts-arrow {width:47px;height:47px;border:1px solid #ddd;background:#fff;border-radius:12px;font-size:30px;line-height:1;display:grid;place-items:center;cursor:pointer;}
+  .lts-arrow:hover {background:#f4f7fa;}
+  .lts-weekdays,.lts-days {display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px;}
+  .lts-weekdays {margin-bottom:22px;}
+  .lts-weekday {text-align:center;font-size:12px;font-weight:700;color:var(--lts-muted);padding:9px 0;}
+  .lts-day {height:66px;width:100%;border:1px solid transparent;background:transparent;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;font-size:15px;cursor:pointer;color:#111;}
+  .lts-day:hover:not(:disabled) {background:#f2f6fa;}
+  .lts-day:disabled {cursor:default;}
+  .lts-day.lts-outside {color:#9daac0;}
+  .lts-day.lts-has-event {background:#ffe0e5;border-color:var(--lts-pink);color:var(--lts-pink);font-weight:700;}
+  .lts-day.lts-selected {background:#111;color:#fff;border-color:#111;font-weight:700;}
+  .lts-day.lts-selected.lts-has-event {background:#111;color:#fff;border-color:#111;}
+  .lts-day-dot {height:5px;width:5px;border-radius:50%;background:currentColor;}
+  .lts-agenda-head {display:flex;justify-content:space-between;align-items:end;gap:15px;margin:0 0 18px;}
+  .lts-agenda-title {font-size:23px;font-weight:400;margin:0;}
+  .lts-see-all {background:none;border:0;color:var(--lts-navy);font-weight:700;cursor:pointer;padding:4px 0;}
+  .lts-agenda-list {display:flex;flex-direction:column;gap:23px;}
+  .lts-agenda-card {background:#fff;border-radius:16px;padding:24px;display:flex;align-items:center;gap:15px;min-height:142px;}
+  .lts-date-badge {height:75px;width:65px;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;background:#fff0f3;color:#f64a6d;}
+  .lts-date-badge.lts-online {background:#eaf1ff;color:#0b4d65;}
+  .lts-date-badge.lts-other {background:#fff5e5;color:#ec9b23;}
+  .lts-date-num {font-size:25px;font-weight:800;line-height:1.1;}
+  .lts-date-month {font-size:12px;font-weight:800;}
+  .lts-agenda-details {flex:1;min-width:0;}
+  .lts-type {font-size:12px;font-weight:700;color:#fa486d;margin:0 0 8px;}
+  .lts-type.lts-online {color:var(--lts-navy);}
+  .lts-type.lts-other {color:#e89a21;}
+  .lts-event-name {font-size:14px;font-weight:500;margin:0 0 9px;}
+  .lts-event-meta {font-size:12px;color:var(--lts-muted);line-height:1.5;margin:0;}
+  .lts-event-arrow {width:47px;height:47px;border-radius:50%;border:1px solid #ddd;background:#fff;font-size:30px;display:grid;place-items:center;cursor:pointer;flex-shrink:0;}
+  .lts-event-arrow:hover {background:#f4f7fa;}
+  .lts-empty {background:#fff;border-radius:16px;padding:28px;color:var(--lts-muted);font-size:13px;}
+  .lts-dialog {border:0;border-radius:14px;padding:26px;max-width:420px;width:calc(100% - 32px);box-shadow:0 15px 45px #0003;}
+  .lts-dialog::backdrop {background:#0006;}
+  .lts-dialog h3 {margin:0 0 12px;font-size:21px;}
+  .lts-dialog p {margin:8px 0;color:#555;line-height:1.6;}
+  .lts-dialog-close {background:var(--lts-navy);color:white;border:0;border-radius:8px;padding:10px 17px;margin-top:16px;cursor:pointer;}
+  @media(max-width:1100px){.lts-layout{grid-template-columns:1fr;gap:30px}.lts-agenda-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:680px){.lts-page{padding:20px 13px 40px}.lts-top{flex-direction:column}.lts-title{font-size:27px}.lts-sync{font-size:14px;padding:14px 17px}.lts-calendar{padding:20px 12px}.lts-day{height:47px;font-size:13px}.lts-weekdays,.lts-days{gap:2px}.lts-month{font-size:20px}.lts-agenda-list{grid-template-columns:1fr}.lts-agenda-card{padding:16px;gap:11px}.lts-event-arrow{width:37px;height:37px}}
+</style>
+<div class="lts-page">
+    <header class="lts-top">
+        <div>
+            <p class="lts-eyebrow">LEARNING AGENDA</p>
+            <h1 class="lts-title">TRAINING SCHEDULE</h1>
+            <p class="lts-subtitle">Manage your schedule and don't miss your
+                study sessions.</p>
+        </div>
+        <button class="lts-sync" type="button" id="lts-sync-btn">▢ &nbsp;
+            Synchronize Learning</button>
+    </header>
+    <div class="lts-layout">
+        <section class="lts-calendar" aria-label="Training calendar">
+            <div class="lts-calendar-head">
+                <div><h2 class="lts-month" id="lts-month-title"></h2><p
+                        class="lts-count" id="lts-month-count"></p></div>
+                <div class="lts-month-actions"><button class="lts-arrow"
+                        id="lts-prev" type="button"
+                        aria-label="Previous month">‹</button><button
+                        class="lts-arrow" id="lts-next" type="button"
+                        aria-label="Next month">›</button></div>
+            </div>
+            <div class="lts-weekdays"><div class="lts-weekday">Mon</div><div
+                    class="lts-weekday">Tue</div><div
+                    class="lts-weekday">Wed</div><div
+                    class="lts-weekday">Thu</div><div
+                    class="lts-weekday">Fri</div><div
+                    class="lts-weekday">Sat</div><div
+                    class="lts-weekday">Sun</div></div>
+            <div class="lts-days" id="lts-days"
+                aria-label="Calendar dates"></div>
+        </section>
+        <section aria-label="Upcoming training agenda">
+            <p class="lts-eyebrow">NEXT</p>
+            <div class="lts-agenda-head"><h2 class="lts-agenda-title">Upcoming
+                    Agenda</h2><button class="lts-see-all" id="lts-see-all"
+                    type="button">See all</button></div>
+            <div class="lts-agenda-list" id="lts-agenda-list"></div>
+        </section>
+    </div>
+</div>
+<dialog id="lts-dialog" class="lts-dialog"><h3 id="lts-dialog-title"></h3><div
+        id="lts-dialog-body"></div><button type="button"
+        class="lts-dialog-close" id="lts-dialog-close">Close</button></dialog>
+{{ training_agendas|json_script:"lts-agendas-data" }}
+<script>
+(function(){
+  'use strict';
+  const agendas = JSON.parse(document.getElementById('lts-agendas-data').textContent);
+  const initialYear = {{ calendar_year|default:2026 }};
+  const initialMonth = {{ calendar_month|default:10 }} - 1;
+  let displayed = new Date(initialYear, initialMonth, 1);
+  let selected = null;
+  let showAll = false;
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const shortMonths = ['JAN','FEB','MAR','APR','MEI','JUN','JUL','AGU','SEP','OKT','NOV','DES'];
+  const dayKey = (year,month,day) => `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+  const escapeHTML = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const dialog = document.getElementById('lts-dialog');
+  const dialogTitle = document.getElementById('lts-dialog-title');
+  const dialogBody = document.getElementById('lts-dialog-body');
+  function openDetails(item){
+    dialogTitle.textContent = item.title;
+    dialogBody.replaceChildren();
+    [item.date, item.type, `${item.time} - ${item.location}`].forEach(value => {const p=document.createElement('p');p.textContent=value;dialogBody.appendChild(p);});
+    if (typeof dialog.showModal === 'function') dialog.showModal();
+  }
+  function renderCalendar(){
+    const year=displayed.getFullYear(), month=displayed.getMonth();
+    document.getElementById('lts-month-title').textContent=`${monthNames[month]} ${year}`;
+    const monthly=agendas.filter(a=>a.date.startsWith(`${year}-${String(month+1).padStart(2,'0')}-`));
+    document.getElementById('lts-month-count').textContent=`${monthly.length} learning agenda${monthly.length===1?'':'s'}`;
+    const start=(new Date(year,month,1).getDay()+6)%7;
+    const daysInMonth=new Date(year,month+1,0).getDate();
+    const days=document.getElementById('lts-days');days.replaceChildren();
+    for(let i=0;i<42;i++){
+      const date=new Date(year,month,i-start+1);
+      const key=dayKey(date.getFullYear(),date.getMonth(),date.getDate());
+      const inMonth=date.getMonth()===month;
+      const hasEvent=agendas.some(a=>a.date===key);
+      const btn=document.createElement('button');btn.type='button';btn.className='lts-day';
+      if(!inMonth)btn.classList.add('lts-outside');
+      if(hasEvent)btn.classList.add('lts-has-event');
+      if(key===selected)btn.classList.add('lts-selected');
+      btn.setAttribute('aria-label',`${date.getDate()} ${monthNames[date.getMonth()]} ${date.getFullYear()}${hasEvent?' - training scheduled':''}`);
+      const num=document.createElement('span');num.textContent=date.getDate();btn.appendChild(num);
+      if(hasEvent){const dot=document.createElement('span');dot.className='lts-day-dot';btn.appendChild(dot);}
+      btn.addEventListener('click',()=>{selected=key;if(!inMonth)displayed=new Date(date.getFullYear(),date.getMonth(),1);renderCalendar();renderAgenda();});
+      days.appendChild(btn);
+    }
+  }
+  function renderAgenda(){
+    const list=document.getElementById('lts-agenda-list');list.replaceChildren();
+    let items=agendas.slice().sort((a,b)=>a.date.localeCompare(b.date));
+    if(selected)items=items.filter(a=>a.date===selected);
+    else if(!showAll)items=items.filter(a=>a.date>=dayKey(displayed.getFullYear(),displayed.getMonth(),1)).slice(0,3);
+    if(!items.length){const empty=document.createElement('div');empty.className='lts-empty';empty.textContent=selected?'No training scheduled for this date.':'No upcoming training available.';list.appendChild(empty);return;}
+    items.forEach(item=>{
+      const parts=item.date.split('-');const typeClass=item.type==='Online'?'lts-online':item.type==='Tatap Muka'?'':'lts-other';
+      const card=document.createElement('article');card.className='lts-agenda-card';
+      card.innerHTML=`<div class="lts-date-badge ${typeClass}"><span class="lts-date-num">${Number(parts[2])}</span><span class="lts-date-month">${shortMonths[Number(parts[1])-1]}</span></div><div class="lts-agenda-details"><p class="lts-type ${typeClass}">${escapeHTML(item.type)}</p><h3 class="lts-event-name">${escapeHTML(item.title)}</h3><p class="lts-event-meta">${escapeHTML(item.time)} WIB - ${escapeHTML(item.location)}</p></div>`;
+      const btn=document.createElement('button');btn.type='button';btn.className='lts-event-arrow';btn.textContent='›';btn.setAttribute('aria-label',`View ${item.title}`);btn.addEventListener('click',()=>openDetails(item));card.appendChild(btn);list.appendChild(card);
+    });
+  }
+  document.getElementById('lts-prev').addEventListener('click',()=>{displayed=new Date(displayed.getFullYear(),displayed.getMonth()-1,1);selected=null;renderCalendar();renderAgenda();});
+  document.getElementById('lts-next').addEventListener('click',()=>{displayed=new Date(displayed.getFullYear(),displayed.getMonth()+1,1);selected=null;renderCalendar();renderAgenda();});
+  document.getElementById('lts-see-all').addEventListener('click',()=>{selected=null;showAll=!showAll;document.getElementById('lts-see-all').textContent=showAll?'Show less':'See all';renderCalendar();renderAgenda();});
+  document.getElementById('lts-sync-btn').addEventListener('click',()=>{dialogTitle.textContent='Synchronize Learning';dialogBody.textContent='Calendar synchronization will be connected to Outlook or Google Calendar later.';if(typeof dialog.showModal==='function')dialog.showModal();});
+  document.getElementById('lts-dialog-close').addEventListener('click',()=>dialog.close());
+  renderCalendar();renderAgenda();
+})();
+</script>
+{% endblock %}

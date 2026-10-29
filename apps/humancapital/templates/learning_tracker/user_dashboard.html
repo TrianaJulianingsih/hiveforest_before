@@ -1,0 +1,531 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .lt-user-dashboard { 
+        --lt-ink: #111820; 
+        --lt-muted: #7888a3; 
+        --lt-teal: #084c64; 
+        --lt-border: #e5eaf0; 
+        color: var(--lt-ink); 
+        padding: 25px 26px 60px; 
+        background: #f4f7fa; 
+        min-height: 100vh; 
+    }
+    .lt-user-dashboard *, .lt-user-dashboard *::before, .lt-user-dashboard *::after { 
+        box-sizing: border-box; 
+    }
+    .lt-user-dashboard .lt-heading { 
+        display:flex; 
+        justify-content:space-between; 
+        align-items:center; 
+        gap:16px; 
+        margin-bottom:34px; 
+    }
+    .lt-user-dashboard .lt-eyebrow { 
+        font-size:11px; 
+        font-weight:800; 
+        color:#0b4c65; 
+        letter-spacing:.05em; 
+        margin:0 0 13px; 
+    }
+    .lt-user-dashboard h1 { 
+        font-size:28px; 
+        font-weight:800; 
+        line-height:1.2; 
+        margin:0 0 4px; 
+    }
+    .lt-user-dashboard .lt-muted { 
+        color:var(--lt-muted); 
+        font-size:12px; 
+        margin:0; 
+    }
+    .lt-user-dashboard .lt-primary-btn { 
+        display:inline-flex; 
+        align-items:center; 
+        justify-content:center; 
+        gap:12px; 
+        padding:15px 22px; 
+        border-radius:7px; 
+        background:var(--lt-teal); 
+        color:white; 
+        text-decoration:none; 
+        font-size:15px; 
+        font-weight:700; 
+        box-shadow:0 3px 5px #0002; 
+        border:0; 
+        cursor:pointer; 
+    }
+    .lt-user-dashboard .lt-primary-btn:hover { 
+        color:#fff; 
+        background:#063b50; 
+    }
+    .lt-user-dashboard .lt-stats { 
+        display:grid; 
+        grid-template-columns:repeat(4,minmax(0,1fr)); 
+        gap:20px; 
+        margin-bottom:30px; 
+    }
+    .lt-user-dashboard .lt-stat { 
+        background:#fff; 
+        border:1px solid var(--lt-border); 
+        padding:19px 23px; 
+        min-height:90px; 
+    }
+    .lt-user-dashboard .lt-stat-label { 
+        color:#777; 
+        font-size:12px; 
+        margin-bottom:6px; 
+    }
+    .lt-user-dashboard .lt-stat-value { 
+        font-size:32px; 
+        font-weight:800; 
+        line-height:1.1; 
+    }
+    .lt-user-dashboard .lt-analytics { 
+        display:grid; 
+        grid-template-columns:1.1fr 1fr; 
+        gap:28px; 
+        margin-bottom:46px; 
+    }
+    .lt-user-dashboard .lt-panel { 
+        background:#fff; 
+        border:1px solid var(--lt-border); 
+        min-width:0; 
+        padding:25px 29px 23px; 
+    }
+    .lt-user-dashboard .lt-panel-head { 
+        display:flex; 
+        justify-content:space-between; 
+        gap:10px; 
+        align-items:start; 
+    }
+    .lt-user-dashboard .lt-panel h2 { 
+        font-size:19px; 
+        font-weight:500; 
+        margin:0 0 3px; 
+    }
+    .lt-user-dashboard .lt-panel .lt-total { 
+        font-size:24px; 
+        font-weight:800; 
+        margin-top:25px; 
+    }
+    .lt-user-dashboard .lt-growth { 
+        display:inline-block; 
+        vertical-align:middle; 
+        background:#eaf9ed; 
+        color:#3d9b39; 
+        font-size:11px; 
+        padding:7px 10px; 
+        border-radius:18px; 
+        margin-left:10px; 
+    }
+    .lt-user-dashboard .lt-select { 
+        border:1px solid var(--lt-border); 
+        border-radius:7px; 
+        padding:9px 12px; 
+        background:#fff; 
+        font-size:12px; 
+        color:#666; 
+    }
+    .lt-user-dashboard .lt-bar-chart { 
+        height:210px;
+        display:flex; 
+        align-items:flex-end; 
+        justify-content:space-around; 
+        border-bottom:1px solid #ddd; 
+        padding:0 10px; 
+        margin-top:25px; 
+    }
+    .lt-user-dashboard .lt-bar-col { 
+        height:100%; 
+        flex:1; 
+        display:flex; 
+        flex-direction:column; 
+        align-items:center; 
+        justify-content:flex-end; 
+        position:relative; 
+    }
+    .lt-user-dashboard .lt-bar-count { 
+        font-size:11px; 
+        margin-bottom:5px; 
+    }
+    .lt-user-dashboard .lt-bar { 
+        width:min(52px,65%); 
+        border-radius:11px 11px 0 0; 
+        min-height:2px; 
+    }
+    .lt-user-dashboard .lt-bar-label { 
+        position:absolute;
+        top:calc(100% + 7px);
+        font-size:10px;
+        color:#444;
+        width:95%;
+        line-height:1.25;
+        text-align:center;
+        overflow-wrap:break-word; 
+    }
+    .lt-user-dashboard .lt-chart-bottom-space {
+        height:48px;
+    }
+    .lt-user-dashboard .lt-grade-layout { 
+        display:flex; 
+        align-items:center; 
+        justify-content:space-between; 
+        gap:18px; 
+        min-height:230px; 
+    }
+    .lt-user-dashboard .lt-donut { 
+        width:185px; 
+        height:185px; 
+        border-radius:50%; 
+        background:conic-gradient(#ff5379 0 41.176%,#ffbd4a 41.176% 82.353%,#bfbfbf 82.353% 100%); 
+        display:grid; 
+        place-items:center; 
+        flex-shrink:0; 
+    }
+    .lt-user-dashboard .lt-donut-hole { 
+        width:111px; 
+        height:111px; 
+        border-radius:50%; 
+        background:#fff; 
+        display:flex; 
+        flex-direction:column; 
+        align-items:center; 
+        justify-content:center; 
+        font-size:12px; 
+    }
+    .lt-user-dashboard .lt-donut-hole strong { 
+        font-size:24px; 
+    }
+    .lt-user-dashboard .lt-legend { 
+        flex:1; 
+        min-width:120px; 
+    }
+    .lt-user-dashboard .lt-legend-item { 
+        display:flex; 
+        align-items:center; 
+        gap:9px; 
+        border-bottom:1px solid #eee; 
+        padding:9px 0; 
+        font-size:11px; 
+    }
+    .lt-user-dashboard .lt-legend-item:last-child { 
+        border-bottom:0; 
+    }
+    .lt-user-dashboard .lt-dot { 
+        width:10px; 
+        height:10px; 
+        border-radius:50%; 
+        flex-shrink:0; 
+    }
+    .lt-user-dashboard .lt-legend-label { 
+        flex:1; 
+        font-weight:700; 
+    }
+    .lt-user-dashboard .lt-legend-range { 
+        display:block; 
+        color:var(--lt-muted); 
+        font-weight:400; 
+        margin-top:3px; 
+    }
+    .lt-user-dashboard .lt-legend-count { 
+        font-weight:700; 
+    }
+    .lt-user-dashboard .lt-link { 
+        color:#1689ff; 
+        text-decoration:none; 
+        font-size:12px; 
+    }
+    .lt-user-dashboard .lt-section-top { 
+        display:flex; 
+        align-items:end; 
+        justify-content:space-between; 
+        gap:15px; 
+        margin-bottom:24px; 
+    }
+    .lt-user-dashboard .lt-section-title { 
+        font-size:25px; 
+        font-weight:400; 
+        margin:0 0 16px; 
+    }
+    .lt-user-dashboard .lt-nav-buttons { 
+        display:flex; 
+        gap:10px; 
+    }
+    .lt-user-dashboard .lt-nav-buttons button { 
+        background:#fff; 
+        border:0; 
+        border-radius:10px; 
+        font-size:24px; 
+        width:44px; 
+        height:44px; 
+        cursor:pointer; 
+    }
+    .lt-user-dashboard .lt-training-list {
+        display: flex;
+        gap: 24px;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        padding-bottom: 5px;
+    }
+
+    .lt-user-dashboard .lt-training-list::-webkit-scrollbar {
+        display: none;
+    }
+    .lt-user-dashboard .lt-training-card {
+        flex: 0 0 calc((100% - 48px) / 3);
+        min-width: 0;
+        scroll-snap-align: start;
+    }
+    .lt-user-dashboard .lt-training-card { 
+        background:#fff; 
+        border-radius:15px; 
+        overflow:hidden; 
+        min-width:0; 
+    }
+    .lt-user-dashboard .lt-training-image { 
+        height:160px; 
+        background:#b1b1b1; 
+        position:relative; 
+        background-size:cover; 
+        background-position:center; 
+    }
+    .lt-user-dashboard .lt-training-tag { 
+        position:absolute; 
+        top:12px; 
+        left:12px; 
+        background:#f14e77; 
+        color:white; 
+        padding:5px 11px; 
+        border-radius:18px; 
+        font-size:11px; 
+    }
+    .lt-user-dashboard .lt-training-card-body { 
+        padding:18px 19px 15px; 
+    }
+    .lt-user-dashboard .lt-training-card h3 { 
+        font-size:13px; 
+        line-height:1.45; 
+        font-weight:700; 
+        min-height:40px; 
+        margin:0 0 14px; 
+    }
+    .lt-user-dashboard .lt-training-meta { 
+        display:flex; 
+        flex-wrap:wrap; 
+        gap:9px 13px; 
+        font-size:10px; 
+        color:#555; 
+        margin-bottom:16px; 
+    }
+    .lt-user-dashboard .lt-training-meta span::before { 
+        content:'◦'; 
+        color:#fa4776; 
+        margin-right:4px; 
+        font-weight:900; 
+    }
+    .lt-user-dashboard .lt-training-footer { 
+        border-top:1px solid #eee; 
+        padding-top:12px; 
+        display:flex; 
+        justify-content:space-between; 
+        align-items:center; 
+        gap:8px; 
+        font-size:10px; 
+        color:#777; 
+    }
+    .lt-user-dashboard .lt-register { 
+        color:#f14e77; 
+        background:none; 
+        border:0; 
+        padding:0; 
+        font-weight:700; 
+        cursor:pointer; 
+    }
+    .lt-user-dashboard .lt-bottom { 
+        display:flex; 
+        justify-content:flex-end; 
+        margin-top:22px; 
+    }
+    .lt-user-dashboard .lt-empty-note { 
+        font-size:12px; 
+        color:var(--lt-muted); 
+        margin-top:8px; 
+    }
+    @media(max-width:1100px) { 
+        .lt-user-dashboard .lt-stats { 
+            grid-template-columns:repeat(2,minmax(0,1fr)); 
+        } 
+        .lt-user-dashboard .lt-analytics { 
+            grid-template-columns:1fr; 
+        } 
+        .lt-user-dashboard .lt-training-card {
+            flex: 0 0 calc((100% - 24px) / 2);
+        }
+    }
+    @media(max-width:760px) { 
+        .lt-user-dashboard { 
+            padding:18px 13px 35px; 
+        } 
+        .lt-user-dashboard .lt-heading { 
+            align-items:flex-start; 
+            flex-direction:column; 
+        } 
+        .lt-user-dashboard .lt-training-card {
+            flex: 0 0 100%;
+        }
+        .lt-user-dashboard .lt-grade-layout { 
+            flex-wrap:wrap; 
+            justify-content:center; 
+        } 
+    }
+</style>
+
+<div class="lt-user-dashboard">
+    <header class="lt-heading">
+        <div>
+            <p class="lt-eyebrow">LEARNING DASHBOARD</p>
+            <h1>WELCOME, {{ display_name|upper }}!</h1>
+            <p class="lt-muted">Track your learning progress and keep growing with Learning Tracker.</p>
+        </div>
+        <a class="lt-primary-btn" href="{% url 'learning_my_training' %}"> &nbsp; My Training</a>
+    </header>
+    <section class="lt-stats" aria-label="Learning statistics">
+        <div class="lt-stat">
+            <div class="lt-stat-label">Training Complete</div>
+            <div class="lt-stat-value">{{ training_complete }}</div>
+        </div>
+        <div class="lt-stat">
+            <div class="lt-stat-label">Learning Hours</div>
+            <div class="lt-stat-value">{{ learning_hours }}</div>
+        </div>
+        <div class="lt-stat">
+            <div class="lt-stat-label">Average Score</div>
+            <div class="lt-stat-value">{{ average_score }}</div>
+        </div>
+        <div class="lt-stat">
+            <div class="lt-stat-label">Training Not Completed</div>
+            <div class="lt-stat-value">{{ not_completed }}</div>
+        </div>
+    </section>
+    <section class="lt-analytics">
+        <article class="lt-panel">
+            <div class="lt-panel-head">
+                <div>
+                    <h2>Training Score by Topic</h2>
+                    <p class="lt-muted">Final assessment score for each training</p>
+                </div>
+                <select class="lt-select" aria-label="Training period">
+                    <option>All Training</option>
+                </select>
+            </div>
+            <div class="lt-total">{{ training_scores|length }} topics
+                <span class="lt-growth">Passing score: 80</span>
+            </div>
+            <div class="lt-bar-chart" role="img" aria-label="Final scores by training topic, from 0 to 100">
+                {% for topic in training_scores %}
+                    <div class="lt-bar-col" title="{{ topic.name }}: {{ topic.score }} / 100">
+                        <span class="lt-bar-count">{{ topic.score }}</span>
+                        <div class="lt-bar" data-height="{{ topic.score }}" data-color="{{ topic.color }}"></div>
+                        <span class="lt-bar-label">{{ topic.name }}</span>
+                    </div>
+                {% empty %}
+                    <p class="lt-empty-note">No training scores available yet.</p>
+                {% endfor %}
+            </div>
+            <div class="lt-chart-bottom-space"></div>
+        </article>
+        <article class="lt-panel">
+            <h2>Grade Summary</h2>
+            <p class="lt-muted">Learning evaluation results</p>
+            <div class="lt-grade-layout">
+                <div class="lt-donut" role="img" aria-label="Completed 7, Remedial 7, Not Completed 3">
+                    <div class="lt-donut-hole">
+                        <strong>{{ average_score }}</strong>
+                    </div>
+                </div>
+                <div class="lt-legend">
+                    {% for grade in grade_summary %}
+                        <div class="lt-legend-item">
+                            <span class="lt-dot" data-color="{{ grade.color }}"></span>
+                            <div class="lt-legend-label">{{ grade.label }}
+                                <span class="lt-legend-range">{{ grade.range }}</span>
+                            </div>
+                            <span class="lt-legend-count">{{ grade.count }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <a class="lt-link" href="#training-recommendations">Immediately complete your training topic</a>
+        </article>
+    </section>
+    <section id="training-recommendations">
+        <div class="lt-section-top">
+            <div>
+                <p class="lt-eyebrow">RECOMMENDATIONS FOR YOU</p>
+                <h2 class="lt-section-title">Upcoming Public Training</h2>
+                <p class="lt-muted">Enhance your skills with hand-picked experts.</p>
+            </div>
+            <div class="lt-nav-buttons">
+                <button type="button" aria-label="Previous trainings" onclick="scrollTrainings(-1)">‹</button>
+                <button type="button" aria-label="Next trainings" onclick="scrollTrainings(1)">›</button>
+            </div>
+        </div>
+        <div class="lt-training-list" id="lt-training-list">
+            {% for training in public_trainings %}
+            <article class="lt-training-card">
+                <div class="lt-training-image"{% if training.image_url %} style="background-image:url('{{ training.image_url }}')"{% endif %}>
+                    <span class="lt-training-tag">{{ training.category }}</span>
+                </div>
+                <div class="lt-training-card-body">
+                    <h3>{{ training.title }}</h3>
+                    <div class="lt-training-meta">
+                        <span>{{ training.date }}</span>
+                        <span>{{ training.time }}</span>
+                        <span>{{ training.trainer }}</span>
+                    </div>
+                    <div class="lt-training-footer">
+                        <span> {{ training.seats }} Seats available</span>
+                        <button class="lt-register" type="button" onclick="alert('Training registration will be connected later.')">Register →</button>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        <div class="lt-bottom">
+            <a class="lt-link" href="#training-recommendations">Show more</a>
+        </div>
+    </section>
+</div>
+<script>
+    document.querySelectorAll('.lt-bar[data-height]').forEach(function(bar) {
+        const height = Number(bar.dataset.height);
+        bar.style.height = `${Math.max(0, Math.min(100, height || 0))}%`;
+        bar.style.backgroundColor = bar.dataset.color;
+    });
+    document.querySelectorAll('.lt-dot[data-color]').forEach(function(dot) {
+        dot.style.backgroundColor = dot.dataset.color;
+    });
+    function scrollTrainings(direction) {
+        const list = document.getElementById('lt-training-list');
+
+        if (!list) return;
+
+        const card = list.querySelector('.lt-training-card');
+
+        if (!card) return;
+
+        const gap = parseFloat(getComputedStyle(list).gap) || 0;
+        const scrollAmount = card.getBoundingClientRect().width + gap;
+
+        list.scrollBy({
+            left: direction * scrollAmount,
+            behavior: 'smooth'
+        });
+    }
+</script>
+{% endblock %}

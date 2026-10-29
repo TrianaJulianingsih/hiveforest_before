@@ -1,0 +1,441 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .mt-page{ 
+        --mt-navy:#08465e; 
+        --mt-blue:#168fc0;
+         --mt-bg:#f3f7fa; 
+         --mt-pale:#e8f1f9; 
+         --mt-muted:#74839d; 
+         padding:34px 34px 65px; 
+         background:var(--mt-bg); 
+         min-height:100vh; 
+         color:#17242d; 
+         font-family:inherit; 
+    }
+    .mt-page *{ 
+        box-sizing:border-box; 
+    }
+    .mt-profile{ 
+        display:flex; 
+        align-items:center; 
+        gap:28px; 
+        padding:18px 45px; 
+        background:white; 
+        border-radius:18px; 
+        margin-bottom:15px; 
+    }
+    .mt-avatar{ 
+        flex:0 0 66px; 
+        width:66px; 
+        height:66px; 
+        border-radius:50%; 
+        background:var(--mt-navy); 
+        color:#fff; 
+        display:grid; 
+        place-items:center; 
+        font-size:34px; 
+        font-weight:700; 
+    }
+    .mt-profile h1{ 
+        margin:0 0 10px; 
+        color:var(--mt-navy); 
+        font-size:27px; 
+        font-weight:800; 
+    }
+    .mt-details{ 
+        display:flex; 
+        gap:28px; 
+        flex-wrap:wrap; 
+        font-size:13px; 
+    }
+    .mt-details span{ 
+        color:var(--mt-muted); 
+        margin-right:5px; 
+    }
+    .mt-provisions{ 
+        background:var(--mt-pale); 
+        border-left:5px solid var(--mt-navy); 
+        padding:17px 30px; 
+        font-size:13px; 
+        line-height:1.8; 
+        margin-bottom:15px; 
+    }
+    .mt-provisions strong{ 
+        color:var(--mt-navy); 
+    }
+    .mt-otsukapedia{ 
+        display:flex; 
+        align-items:center; 
+        gap:18px; 
+        padding:16px 30px; 
+        border:1px dashed #277ca3; 
+        border-radius:17px; 
+        background:var(--mt-pale); 
+        margin-bottom:21px; 
+    }
+    .mt-otsukapedia-icon{ 
+        width:50px; 
+        height:50px; 
+        border-radius:13px; 
+        background:white; 
+        display:grid; 
+        place-items:center; 
+        font-size:25px; 
+        flex-shrink:0; 
+    }
+    .mt-otsukapedia strong{ 
+        display:block; 
+        color:var(--mt-navy); 
+        font-size:13px; 
+        margin-bottom:5px; 
+    }
+    .mt-otsukapedia a{ 
+        color:var(--mt-muted); 
+        font-size:13px; 
+        text-decoration:none; 
+    }
+    .mt-otsukapedia a:hover{ 
+        text-decoration:underline; 
+    }
+    .mt-stats{ 
+        display:grid; 
+        grid-template-columns:repeat(4,minmax(0,1fr)); 
+        gap:22px; 
+        margin-bottom:26px; 
+    }
+    .mt-stat{ 
+        position:relative; 
+        overflow:hidden; 
+        min-height:116px; 
+        background:linear-gradient(110deg,#08465e,#1895c6); 
+        color:#fff; 
+        border-radius:16px; 
+        padding:19px 30px; 
+    }
+    .mt-stat h2{ 
+        margin:0 0 8px; 
+        font-size:16px; 
+        font-weight:800; 
+        color:#fff; 
+    }
+    .mt-stat .mt-number{ 
+        font-size:57px; 
+        font-weight:800; 
+        line-height:1; 
+    }
+    .mt-stat-icon{ 
+        position:absolute; 
+        right:18px; 
+        top:35px; 
+        font-size:39px; 
+        opacity:.2; 
+    }
+    .mt-section{ 
+        background:white; 
+        border-radius:18px; 
+        overflow:hidden; 
+        margin-bottom:27px; 
+    }
+    .mt-section-heading{ 
+        display:flex; 
+        justify-content:space-between; 
+        align-items:center; 
+        padding:16px 30px; 
+        min-height:58px; 
+    }
+    .mt-section-heading h2{ 
+        margin:0; 
+        color:var(--mt-navy); 
+        font-size:16px; 
+        font-weight:800; 
+    }
+    .mt-section-heading h2 span{ 
+        margin-right:13px; 
+    }
+    .mt-count{ 
+        padding:7px 13px; 
+        border-radius:14px; 
+        background:#f2f0f0; 
+        color:#7b88a5; 
+        font-size:13px; 
+        font-weight:700; 
+    }
+    .mt-table-scroll{ 
+        width:100%; 
+        overflow-x:auto; 
+    }
+    .mt-page .mt-table{
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+        width: 100%;
+        min-width: 940px;
+        font-size: 12px;
+        border: none !important;
+    }
+    .mt-page .mt-section-heading{
+        border: none !important;
+        box-shadow: none !important;
+    }
+    .mt-page .mt-table thead,
+    .mt-page .mt-table thead tr,
+    .mt-page .mt-table thead th,
+    .mt-page .mt-table tbody,
+    .mt-page .mt-table tbody tr,
+    .mt-page .mt-table tbody td{
+        border: none !important;
+        box-shadow: none !important;
+    }
+    .mt-page .mt-table thead{
+        background-color: var(--mt-pale);
+    }
+    .mt-table thead{ 
+        background:var(--mt-pale); 
+        color:var(--mt-navy); 
+    }
+    .mt-table th{ 
+        text-align:left; 
+        padding:15px 18px; 
+        white-space:nowrap; 
+        font-weight:800; 
+    }
+    .mt-table td{
+        padding: 16px 18px;
+        border: none;
+        vertical-align: middle;
+    }
+    .mt-table td:first-child{ 
+        font-weight:700; 
+    }
+    .mt-schedule{ 
+        line-height:1.8; 
+    }
+    .mt-pill{ 
+        display:inline-flex; 
+        align-items:center; 
+        justify-content:center; 
+        min-width:81px; 
+        border-radius:20px; 
+        padding:6px 12px; 
+        font-size:10px; 
+        font-weight:800; 
+        white-space:nowrap; 
+    }
+    .mt-pill--green{ 
+        background:#c7efd8; 
+        color:#087c4b; 
+    }
+    .mt-pill--gray{ 
+        background:#e1e1e1; 
+        color:#242424; 
+    }
+    .mt-pill--blue{ 
+        background:#eaf1ff; 
+        color:#234d99; 
+    }
+    .mt-link-pill{ 
+        text-decoration:none; 
+    }
+    .mt-link-pill:hover{ 
+        filter:brightness(.95); 
+        text-decoration:none; 
+    }
+    .mt-muted-link{ 
+        color:var(--mt-muted); 
+    }
+    @media(max-width:1050px){ 
+        .mt-stats{ 
+            grid-template-columns:repeat(2,minmax(0,1fr)); 
+        } 
+        .mt-profile{ 
+            padding:18px 24px; 
+        } 
+    }
+    @media(max-width:650px){ 
+        .mt-page{ 
+            padding:18px 13px 40px; 
+        }
+        .mt-profile{ 
+            align-items:flex-start; 
+            gap:15px; padding:20px; 
+        }
+        .mt-profile h1{ 
+            font-size:20px; 
+        } 
+        .mt-details{ 
+            gap:8px 18px; 
+        } 
+        .mt-stats{ 
+            gap:10px; 
+        } 
+        .mt-stat{ 
+            padding:16px; 
+            min-height:110px; 
+        } 
+        .mt-stat h2{ 
+            font-size:12px; 
+        } 
+        .mt-stat .mt-number{ 
+            font-size:42px; 
+        } 
+        .mt-section-heading{ 
+            padding:15px 18px; 
+        } 
+        .mt-provisions{ 
+            padding:15px; 
+        } 
+        .mt-otsukapedia{ 
+            padding:15px; 
+        } 
+    }
+</style>
+
+<div class="mt-page">
+    <section class="mt-profile">
+        <div class="mt-avatar" aria-hidden="true">{{ employee_initial }}</div>
+        <div>
+            <h1>{{ employee_name|upper }}</h1>
+            <div class="mt-details">
+                <div><span>NIP:</span> <strong>{{ employee_nip }}</strong></div>
+                <div><span>Position:</span> <strong>{{ employee_position }}</strong></div>
+                <div><span>Location:</span> <strong>{{ employee_location }}</strong></div>
+            </div>
+        </div>
+    </section>
+    <div class="mt-provisions">
+        ℹ️ <strong>SPICA Provisions:</strong> The SPICA training consists of
+        <strong>1 program</strong>, with a 
+        <strong>minimum post-test score of 80</strong> required for completion.
+        <strong>Passed</strong> = score ≥ 80 · 
+        <strong>Remedial/Not yet Trained</strong> = score &lt; 80 or has not attended training.
+    </div>
+    <section class="mt-otsukapedia">
+        <div class="mt-otsukapedia-icon" aria-hidden="true">🎓</div>
+        <div>
+            <strong>Have you not yet attended the SPICA training?</strong>
+            {% if otsukapedia_url %}
+                <a href="{{ otsukapedia_url }}" target="_blank" rel="noopener noreferrer">Click the following link to access Otsukapedia ↗</a>
+                {% else %}
+                <span class="mt-muted-link">Otsukapedia link will be available soon.</span>
+            {% endif %}
+        </div>
+    </section>
+    <section class="mt-stats" aria-label="My training statistics">
+    <div class="mt-stat">
+        <h2>TOTAL TRAINING</h2>
+        <div class="mt-number">{{ total_training }}</div>
+        <span class="mt-stat-icon">🎓</span>
+    </div>
+
+    <div class="mt-stat">
+        <h2>TOTAL E-COURSE</h2>
+        <div class="mt-number">{{ total_ecourse }}</div>
+        <span class="mt-stat-icon">☑</span>
+    </div>
+
+    <div class="mt-stat">
+        <h2>REMEDIAL</h2>
+        <div class="mt-number">{{ remedial_count }}</div>
+        <span class="mt-stat-icon">☑</span>
+    </div>
+
+    <div class="mt-stat">
+        <h2>COMPLETED</h2>
+        <div class="mt-number">{{ completed_count }}</div>
+        <span class="mt-stat-icon">☑</span>
+    </div>
+</section>
+
+    <section class="mt-section">
+        <header class="mt-section-heading">
+            <h2><span>🎓</span>List Topic &amp; Training Schedule</h2>
+            <span class="mt-count">{{ scheduled_trainings|length }}</span>
+        </header>
+        <div class="mt-table-scroll">
+            <table class="mt-table">
+                <thead>
+                    <tr>
+                        <th>Topic Training</th>
+                        <th>Schedule</th>
+                        <th>Status</th>
+                        <th>Link Program</th>
+                        <th>Training Status</th>
+                        <th>Pre-test</th>
+                        <th>Post-test</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for training in scheduled_trainings %}
+                    <tr>
+                        <td>{{ training.topic }}</td>
+                        <td class="mt-schedule">{{ training.schedule }}<br>by {{ training.trainer }}</td>
+                        <td><span class="mt-pill mt-pill--green">{{ training.invitation_status }}</span></td>
+                        <td>
+                            {% if training.program_url %}
+                                <a class="mt-pill mt-pill--green mt-link-pill" href="{{ training.program_url }}" target="_blank" rel="noopener noreferrer">🔗 Click</a>
+                            {% else %}
+                                <span class="mt-pill mt-pill--gray">Coming soon</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="mt-pill mt-pill--{{ training.status_color }}">{{ training.training_status }}</span>
+                        </td>
+                        <td>{{ training.pre_test }}</td>
+                        <td>{{ training.post_test }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7">No training schedules available.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="mt-section">
+        <header class="mt-section-heading">
+            <h2><span>🎓</span>E-course/Otsukapedia</h2>
+            <span class="mt-count">{{ ecourses|length }}</span>
+        </header>
+        <div class="mt-table-scroll">
+            <table class="mt-table">
+                <thead>
+                    <tr>
+                        <th>Topic E-Course</th>
+                        <th>Link E-Course</th>
+                        <th>Training Status</th>
+                        <th>Pre-test</th>
+                        <th>Post-test</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course in ecourses %}
+                    <tr>
+                        <td>{{ course.topic }}</td>
+                        <td>
+                            {% if course.url %}
+                                <a class="mt-pill mt-pill--green mt-link-pill" href="{{ course.url }}" target="_blank" rel="noopener noreferrer">🔗 Click</a>
+                            {% else %}
+                                <span class="mt-pill mt-pill--gray">Coming soon</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="mt-pill mt-pill--{{ course.status_color }}">{{ course.training_status }}</span>
+                        </td>
+                        <td>{{ course.pre_test }}</td>
+                        <td>{{ course.post_test }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5">No e-courses available.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endblock %}
