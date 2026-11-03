@@ -17,20 +17,25 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Verify SonarQube configuration
+      
+      - name: Prepare frontend analysis
         run: |
-          pwd
-          ls -l sonar-project.properties
-          cat sonar-project.properties
+          mkdir -p sonar-frontend
+          cp apps/humancapital/templates/learning_tracker/*.html sonar-frontend/
+
+          cat > sonar-frontend/sonar-project.properties <<'EOF'
+          sonar.projectKey=trianajulianingsih_hiveforest-frontend-learning-tracker
+          sonar.organization=trianajulianingsih
+          sonar.projectName=HiveForest Frontend Learning Tracker
+          sonar.sourceEncoding=UTF-8
+          EOF
+
+          echo "Files for analysis:"
+          find sonar-frontend -type f
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
         with:
-          projectBaseDir: .
-          args: >
-            -Dsonar.projectKey=trianajulianingsih_hiveforest-frontend-learning-tracker
-            -Dsonar.organization=trianajulianingsih
-            -Dsonar.sources=apps/humancapital/templates/learning_tracker
-            -Dsonar.inclusions=**/*.html
+          projectBaseDir: sonar-frontend
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
