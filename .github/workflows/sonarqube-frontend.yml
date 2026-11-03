@@ -17,9 +17,20 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Verify SonarQube configuration
+        run: |
+          pwd
+          ls -l sonar-project.properties
+          cat sonar-project.properties
+
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
         with:
           projectBaseDir: .
+          args: >
+            -Dsonar.projectKey=trianajulianingsih_hiveforest-frontend-learning-tracker
+            -Dsonar.organization=trianajulianingsih
+            -Dsonar.sources=apps/humancapital/templates/learning_tracker
+            -Dsonar.inclusions=**/*.html
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
